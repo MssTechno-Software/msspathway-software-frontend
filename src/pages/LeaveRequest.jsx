@@ -1,0 +1,506 @@
+import { useEffect, useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
+import axios from "axios";
+import LeaveRequestStatus from "../container/LeaveRequestStatus";
+
+const API = axios.create({
+  baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+function LeaveRequests() {
+    const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const [startFilter, setStartFilter] = useState("");
+    const [endFilter, setEndFilter] = useState("");
+    const [tempStartFilter, setTempStartFilter] = useState("");
+    const [tempEndFilter, setTempEndFilter] = useState("");
+    const [popup, setPopup] = useState({
+        show: false,
+        type: "success",
+        message: "",
+        leaveId: null,
+    });
+
+    const showPopup = (message, type = "success", leaveId = null) => {
+        setPopup({
+            show: true,
+            type,
+            message,
+            leaveId,
+        });
+    };
+
+    const closePopup = () => {
+    setPopup({
+        show: false,
+        type: "success",
+        message: "",
+        leaveId: null,
+    });
+    };
+ 
+  // FETCH LEAVE REQUESTS
+  const fetchLeaveRequests = async () => {
+    try {
+      setLoading(true);
+
+      const response = await API.get("/timesheet/admin/leave-requests");
+      console.log("Leave Requests:", response.data);
+
+      setRequests(
+        Array.isArray(response.data)
+          ? response.data
+          : response.data?.data || []
+      );
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // UPDATE LEAVE STATUS
+  const handleApprove = async (request) => {
+    try {
+        const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
+            {
+            status: "approved",
+            }
+        );
+
+        console.log("Approve Response:", response.data);
+
+        showPopup("Leave approved successfully", "success");
+
+        setOpenModal(false);
+        fetchLeaveRequests();
+    }catch (error) {
+        console.error(error);
+        showPopup("Failed to approve leave", "error");
+    }
+};
+
+    const handleReject = async (request) => {
+        try {
+            const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
+            {
+                status: "rejected",
+            }
+            );
+
+            console.log("Reject Response:", response.data);
+
+            showPopup("Leave rejected successfully", "success");
+
+            setOpenModal(false);
+            fetchLeaveRequests();
+        } catch (error) {
+            console.error(error);
+            showPopup("Failed to reject leave", "error");
+        }
+    };
+
+
+  // DELETE LEAVE REQUEST
+  const deleteLeaveRequest = async (leaveId) => {
+    console.log("Deleting Leave Request ID:", leaveId);
+    try {
+      const response = await API.delete(`/timesheet/leave/${leaveId}`);
+      console.log("Delete Response:", response.data);
+
+      showPopup("Leave request deleted successfully", "success");
+
+      fetchLeaveRequests();
+    } catch (error) {
+      console.error("Error deleting leave request:", error);
+      showPopup("Failed to delete leave request", "error");
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaveRequests();
+
+    const handleRefresh = () => fetchLeaveRequests();
+
+    window.addEventListener("leaveRequestUpdated", handleRefresh);
+
+    return () => {
+      window.removeEventListener(
+        "leaveRequestUpdated",
+        handleRefresh
+      );
+    };
+  }, []);
+
+  // HELPERS
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const calculateDays = (start, end) => {
+    if (!start || !end) return "1 Day";
+
+    const diff =
+      new Date(end).getTime() - new Date(start).getTime();
+
+    return `${Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1} Days`;
+  };
+
+  const getStatusColor = (status) => {
+    const value = status?.toLowerCase();
+
+    if (value === "approved") {
+      return "bg-green-100 text-green-700 border border-green-200";
+    }
+
+    if (value === "rejected") {
+      return "bg-red-100 text-red-700 border border-red-200";
+    }
+
+    return "bg-yellow-100 text-yellow-700 border border-yellow-200";
+  };
+
+  // FILTER REQUESTS BY DATE
+  const filteredRequests = requests.filter((item) => {
+    const requestDate = new Date(item.start_date);
+
+    if (startFilter && requestDate < new Date(startFilter)) return false;
+    if (endFilter && requestDate > new Date(endFilter)) return false;
+
+    return true;
+  });
+
+  const handleSearchFilter = () => {
+    setStartFilter(tempStartFilter);
+    setEndFilter(tempEndFilter);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilter = () => {
+    setTempStartFilter("");
+    setTempEndFilter("");
+    setStartFilter("");
+    setEndFilter("");
+    setCurrentPage(1);
+  };
+
+  // PAGINATION LOGIC
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+
+  const paginatedRequests = filteredRequests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const startIndex =
+    filteredRequests.length === 0
+      ? 0
+      : (currentPage - 1) * itemsPerPage + 1;
+
+  const endIndex = Math.min(
+    currentPage * itemsPerPage,
+    filteredRequests.length
+  );
+
+  return (
+    <div className="min-h-screen bg-white px-4 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <h1 className="text-xl md:text-3xl font-bold text-black">
+            Leave Requests
+          </h1>
+
+          <div className="flex flex-col lg:flex-row gap-3">
+            {/* From Date */}
+            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+              <span className="text-xs font-semibold text-gray-500 uppercase">
+                From
+              </span>
+              <input
+                type="date"
+                value={tempStartFilter}
+                onChange={(e) => setTempStartFilter(e.target.value)}
+                className="outline-none text-sm"
+              />
+            </div>
+
+            {/* To Date */}
+            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+              <span className="text-xs font-semibold text-gray-500 uppercase">
+                To
+              </span>
+              <input
+                type="date"
+                value={tempEndFilter}
+                onChange={(e) => setTempEndFilter(e.target.value)}
+                className="outline-none text-sm"
+              />
+            </div>
+
+            {/* Search Button */}
+            <button
+              onClick={handleSearchFilter}
+              className="px-5 py-2 rounded-xl bg-[#0F5B33] text-white font-medium hover:bg-[#0C4A29] transition"
+            >
+              Search
+            </button>
+
+            {/* Clear Button */}
+            <button
+              onClick={handleClearFilter}
+              className="px-5 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+
+        {/*Table*/}
+        <div className="overflow-x-auto">
+          <div className="min-w-300 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
+            {/* Header */}
+            <div className="grid grid-cols-8 px-8 py-6 bg-gray-100 text-md tracking-widest text-black font-semibold">
+              <div className="col-span-2">Employee</div>
+              <div>Leave Type</div>
+              <div>Start Date</div>
+              <div>End Date</div>
+              <div>Duration</div>
+              <div>Status</div>
+              <div className="text-center">Actions</div>
+            </div>
+
+            {/* Body */}
+            {loading ? (
+              <div className="py-10 text-center text-gray-500">
+                Loading leave requests...
+              </div>
+            ) : filteredRequests.length > 0 ? (
+              paginatedRequests.map((item) => (
+                <div
+                  key={item.leave_id}
+                  className="grid grid-cols-8 items-center px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
+                >
+                  {/* Employee */}
+                  <div className="col-span-2 flex items-center gap-4">
+                    {/* <div className=" flex items-center justify-center text-sm font-bold t">
+                      {item.employee_id}
+                    </div> */}
+
+                    <div>
+                      <h3 className="font-semibold text-lg text-black">
+                        {item.employee_name || "Employee"}
+                      </h3>
+
+                      <p className="text-xs uppercase text-gray-400 tracking-wider mt-1">
+                        {item.role || "Employee"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Leave Type */}
+                  <div>
+                    {item.leave_type === "one_day"
+                      ? "One Day"
+                      : "Multiple Days "}
+                  </div>
+
+                  {/* Dates */}
+                  <div>{formatDate(item.start_date)}</div>
+                  <div>{formatDate(item.end_date)}</div>
+
+                  {/* Duration */}
+                  <div>
+                    {item.leave_type === "one_day"
+                      ? "1 Day"
+                      : calculateDays(
+                          item.start_date,
+                          item.end_date
+                        )}
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <span
+                      className={`px-4 py-2 rounded-full text-xs font-semibold uppercase ${getStatusColor(
+                        item.status
+                      )}`}
+                    >
+                      {item.status || "Pending"}
+                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex justify-center gap-4">
+                    {/* Approve */}
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(item);
+                        setOpenModal(true);
+                      }}
+                      className="hover:scale-110 transition"
+                    >
+                      <Pencil
+                        size={18}
+                        className="text-gray-400 hover:text-green-500"
+                      />
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() =>
+                        showPopup(
+                            "Are you sure you want to delete this leave request?",
+                            "delete",
+                            item.leave_id
+                        )
+                      }
+                      className="hover:scale-110 transition"
+                    >
+                      <Trash2
+                        size={18}
+                        className="text-gray-400 hover:text-red-500"
+                      />
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-20 text-center text-gray-500">
+                No leave requests found.
+              </div>
+            )}
+
+            {filteredRequests.length > 0 && (
+              <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
+                
+                {/* Showing entries */}
+                <p className="text-sm text-gray-500">
+                  Showing {startIndex} to {endIndex} of {filteredRequests.length} entries
+                </p>
+
+                {/* Pagination */}
+                <div className="flex items-center gap-2 mt-3 md:mt-0">
+                  {/* Previous */}
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  {/* Page Number */}
+                  <button className="w-10 h-10 rounded-lg bg-[#0F5B33] text-white font-semibold shadow-sm">
+                    {currentPage}
+                  </button>
+
+                  {/* Next */}
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) =>
+                        Math.min(prev + 1, totalPages)
+                      )
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <LeaveRequestStatus
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        selectedRequest={selectedRequest}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+
+      {popup.show && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+            <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
+                <div className="p-8 text-center">
+                    <h2
+                    className={`text-2xl font-bold mb-4 ${
+                        popup.type === "error"
+                        ? "text-red-600"
+                        : popup.type === "delete"
+                        ? "text-[#A84242]"
+                        : "text-[#0F5B33]"
+                    }`}
+                    >
+                    {popup.type === "error"
+                        ? "Error"
+                        : popup.type === "delete"
+                        ? "Confirm Delete"
+                        : "Success"}
+                    </h2>
+
+                    {/* Popup Message */}
+                    <p className="text-gray-600 text-lg">{popup.message}</p>
+
+                    <div className="mt-8 flex justify-center gap-4">
+                    {popup.type === "delete" ? (
+                        <>
+                        <button
+                            onClick={closePopup}
+                            className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            onClick={() => {
+                            deleteLeaveRequest(popup.leaveId);
+                            closePopup();
+                            }}
+                            className="px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700"
+                        >
+                            Delete
+                        </button>
+                        </>
+                        ) : (
+                            <button
+                            onClick={closePopup}
+                            className="px-8 py-3 rounded-xl bg-[#0F5B33] text-white hover:bg-[#0C4A29]"
+                            >
+                            OK
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+        )}
+    </div>
+  );
+}
+
+export default LeaveRequests;

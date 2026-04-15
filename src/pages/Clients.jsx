@@ -1,0 +1,461 @@
+import { useState, useEffect } from "react";
+import { FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import AddClient from "./AddClient";
+
+const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
+
+function Clients() {
+    const navigate = useNavigate();
+
+    const [clients, setClients] = useState([]);
+    const [search, setSearch] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [editingClient, setEditingClient] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 10;
+
+    const [popup, setPopup] = useState({
+        show: false,
+        message: "",
+        type: "", // success | error | confirm
+        onConfirm: null
+    });
+
+    // helper to get headers with token
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem("token");
+
+        return {
+            headers: {
+                Authorization: token ? `Bearer ${token}` : "",
+            },
+        };
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
+    // FETCH CLIENTS
+    const fetchClients = async () => {
+        try {
+            const res = await axios.get(`${BASE_URL}/clients/clients`, getAuthHeaders());
+            console.log("Fetched clients:", res.data);
+            console.log("Client state check:", res.data);
+            setClients(res.data);
+            return res; // return response for chaining
+        } catch (err) {
+            console.error("ERROR:", err.response?.data || err.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchClients();
+    }, []);
+
+
+    // ADD OR UPDATE CLIENT
+    const addClient = async (client) => {
+        try {
+
+            if (!client.name.trim()) {
+                setPopup({
+                    show: true,
+                    message: "Client name is required",
+                    type: "error"
+                });
+                return;
+            }
+
+            if(!client.mobile.trim()) {
+                setPopup({
+                    show: true,
+                    message: "Mobile number is required",
+                    type: "error"
+                });
+                return;
+            }
+
+            if (!client.tech || !client.tech.length) {
+                setPopup({
+                    show: true,
+                    message: "Please select at least one technology",
+                    type: "error"
+                });
+                return;
+            }
+
+            if(!client.status) {
+                setPopup({
+                    show: true,
+                    message: "Please select a status",
+                    type: "error"
+                });
+                return;
+            }
+
+            if(!client.employeeId) {
+                setPopup({
+                    show: true,
+                    message: "Please select an employee",
+                    type: "error"
+                });
+                return;
+            }
+
+            if(!client.timezone) {
+                setPopup({
+                    show: true,
+                    message: "Please select a timezone",
+                    type: "error"
+                });
+                return;
+            }
+
+
+            const statusMap = {
+                Active: "A",
+                Completed: "C",
+                Pause: "P",
+                Terminate: "T"
+            };
+
+            const payload = {
+                client_name: client.name,
+                mobile: client.mobile,
+                technology: client.tech?.join(","),
+                status: statusMap[client.status],
+                timezone: client.timezone,
+                assigned_user_id: parseInt(client.employeeId)
+            };
+
+            console.log("Payload being sent:", payload);
+
+            if (editingClient) {
+                // UPDATE
+                console.log("Updating client with ID:", editingClient.client_id);
+                const response = await axios.put(`${BASE_URL}/clients/clients/${editingClient.client_id || editingClient.id}`, payload, getAuthHeaders());
+                console.log("Update response:", response.data);
+
+            } else {
+                // CREATE
+                console.log("Creating new client");
+                const response = await axios.post(`${BASE_URL}/clients/create-client`, payload, getAuthHeaders());
+                console.log("Create response:", response.data);
+            }
+
+            const res = await fetchClients(); // refresh UI
+            console.log("Fetched clients after save:", res.data);
+
+            setShowModal(false);
+            setEditingClient(null);
+
+            setPopup({
+                show: true,
+                message: editingClient ? "Client updated successfully" : "Client added successfully",
+                type: "success"
+            });
+
+        } catch (error) {
+            console.error("FULL ERROR:", error.response?.data || error.message);
+            setPopup({
+                show: true,
+                message: "An error occurred while saving the client",
+                type: "error"
+            });
+        }
+    };
+
+    // DELETE CLIENT
+    const deleteClient = async (client_id) => {
+        if(!client_id) {
+            console.error("Invalid client ID for deletion", client_id);
+            setPopup({
+                show: true,
+                message: "Invalid client ID",
+                type: "error"
+            });
+
+            return;
+        }
+
+        setPopup({
+            show: true,
+            message: "Are you sure you want to delete this client?",
+            type: "confirm",
+            onConfirm: async () => {
+                try {
+                    const response = await axios.delete(`${BASE_URL}/clients/clients/${client_id}`, getAuthHeaders());
+                    console.log("Delete response:", response.data);
+                    await fetchClients();
+
+                    setPopup({
+                        show: true,
+                        message: "Client deleted successfully",
+                        type: "success"
+                    });
+                } catch (error) {
+                    console.error("Error deleting client:", error.response?.data || error.message);
+                    setPopup({
+                        show: true,
+                        message: "Error deleting client",
+                        type: "error"
+                    });
+                }
+            }
+        });
+    };
+
+    // EDIT CLIENT
+    const editClient = (client) => {
+        setEditingClient(client);
+        setShowModal(true);
+    };
+
+    const filteredClients = clients.filter((client) =>
+        client.client_name?.toLowerCase().includes(search.toLowerCase()) ||
+        client.mobile?.includes(search) ||
+        client.technology?.toLowerCase().includes(search.toLowerCase())
+    );
+    
+
+    const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentClients = filteredClients.slice(indexOfFirstRow, indexOfLastRow);
+
+    return (
+        <div className="p-3 sm:p-4 md:p-6">
+
+            {/* SEARCH */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
+                <div className="w-1/2 sm:w-1/2">
+                    <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full shadow-sm">
+                        <FiSearch className="text-gray-400 mr-2" />
+                        <input
+                            type="text"
+                            placeholder="Search clients, deals, or activities..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="bg-transparent outline-none w-full text-sm"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* HEADER */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+                <div>
+                    <h1 className="text-3xl font-bold">All Clients</h1>
+                    <p className="text-gray-500">
+                        Manage and monitor your enterprise client base across all regions.
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700"
+                >
+                    Add New Client
+                </button>
+
+            </div>
+
+            {/* TABLE */}
+            <div className="bg-white rounded-xl shadow overflow-hidden">
+                <div className="overflow-x-auto">
+
+                    <table className="min-w-175 w-full text-sm">
+
+                        <thead className="bg-gray-100 text-gray-600">
+                            <tr>
+                                <th className="p-4 text-left">NAME</th>
+                                <th className="p-4 text-left">MOBILE NUMBER</th>
+                                <th className="p-4 text-left">TECHNOLOGY STACK</th>
+                                <th className="p-4 text-left">STATUS</th>
+                                <th className="p-4 text-left">ACTIONS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {filteredClients.length === 0 ? (
+
+                                <tr>
+                                    <td colSpan="5" className="text-center py-10 text-gray-400">
+                                        No clients available. Click "Add New Client".
+                                    </td>
+                                </tr>
+
+                            ) : (
+
+                                currentClients.map((client) => (
+
+                                    <tr key={client.client_id || client.id || `${client.client_name}-${client.mobile}`} className="text-left hover:bg-gray-50">
+                                        {/* NAME */}
+                                        <td className="p-4 font-semibold cursor-pointer hover:underline"
+                                            onClick={() => navigate(`/applications/${client.client_id || client.id}`)}>
+                                            {client.client_name}
+                                        </td>
+
+                                        {/* MOBILE */}
+                                        <td className="p-4">{client.mobile}</td>
+
+                                        {/* TECH STACK */}
+                                        <td className="p-4 space-x-2">
+                                            {client.technology?.split(",").map((t, i) => (
+                                                <span
+                                                    key={`${client.client_id || client.id}-${t}-${i}`}
+                                                    className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs"
+                                                >
+                                                    {t}
+                                                </span>
+                                            ))}
+                                        </td>
+
+                                        {/* STATUS */}
+                                        <td className="p-4">
+
+                                            <span className={`px-3 py-1 rounded-full text-xs
+                                                ${client.status === "A" && "bg-green-100 text-green-700"}
+                                                ${client.status === "C" && "bg-gray-200 text-gray-700"}
+                                                ${client.status === "P" && "bg-yellow-100 text-yellow-700"}
+                                                ${client.status === "T" && "bg-red-100 text-red-600"}`}
+                                            >
+                                                {client.status === "A" ? "Active" :
+                                                    client.status === "C" ? "Completed" :
+                                                        client.status === "P" ? "Pause" :
+                                                            client.status === "T" ? "Terminate" : "Unknown"}
+                                            </span>
+
+                                        </td>
+
+                                        {/* ACTIONS */}
+                                        <td className="p-4 flex gap-3 sm:gap-4 text-gray-500 flex-wrap">
+                                            <FiEdit
+                                                size={18}
+                                                className="cursor-pointer hover:text-green-600"
+                                                onClick={() => editClient(client)}
+                                            />
+
+                                            <FiTrash2
+                                                size={18}
+                                                className="cursor-pointer hover:text-green-600"
+                                                onClick={() => deleteClient(client.client_id || client.id)}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                    
+                    {/* PAGINATION */}
+                    <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50">
+
+                        {/* LEFT SIDE */}
+                        <div className="text-sm text-gray-500">
+                            Showing {currentClients.length} of {filteredClients.length} clients
+                        </div>
+
+                        {/* RIGHT SIDE */}
+                        <div className="flex items-center gap-2">
+
+                            {/* PREVIOUS */}
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded disabled:opacity-40"
+                            >
+                                Previous
+                            </button>
+
+                            {/* CURRENT PAGE */}
+                            <button className="px-3 py-1 bg-green-800 text-white rounded">
+                                {currentPage}
+                            </button>
+
+                            {/* NEXT */}
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded disabled:opacity-40"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* MODAL */}
+            {showModal && (
+                <AddClient
+                    onClose={() => {
+                        setShowModal(false);
+                        setEditingClient(null);
+                    }}
+                    onAdd={addClient}
+                    editingClient={editingClient}
+                    setPopup={setPopup}
+                />
+
+            )}
+
+            {/* POPUP */}
+
+            {popup.show && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+
+                        <p className={`text-lg font-semibold mb-4
+                ${popup.type === "success" && "text-green-600"}
+                ${popup.type === "error" && "text-red-600"}
+                ${popup.type === "confirm" && "text-gray-800"}
+            `}>
+                            {popup.message}
+                        </p>
+
+                        {/* BUTTONS */}
+                        <div className="flex justify-center gap-3">
+
+                            {popup.type === "confirm" ? (
+                                <>
+                                    <button
+                                        onClick={async () => {
+                                            await popup.onConfirm();
+                                            setPopup({ show: false });
+                                        }}
+                                        className="px-4 py-2 bg-red-600 text-white rounded"
+                                    >
+                                        Yes
+                                    </button>
+
+                                    <button
+                                        onClick={() => setPopup({ show: false })}
+                                        className="px-4 py-2 bg-gray-300 rounded"
+                                    >
+                                        Cancel
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => setPopup({ show: false })}
+                                    className="px-4 py-2 bg-green-800 text-white rounded-full hover:bg-green-700"
+                                >
+                                    OK
+                                </button>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+            )}
+
+        </div>
+    );
+}
+
+export default Clients;
