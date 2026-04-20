@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEye, FiEyeOff, FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
 import AddCredential from "./AddCredential";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -49,7 +49,8 @@ function Credentials() {
                     portalLink: item.portal_link,
                     email: item.username,
                     password: item.password,
-                    notes: item.notes
+                    notes: item.notes,
+                    date: item.created_at || item.date
                 }));
 
                 setCredentials(formatted);
@@ -98,7 +99,8 @@ function Credentials() {
                 portalLink: item.portal_link,
                 email: item.username,
                 password: item.password,
-                notes: item.notes
+                notes: item.notes,
+                date : item.created_at || item.date
             }));
 
             setPopup({
@@ -195,13 +197,13 @@ function Credentials() {
     );
 
     return (
-        <div className="flex min-h-screen">
+        <div className="bg-gray-50 flex min-h-screen">
 
             {/* MAIN CONTENT */}
             <div className="flex-1 p-6">
 
                 {/* TITLE */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pb-5">
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">Portal Credentials</h1>
                         <p className="text-gray-500 mt-1">
@@ -220,6 +222,18 @@ function Credentials() {
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="outline-none w-full bg-transparent text-sm sm:w-auto"
                             />
+                            
+                            {search && (
+                                <button
+                                    onClick={() => {
+                                        setSearch("");
+                                        setCurrentPage(1);
+                                    }}
+                                    className="ml-2 text-gray-400 hover:text-gray-700 transition"
+                                >
+                                    <FiX size={16} />
+                                </button>
+                            )}
                         </div>
 
                         {/* ADD BUTTON */}

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiX, FiLink, FiCalendar, FiChevronDown } from "react-icons/fi";
 
-function AddApplication({ onClose, onAdd }) {
+function AddApplication({ onClose, onAdd, editingApp }) {
 
     const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
     const today = new Date().toISOString().split("T")[0];
@@ -22,6 +22,19 @@ function AddApplication({ onClose, onAdd }) {
             [e.target.name]: e.target.value
         });
     };
+
+    useEffect(() => {
+        if (editingApp) {
+            setForm({
+                company: editingApp.company || "",
+                role: editingApp.role || "",
+                platform: editingApp.platform || "",
+                date: editingApp.date || today,
+                link: editingApp.link || "",
+                notes: editingApp.notes || ""
+            });
+        }
+    }, [editingApp]);
 
     const handleSubmit = () => {
 
@@ -52,7 +65,7 @@ function AddApplication({ onClose, onAdd }) {
 
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800">
-                            Add New Application Entry
+                            {editingApp ? "Update Application" : "Add New Application Entry"}
                         </h2>
                         <p className="text-gray-500 text-sm mt-1">
                             Keep track of your career journey. Fill in the job details below.
@@ -222,7 +235,7 @@ function AddApplication({ onClose, onAdd }) {
                         onClick={handleSubmit}
                         className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md"
                     >
-                        Save Application
+                        {editingApp ? "Update" : "Save"}
                     </button>
 
                 </div>

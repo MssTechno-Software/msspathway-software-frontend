@@ -382,11 +382,22 @@ export default function Reports() {
                         </div>
 
                         {/* BUTTON */}
-                        <div className="sm:pl-5">
+                        <div className="sm:pl-5 flext item-center gap-3">
                             <button
-                                className="bg-[#1f7a53] hover:bg-[#166342] text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto"
+                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto"
                             >
                                 Search
+                            </button>
+                            
+                            <button
+                                onClick={() => {
+                                    setFromDate("");
+                                    setToDate("");
+                                    setCurrentPage(1); // optional (good UX)
+                                }}
+                                className="rounded-xl font-medium tect-xs text-gray-700 hover:bg-gray-100 transition px-5 py-2"
+                            >
+                                Clear
                             </button>
                         </div>
                     </div>

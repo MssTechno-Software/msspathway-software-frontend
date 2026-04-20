@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AddClient from "./AddClient";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
+const statusMap = {
+  Active: "A",
+  Completed: "C",
+  Pause: "P",
+  Terminate: "T"
+};
 
 function Clients() {
     const navigate = useNavigate();
@@ -60,89 +66,93 @@ function Clients() {
     const addClient = async (client) => {
         try {
 
-            if (!client.name.trim()) {
-                setPopup({
-                    show: true,
-                    message: "Client name is required",
-                    type: "error"
-                });
-                return;
+            if (!client.name.trim())
+                return setPopup({ show: true, message: "Name is required", type: "error" });
+
+            if (!client.mobile.trim())
+                return setPopup({ show: true, message: "Mobile is required", type: "error" });
+
+            if (!client.email.trim())
+                return setPopup({ show: true, message: "Email is required", type: "error" });
+
+            if (!client.tech.length)
+                return setPopup({ show: true, message: "Technology is required", type: "error" });
+
+            if (!client.status)
+                return setPopup({ show: true, message: "Status is required", type: "error" });
+
+            if (!client.employeeId)
+                return setPopup({ show: true, message: "Employee ID is required", type: "error" });
+
+            if (!client.role.trim())
+                return setPopup({ show: true, message: "Role is required", type: "error" });
+
+            if (!client.aadhaar.trim())
+                return setPopup({ show: true, message: "Aadhaar is required", type: "error" });
+
+            if (!client.location.trim())
+                return setPopup({ show: true, message: "Location is required", type: "error" });
+
+            if (!client.photo && !editingClient)
+                return setPopup({ show: true, message: "Photo is required", type: "error" });
+
+            if ((!client.documents || client.documents.length === 0) && !editingClient)
+                return setPopup({ show: true, message: "Documents are required", type: "error" });
+            const formData = new FormData();
+
+            formData.append("client_name", client.name);
+            formData.append("mobile", client.mobile);
+            formData.append("email", client.email);
+            formData.append("technology", client.tech.join(","));
+            formData.append("status", statusMap[client.status]);
+            formData.append("employee_id", String(client.employeeId));
+            formData.append("professional_role", client.role);
+            formData.append("aadhaar_number", client.aadhaar);
+            formData.append("location", client.location)
+
+            // DEBUG (optional but useful)
+            for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
             }
-
-            if(!client.mobile.trim()) {
-                setPopup({
-                    show: true,
-                    message: "Mobile number is required",
-                    type: "error"
-                });
-                return;
-            }
-
-            if (!client.tech || !client.tech.length) {
-                setPopup({
-                    show: true,
-                    message: "Please select at least one technology",
-                    type: "error"
-                });
-                return;
-            }
-
-            if(!client.status) {
-                setPopup({
-                    show: true,
-                    message: "Please select a status",
-                    type: "error"
-                });
-                return;
-            }
-
-            if(!client.employeeId) {
-                setPopup({
-                    show: true,
-                    message: "Please select an employee",
-                    type: "error"
-                });
-                return;
-            }
-
-            if(!client.timezone) {
-                setPopup({
-                    show: true,
-                    message: "Please select a timezone",
-                    type: "error"
-                });
-                return;
-            }
-
-
-            const statusMap = {
-                Active: "A",
-                Completed: "C",
-                Pause: "P",
-                Terminate: "T"
-            };
-
-            const payload = {
-                client_name: client.name,
-                mobile: client.mobile,
-                technology: client.tech?.join(","),
-                status: statusMap[client.status],
-                timezone: client.timezone,
-                assigned_user_id: parseInt(client.employeeId)
-            };
-
-            console.log("Payload being sent:", payload);
 
             if (editingClient) {
+                if (client.photo) {
+                    formData.append("photo", client.photo);
+                }
+
+                if (client.documents && client.documents.length > 0) {
+                    client.documents.forEach((doc) => {
+                    formData.append("documents", doc);
+                    });
+                }
                 // UPDATE
-                console.log("Updating client with ID:", editingClient.client_id);
-                const response = await axios.put(`${BASE_URL}/clients/clients/${editingClient.client_id || editingClient.id}`, payload, getAuthHeaders());
+                const client_id = editingClient.client_id || editingClient.id;
+                console.log("Updating client with ID:", client_id);
+                const response = await axios.put(`${BASE_URL}/clients/update-client/${client_id}`, formData, {
+                    ...getAuthHeaders(),
+                    headers:{
+                        ...getAuthHeaders().headers,
+                        "Content-Type": "multipart/form-data"
+                    }
+                    });
                 console.log("Update response:", response.data);
 
             } else {
+                formData.append("photo", client.photo);
+
+                client.documents.forEach((doc) => {
+                    formData.append("documents", doc);
+                });
                 // CREATE
                 console.log("Creating new client");
-                const response = await axios.post(`${BASE_URL}/clients/create-client`, payload, getAuthHeaders());
+                const response = await axios.post(`${BASE_URL}/clients/create-client`, formData, {
+                    ...getAuthHeaders(),
+                    headers: {
+                        ...getAuthHeaders().headers,
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+                );
                 console.log("Create response:", response.data);
             }
 
@@ -160,6 +170,14 @@ function Clients() {
 
         } catch (error) {
             console.error("FULL ERROR:", error.response?.data || error.message);
+
+            if(error.response){
+                console.log("Backend Response:", error.response.data);
+                alert(JSON.stringify(error.response.data, null, 2));
+            }
+            else{
+                console.log("Error message:", error.message);
+            }
             setPopup({
                 show: true,
                 message: "An error occurred while saving the client",
@@ -189,7 +207,10 @@ function Clients() {
                 try {
                     const response = await axios.delete(`${BASE_URL}/clients/clients/${client_id}`, getAuthHeaders());
                     console.log("Delete response:", response.data);
-                    await fetchClients();
+                    
+                    //refresh
+                    const res = await fetchClients();
+                    console.log("Fetched data after deletion", res.data);
 
                     setPopup({
                         show: true,
@@ -197,10 +218,10 @@ function Clients() {
                         type: "success"
                     });
                 } catch (error) {
-                    console.error("Error deleting client:", error.response?.data || error.message);
+                    console.error("Error in deleting client:", error.response?.data || error.message);
                     setPopup({
                         show: true,
-                        message: "Error deleting client",
+                        message: "Error while deleting client",
                         type: "error"
                     });
                 }
@@ -209,9 +230,25 @@ function Clients() {
     };
 
     // EDIT CLIENT
-    const editClient = (client) => {
-        setEditingClient(client);
-        setShowModal(true);
+    const editClient = async (client) => {
+        try {
+            const clientId = client.client_id || client.id;
+
+            console.log("Editing client ID:", clientId);
+
+            const res = await axios.get(
+            `${BASE_URL}/clients/clients/${clientId}`, // ✅ GET API
+            getAuthHeaders()
+            );
+
+            console.log("Edit client data:", res.data);
+
+            setEditingClient(res.data); //  fresh backend data
+            setShowModal(true);
+
+        } catch (err) {
+            console.error("Edit fetch error:", err.response?.data || err.message);
+        }
     };
 
     const filteredClients = clients.filter((client) =>
@@ -230,23 +267,31 @@ function Clients() {
         <div className="p-3 sm:p-4 md:p-6">
 
             {/* SEARCH */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
-                <div className="w-1/2 sm:w-1/2">
-                    <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full shadow-sm">
-                        <FiSearch className="text-gray-400 mr-2" />
-                        <input
-                            type="text"
-                            placeholder="Search clients, deals, or activities..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="bg-transparent outline-none w-full text-sm"
-                        />
-                    </div>
+            <div className="w-full sm:w-1/2">
+                <div className="relative flex items-center bg-gray-100 px-4 py-2 rounded-full shadow-sm">
+                    
+                    <FiSearch className="text-gray-400 mr-2" />
+
+                    <input
+                        type="text"
+                        placeholder="Search clients..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="bg-transparent outline-none w-full text-sm"
+                    />
+
+                    {search && (
+                    <FiX
+                        onClick={() => setSearch("")}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                    />
+                    )}
+
                 </div>
             </div>
 
             {/* HEADER */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 pt-2">
 
                 <div>
                     <h1 className="text-3xl font-bold">All Clients</h1>
@@ -296,26 +341,46 @@ function Clients() {
 
                                     <tr key={client.client_id || client.id || `${client.client_name}-${client.mobile}`} className="text-left hover:bg-gray-50">
                                         {/* NAME */}
-                                        <td className="p-4 font-semibold cursor-pointer hover:underline"
-                                            onClick={() => navigate(`/applications/${client.client_id || client.id}`)}>
-                                            {client.client_name}
+                                        <td
+                                            className="p-4 font-semibold cursor-pointer hover:underline truncate max-w-37.5"
+                                            title={client.client_name}
+                                            onClick={() =>
+                                                navigate(`/clients/${client.client_id || client.id}`, {
+                                                state: { clientName: client.client_name },
+                                                })
+                                            }
+                                            >
+                                            {client.client_name.length > 15
+                                                ? client.client_name.slice(0, 15) + "..."
+                                                : client.client_name}
                                         </td>
 
                                         {/* MOBILE */}
                                         <td className="p-4">{client.mobile}</td>
 
                                         {/* TECH STACK */}
-                                        <td className="p-4 space-x-2">
-                                            {client.technology?.split(",").map((t, i) => (
+                                        <td
+                                            className="p-4 space-x-2 max-w-50 truncate"
+                                            title={client.technology}
+                                            >
+                                            {client.technology
+                                                ?.split(",")
+                                                .slice(0, 4)
+                                                .map((t, i) => (
                                                 <span
                                                     key={`${client.client_id || client.id}-${t}-${i}`}
-                                                    className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs"
+                                                    className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs mr-1 inline-block"
                                                 >
                                                     {t}
                                                 </span>
-                                            ))}
-                                        </td>
+                                                ))}
 
+                                            {client.technology?.split(",").length > 4 && (
+                                                <span className="text-xs text-gray-500">
+                                                +{client.technology.split(",").length - 4} more
+                                                </span>
+                                            )}
+                                        </td>
                                         {/* STATUS */}
                                         <td className="p-4">
 
@@ -426,7 +491,6 @@ function Clients() {
                                     <button
                                         onClick={async () => {
                                             await popup.onConfirm();
-                                            setPopup({ show: false });
                                         }}
                                         className="px-4 py-2 bg-red-600 text-white rounded"
                                     >

@@ -1,20 +1,25 @@
 import { useState, useEffect } from "react";
-import { FiUser, FiPhone, FiFlag, FiClipboard, FiClock, FiChevronDown, FiCode } from "react-icons/fi";
+import { FiUser, FiPhone, FiFlag, FiClipboard, FiClock, FiChevronDown, FiCode, FiMail, FiMapPin, FiUpload, FiFileText, FiCreditCard, FiBriefcase } from "react-icons/fi";
 
 function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
     const [formData, setFormData] = useState({
         name: "",
         mobile: "",
+        email: "",
         tech: [],
         status: "Active",
         employeeId: "",
+        role: "",
+        aadhaar: "",
+        location: "",
+        photo: null,
+        documents: [],
         notes: ""
     });
 
     const [showTechDropdown, setShowTechDropdown] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-    const [showTimezoneDropdown, setShowTimezoneDropdown] = useState(false);
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
 
     const techOptions = [
@@ -41,11 +46,11 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         "Cybersecurity",
     ];
 
-    const statusMap = {
-        Active: "A",
-        Completed: "C",
-        Pause: "P",
-        Terminate: "T"
+    const reverseStatusMap = {
+        A: "Active",
+        C: "Completed",
+        P: "Pause",
+        T: "Terminate"
     };
 
     // When editing, load previous client data
@@ -54,19 +59,34 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             setFormData({
                 name: editingClient.client_name || "",
                 mobile: editingClient.mobile || "",
+                email: editingClient.email || "",
                 tech: editingClient.technology
                     ? editingClient.technology.split(",")
                     : [],
-                status: statusMap[editingClient.status] || "A",
-                employeeId: editingClient.assigned_user_id || "",
-                notes: ""
+                status: reverseStatusMap[editingClient.status] || "Active",
+                employeeId: editingClient.employee_id || "",
+                role: editingClient.professional_role || "",
+                aadhaar: editingClient.aadhaar_number || "",
+                location: editingClient.location || "",
+                photo: null,
+                documents: [],
+                notes: editingClient.notes || ""
             });
         }
     }, [editingClient]);
 
     //Handle form input changes
     const handleChange = (e) => {
-        let { name, value } = e.target;
+        let { name, value , files} = e.target;
+
+        if (files) {
+            if (name === "photo") {
+                setFormData({ ...formData, photo: files[0] });
+            } else {
+                setFormData({ ...formData, documents: [...files] });
+            }
+            return;
+        }
 
         // For mobile, only allow numbers and certain symbols
         if (name === "mobile") {
@@ -104,16 +124,29 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             ...formData,
             name: formData.name.trim(),
             mobile: formData.mobile.trim(),
+            email: formData.email,
             tech: formData.tech,
             status: formData.status,
-            employeeId: formData.employeeId
+            employeeId: formData.employeeId,
+            role: formData.role,
+            aadhaar: formData.aadhaar,
+            location: formData.location,
+            photo: formData.photo,
+            documents: formData.documents
+
         };
         if (
             !trimmedData.name ||
             !trimmedData.mobile ||
+            !trimmedData.email ||
             trimmedData.tech.length === 0 ||
             !trimmedData.status ||
-            !trimmedData.employeeId
+            !trimmedData.employeeId ||
+            !trimmedData.role ||
+            !trimmedData.aadhaar ||
+            !trimmedData.location ||
+            (!trimmedData.photo && !editingClient) ||
+            ((!trimmedData.documents || trimmedData.documents.length === 0) && !editingClient)
         ) {
             setPopup({
                 show: true,
@@ -123,6 +156,15 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
             return;
         }
+
+        if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            return setPopup({
+                show: true,
+                message: "Invalid email format",
+                type: "error"
+            });
+        }
+
         const client = {
             ...trimmedData
         };
@@ -176,6 +218,24 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                 name="mobile"
                                 value={formData.mobile}
                                 placeholder="+1 (555) 000-0000"
+                                onChange={handleChange}
+                                className="w-full py-3 outline-none text-sm"
+                            />
+                        </div>
+                    </div>
+
+                    {/*email*/}
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            Email <span className="text-red-500">*</span>
+                        </label>
+
+                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                            <FiMail className="text-gray-400 mr-2" />
+                            <input
+                                name="email"
+                                value={formData.email}
+                                placeholder="example@gmail.com"
                                 onChange={handleChange}
                                 className="w-full py-3 outline-none text-sm"
                             />
@@ -273,49 +333,10 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </div>
                     </div>
 
-                    {/* Timezone */}
-                    {/* <div className="relative">
-                        <label className="text-sm font-medium text-gray-700">
-                            Timezone <span className="text-red-500">*</span>
-                        </label>
-
-                        <div
-                            onClick={() => setShowTimezoneDropdown(!showTimezoneDropdown)}
-                            className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
-                        >
-                            <div className="flex items-center gap-2">
-                                <FiClock className="text-gray-400" />
-                                <span className="text-sm text-gray-700">{formData.timezone || "Select Timezone"}</span>
-                            </div>
-                            <FiChevronDown
-                                className={`text-gray-500 transition-transform duration-200 
-                                ${showTimezoneDropdown ? "rotate-180" : ""}`}
-                            />
-                        </div>
-                        {showTimezoneDropdown && (
-                            <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
-                                {["IST", "UTC", "PST"].map((tz) => (
-                                    <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            checked={formData.timezone === tz}
-                                            onChange={() => {
-                                                setFormData({ ...formData, timezone: tz });
-                                                setShowTimezoneDropdown(false);
-                                            }}
-                                            className="mr-2 accent-green-700"
-                                        />
-                                        {tz}
-                                    </label>
-                                ))}
-                            </div>
-                        )}
-                    </div> */}
-
                     {/* Employee ID */}
                     <div className="relative">
                         <label className="text-sm font-medium text-gray-700">
-                            Assigned To (Employee ID) <span className="text-red-500">*</span>
+                            Assigned Employee ID <span className="text-red-500">*</span>
                         </label>
 
                         <div
@@ -333,7 +354,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </div>
                         {showEmployeeDropdown && (
                             <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
-                                {[1, 2, 3, 4, 5].map((tz) => (
+                                {["MSS001", "MSS002", "MSS003", "MSS004", "MSS005"].map((tz) => (
                                     <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                         <input
                                             type="radio"
@@ -349,6 +370,129 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Professional Role */}
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">
+                                Professional Role <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                                <FiBriefcase className="text-gray-400 mr-2" />
+
+                                <input
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Java Developer"
+                                    className="w-full py-3 outline-none text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Aadhaar */}
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">
+                                Aadhaar / ID Number <span className="text-red-500">*</span>
+                            </label>
+                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                                <FiCreditCard className="text-gray-400 mr-2" />
+
+                                <input
+                                    name="aadhaar"
+                                    value={formData.aadhaar}
+                                    onChange={handleChange}
+                                    placeholder="0000-0000-0000"
+                                    className="w-full py-3 outline-none text-sm"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/*uplode photo*/}
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            Upload Photo {!editingClient && <span className="text-red-500">*</span>}
+                        </label>
+
+                        <div className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-600 transition cursor-pointer">
+                            <input
+                                type="file"
+                                name="photo"
+                                accept="image/*"
+                                onChange={handleChange}
+                                className="hidden"
+                                id="photoUpload"
+                            />
+
+                            <label htmlFor="photoUpload" className="cursor-pointer flex flex-col items-center justify-center text-center">
+                                <FiUpload className="text-2xl text-gray-400" />
+                                <p className="text-sm text-gray-500">
+                                    Click to upload profile photo
+                                </p>
+                            </label>
+
+                            {formData.photo && (
+                                <p className="text-xs text-green-600 mt-2">
+                                    {formData.photo.name}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            Documents {!editingClient && <span className="text-red-500">*</span>}
+                        </label>
+
+                        <div className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-green-600 transition">
+                            <input
+                                type="file"
+                                name="documents"
+                                multiple
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={handleChange}
+                                className="hidden"
+                                id="docsUpload"
+                            />
+
+                            <label htmlFor="docsUpload" className="cursor-pointer flex flex-col items-center justify-center text-center">
+                                <FiFileText className="text-2xl text-gray-400" />
+                                <p className="text-sm font-medium text-gray-700">
+                                    Drop your Resume
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Supports PDF, JPG, PNG (Max 10MB)
+                                </p>
+
+                                <button className="mt-3 px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-100">
+                                    Select Files
+                                </button>
+                            </label>
+
+                            {formData.documents.length > 0 && (
+                                <p className="text-xs text-green-600 mt-2">
+                                    {formData.documents.length} file(s) selected
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            Location <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                            <FiMapPin className="text-gray-400 mr-2" />
+                            <input
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                placeholder="City, Country"
+                                className="w-full py-3 text-sm outline-none"
+                            />
+                        </div>
                     </div>
 
                     {/* Notes */}

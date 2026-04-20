@@ -260,7 +260,7 @@ function LeaveRequests() {
             {/* Search Button */}
             <button
               onClick={handleSearchFilter}
-              className="px-5 py-2 rounded-xl bg-[#0F5B33] text-white font-medium hover:bg-[#0C4A29] transition"
+              className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition"
             >
               Search
             </button>
@@ -268,7 +268,7 @@ function LeaveRequests() {
             {/* Clear Button */}
             <button
               onClick={handleClearFilter}
-              className="px-5 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition"
             >
               Clear
             </button>
