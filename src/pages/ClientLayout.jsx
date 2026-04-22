@@ -24,7 +24,7 @@ function ClientLayout() {
     <div className="flex min-h-screen bg-[#F6F4F2]">
 
       {/* SIDEBAR */}
-      <div className="w-64 bg-[#301E0F] text-white flex flex-col justify-between">
+      <div className="w-62 bg-[#301E0F] text-white flex flex-col justify-between">
 
         <div>
           <div className="px-6 py-6 border-b border-white/10">

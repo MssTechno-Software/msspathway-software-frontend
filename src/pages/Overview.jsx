@@ -231,24 +231,21 @@ export default function Overview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-5 gap-6">
 
         {/*LEFT CARD*/}
-        <div className="bg-[#f1e6dc] p-6 rounded-3xl shadow-sm">
+        <div className="col-span-3 bg-gray-100 p-6 rounded-3xl shadow-md">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="font-semibold text-lg text-gray-700">
+              <h2 className="text-xl font-bold">
                 Applications by Platform
               </h2>
-              <p className="text-sm text-gray-500">
-                Real-time application distribution
-              </p>
             </div>
           </div>
 
           {platformCounts.map((item, index) => (
             <div key={index} className="mb-5">
-              <div className="flex justify-between text-sm mb-1">
+              <div className="flex justify-between text-md mb-1 font-bold">
                 <span>{item.name}</span>
                 <span>{item.value}</span>
               </div>
@@ -264,22 +261,19 @@ export default function Overview() {
         </div>
 
         {/* RIGHT CARD (PREMIUM) */}
-        <div className="relative rounded-3xl p-6 text-white 
-          bg-linear-to-br from-[#3a2418] to-[#2b1a12] 
-          shadow-2xl overflow-hidden">
+        <div className="col-span-2 relative rounded-3xl p-6 text-white 
+            bg-linear-to-br from-[#3a2418] to-[#2b1a12] 
+            shadow-2xl overflow-hidden">
 
           {/* dots background */}
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [bg-size:16px_16px]"></div>
 
           <div className="relative z-10">
-            <h2 className="text-xl font-semibold text-green-700">
+            <h2 className="text-xl font-bold text-white">
               Recruitment Reports
             </h2>
-            <p className="text-sm text-gray-300 mb-6">
-              Conversion funnel visualization
-            </p>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-3">
               {funnel.map((item, i) => (
                 <div
                   key={i}

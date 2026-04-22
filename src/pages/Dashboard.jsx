@@ -4,6 +4,9 @@ import Clients from "./Clients";
 import Timesheet from "./Timesheet";
 import AddClient from "./AddClient";
 import LeaveRequests from "./LeaveRequest";
+import Employee from "./Employee";
+import AddEmployee from "./AddEmployee";
+import EmployeeProfile from "./EmployeeProfile";
 
 function Dashboard() {
     return (
@@ -18,6 +21,9 @@ function Dashboard() {
                     <Route path="/" element={<Navigate to="clients" />} />
                     <Route path="clients" element={<Clients />} />
                     <Route path="timesheet" element={<Timesheet />} />
+                    <Route path="employee" element={<Employee />} />
+                    <Route path="add-employee" element={<AddEmployee />} />
+                    <Route path="employee-profile/:employee_id" element={<EmployeeProfile />} />
                     <Route path="leave-requests" element={<LeaveRequests />} />
                     <Route path="add-client" element={<AddClient />} />
                 </Routes>
