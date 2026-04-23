@@ -13,8 +13,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         role: "",
         aadhaar: "",
         location: "",
-        photo: null,
-        documents: [],
         notes: ""
     });
 
@@ -68,8 +66,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                 role: editingClient.professional_role || "",
                 aadhaar: editingClient.aadhaar_number || "",
                 location: editingClient.location || "",
-                photo: null,
-                documents: [],
                 notes: editingClient.notes || ""
             });
         }
@@ -77,26 +73,17 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
     //Handle form input changes
     const handleChange = (e) => {
-        let { name, value , files} = e.target;
-
-        if (files) {
-            if (name === "photo") {
-                setFormData({ ...formData, photo: files[0] });
-            } else {
-                setFormData({ ...formData, documents: [...files] });
-            }
-            return;
-        }
+        let { name, value } = e.target;
 
         // For mobile, only allow numbers and certain symbols
         if (name === "mobile") {
             value = value.replace(/[^0-9+\-\s()]/g, "");
         }
 
-        // ✅ Trim multiple spaces → single space
+        // Trim multiple spaces → single space
         value = value.replace(/\s+/g, " ");
 
-        // ✅ Limit notes to 500 chars
+        // Limit notes to 500 chars
         if (name === "notes") {
             value = value.slice(0, 500);
         }
@@ -131,8 +118,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             role: formData.role,
             aadhaar: formData.aadhaar,
             location: formData.location,
-            photo: formData.photo,
-            documents: formData.documents
 
         };
         if (
@@ -144,9 +129,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             !trimmedData.employeeId ||
             !trimmedData.role ||
             !trimmedData.aadhaar ||
-            !trimmedData.location ||
-            (!trimmedData.photo && !editingClient) ||
-            ((!trimmedData.documents || trimmedData.documents.length === 0) && !editingClient)
+            !trimmedData.location
         ) {
             setPopup({
                 show: true,
@@ -407,75 +390,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                     className="w-full py-3 outline-none text-sm"
                                 />
                             </div>
-                        </div>
-                    </div>
-                    
-                    {/*uplode photo*/}
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">
-                            Upload Photo {!editingClient && <span className="text-red-500">*</span>}
-                        </label>
-
-                        <div className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-600 transition cursor-pointer">
-                            <input
-                                type="file"
-                                name="photo"
-                                accept="image/*"
-                                onChange={handleChange}
-                                className="hidden"
-                                id="photoUpload"
-                            />
-
-                            <label htmlFor="photoUpload" className="cursor-pointer flex flex-col items-center justify-center text-center">
-                                <FiUpload className="text-2xl text-gray-400" />
-                                <p className="text-sm text-gray-500">
-                                    Click to upload profile photo
-                                </p>
-                            </label>
-
-                            {formData.photo && (
-                                <p className="text-xs text-green-600 mt-2">
-                                    {formData.photo.name}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium text-gray-700">
-                            Documents {!editingClient && <span className="text-red-500">*</span>}
-                        </label>
-
-                        <div className="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-green-600 transition">
-                            <input
-                                type="file"
-                                name="documents"
-                                multiple
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                onChange={handleChange}
-                                className="hidden"
-                                id="docsUpload"
-                            />
-
-                            <label htmlFor="docsUpload" className="cursor-pointer flex flex-col items-center justify-center text-center">
-                                <FiFileText className="text-2xl text-gray-400" />
-                                <p className="text-sm font-medium text-gray-700">
-                                    Drop your Resume
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Supports PDF, JPG, PNG (Max 10MB)
-                                </p>
-
-                                <button className="mt-3 px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-100">
-                                    Select Files
-                                </button>
-                            </label>
-
-                            {formData.documents.length > 0 && (
-                                <p className="text-xs text-green-600 mt-2">
-                                    {formData.documents.length} file(s) selected
-                                </p>
-                            )}
                         </div>
                     </div>
 

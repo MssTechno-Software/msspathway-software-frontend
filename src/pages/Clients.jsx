@@ -93,11 +93,6 @@ function Clients() {
             if (!client.location.trim())
                 return setPopup({ show: true, message: "Location is required", type: "error" });
 
-            if (!client.photo && !editingClient)
-                return setPopup({ show: true, message: "Photo is required", type: "error" });
-
-            if ((!client.documents || client.documents.length === 0) && !editingClient)
-                return setPopup({ show: true, message: "Documents are required", type: "error" });
             const formData = new FormData();
 
             formData.append("client_name", client.name);
@@ -116,15 +111,7 @@ function Clients() {
             }
 
             if (editingClient) {
-                if (client.photo) {
-                    formData.append("photo", client.photo);
-                }
-
-                if (client.documents && client.documents.length > 0) {
-                    client.documents.forEach((doc) => {
-                    formData.append("documents", doc);
-                    });
-                }
+                
                 // UPDATE
                 const client_id = editingClient.client_id || editingClient.id;
                 console.log("Updating client with ID:", client_id);
@@ -138,11 +125,6 @@ function Clients() {
                 console.log("Update response:", response.data);
 
             } else {
-                formData.append("photo", client.photo);
-
-                client.documents.forEach((doc) => {
-                    formData.append("documents", doc);
-                });
                 // CREATE
                 console.log("Creating new client");
                 const response = await axios.post(`${BASE_URL}/clients/create-client`, formData, {
@@ -237,7 +219,7 @@ function Clients() {
             console.log("Editing client ID:", clientId);
 
             const res = await axios.get(
-            `${BASE_URL}/clients/clients/${clientId}`, // ✅ GET API
+            `${BASE_URL}/clients/clients/${clientId}`, // GET API
             getAuthHeaders()
             );
 
