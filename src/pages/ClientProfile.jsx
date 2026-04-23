@@ -101,10 +101,10 @@ function ClientProfile() {
   };
 
   useEffect(() => {
-  if (client_id) {
-    fetchProfilePhoto(); // ✅ ADD THIS
-  }
-}, [client_id]);
+    if (client_id) {
+      fetchProfilePhoto();
+    }
+  }, [client_id]);
 
   if (!client) {
     return <div className="p-6">Loading client details...</div>;
@@ -435,6 +435,7 @@ function ClientProfile() {
       formData.append("photo", profileFile);
 
       const url = `${BASE_URL}/clients/clients/${client_id}/upload-photo`;
+      //const method = client.photo ? "put" : "post";
 
       const res = await axios({
           method: "put",
@@ -442,7 +443,6 @@ function ClientProfile() {
           data: formData, 
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data"
           }
         }
       );
@@ -459,6 +459,8 @@ function ClientProfile() {
       setProfilePreview("");
       fetchProfilePhoto();
       setShowPhotoModal(false);
+      fetchProfilePhoto();
+      fetchClient();
 
     } catch (err) {
       console.error(err.response?.data);
@@ -472,6 +474,7 @@ function ClientProfile() {
     }
   };
 
+  /*delete profile photo*/
   const handleDeleteProfile = async () => {
     try {
       const res = await axios.delete(
@@ -485,7 +488,7 @@ function ClientProfile() {
         message: "Profile photo deleted",
         type: "success"
       });
-
+      fetchClient();
       fetchProfilePhoto();
       setShowPhotoModal(false);
     } catch (err) {
@@ -509,11 +512,13 @@ function ClientProfile() {
               src={
                 profilePreview ||
                 (client.photo
-                  ? `${BASE_URL}/${client.photo}`
+                  ? client.photo.startsWith("http")
+                    ? client.photo
+                    : `${BASE_URL}/${client.photo}`
                   : "https://via.placeholder.com/100")
               }
               alt="profile"
-              className="w-24 h-24 rounded-full object-cover shadow"
+              className="w-36 h-36 rounded-full object-cover shadow"
             />
             {/* CONDITIONAL ICON */}
             <button
@@ -618,7 +623,7 @@ function ClientProfile() {
                       {fileName}
                     </p>
 
-                    <p className="text-xs text-gray-400 flex items-center gap-2">
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
                       {fileType} • {doc.created_at
                         ? new Date(doc.created_at).toLocaleDateString()
                         : "Recently added"}
@@ -690,14 +695,14 @@ function ClientProfile() {
                   className="flex items-center justify-between px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
                 >
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">
+                    <p className="text-md font-semibold text-gray-800">
                       {name}
                     </p>
                     <a
                       href={url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-green-700 underline"
+                      className="text-sm text-green-700 underline"
                     >
                       {url}
                     </a>
