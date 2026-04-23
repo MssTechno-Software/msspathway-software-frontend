@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FiDownload, FiEye, FiEdit, FiTrash2, FiUpload, FiX, FiPenTool } from "react-icons/fi";
+import { FiDownload, FiEye, FiEdit, FiTrash2, FiUpload, FiX, FiPenTool, FiLink } from "react-icons/fi";
 import AddClient from "./AddClient";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
@@ -15,9 +15,11 @@ function ClientProfile() {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkName, setLinkName] = useState("");
   const [linkURL, setLinkURL] = useState("");
+  const [links, setLinks] = useState([]);
   const [previewURL, setPreviewURL] = useState("");
   const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState("");
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
     message: "",
@@ -56,6 +58,54 @@ function ClientProfile() {
     }
   }, [client_id]);
 
+  /*fetch link*/
+  const fetchLinks = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/clients/clients/${client_id}/source-links`,
+        getAuthHeaders()
+      );
+      console.log("Links API Response:", res.data);
+
+      setLinks(res.data.source_links || []);
+
+    } catch (err) {
+      console.error("Error fetching links:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (client_id) {
+      fetchLinks();
+    }
+  }, [client_id]);
+
+  const fetchProfilePhoto = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/clients/clients/${client_id}/photo`,
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+      const url = URL.createObjectURL(res.data);
+      setProfilePreview(url);
+
+    } catch (err) {
+      console.log("No profile photo");
+    }
+  };
+
+  useEffect(() => {
+  if (client_id) {
+    fetchProfilePhoto(); // ✅ ADD THIS
+  }
+}, [client_id]);
+
   if (!client) {
     return <div className="p-6">Loading client details...</div>;
   }
@@ -88,7 +138,7 @@ function ClientProfile() {
 
     try {
       const formData = new FormData();
-      formData.append("document", selectedFile);
+      formData.append("files", selectedFile);
       formData.append("client_id", client_id);
 
       for (let pair of formData.entries()) {
@@ -96,7 +146,7 @@ function ClientProfile() {
       }
 
       await axios.post(
-        `${BASE_URL}/clientsclients/clients/${client_id}/upload-documents`,
+        `${BASE_URL}/clients/clients/${client_id}/upload-documents`,
         formData,
         {
           headers: {
@@ -140,7 +190,7 @@ function ClientProfile() {
       console.log("VIEW FILE:", fileName);
 
       const res = await axios.get(
-        `${BASE_URL}/clientsclients/documents/${fileName}`,
+        `${BASE_URL}/clients/clients/documents/${fileName}`,
         {
           responseType: "blob",
           headers: {
@@ -149,7 +199,9 @@ function ClientProfile() {
         }
       );
 
-      const url = URL.createObjectURL(new Blob([res.data]));
+      const contentType = res.headers["content-type"];
+      const file = new Blob([res.data], { type: contentType });
+      const url = URL.createObjectURL(file);
       window.open(url, "_blank");
     } catch (err) {
       console.error("View error:", err.response?.data || err.message);
@@ -172,7 +224,7 @@ function ClientProfile() {
     console.log("DOWNLOAD FILE:", fileName);
 
       const res = await axios.get(
-        `${BASE_URL}/clientsclients/documents/${fileName}`,
+        `${BASE_URL}/clients/clients/documents/${fileName}`,
         {
           responseType: "blob",
           headers: {
@@ -287,7 +339,12 @@ function ClientProfile() {
       const res = await axios.post(
         `${BASE_URL}/clients/clients/${client_id}/add-source-links`,
         {
-          "links" :[`${linkName} - ${linkURL}`]
+          links: [
+            {
+              link: linkURL,
+              link_type: linkName
+            }
+          ]
         },
         {
           headers: {
@@ -308,7 +365,7 @@ function ClientProfile() {
       setShowLinkModal(false);
       setLinkName("");
       setLinkURL("");
-      fetchClient();
+      fetchLinks();
 
     } catch (err) {
       console.error("FULL ERROR:", err.response?.data);
@@ -324,17 +381,34 @@ function ClientProfile() {
   };
 
   /*delete link*/
-  const handleDeleteLink = async (linkId) => {
+  const handleDeleteLink = async (linkUrl) => {
     try {
       await axios.delete(
-        `${BASE_URL}/clients/clients/${client_id}/delete-source-link/${linkId}`,
-        getAuthHeaders()
+        `${BASE_URL}/clients/clients/${client_id}/delete-source-link`,
+        {
+          ...getAuthHeaders(),
+          params: {
+            link: linkUrl   //MUST be in params
+          }
+        }
       );
 
-      fetchClient();
+      setPopup({
+        show: true,
+        message: "Link deleted successfully",
+        type: "success"
+      });
+
+      fetchLinks();
 
     } catch (err) {
-      console.error(err);
+      console.error("DELETE ERROR:", err.response?.data);
+
+      setPopup({
+        show: true,
+        message: "Failed to delete link",
+        type: "error"
+      });
     }
   };
 
@@ -346,6 +420,7 @@ function ClientProfile() {
     setProfilePreview(URL.createObjectURL(file));
   };
 
+  /*add or update profile photo*/
   const handleUploadProfile = async () => {
     if (!profileFile) {
       return setPopup({
@@ -359,10 +434,12 @@ function ClientProfile() {
       const formData = new FormData();
       formData.append("photo", profileFile);
 
-      await axios.post(
-        `${BASE_URL}/clients/clients/${client_id}/upload-profile-photo`,
-        formData,
-        {
+      const url = `${BASE_URL}/clients/clients/${client_id}/upload-photo`;
+
+      const res = await axios({
+          method: "put",
+          url,
+          data: formData, 
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data"
@@ -370,27 +447,38 @@ function ClientProfile() {
         }
       );
 
+      console.log("Profile photo uploaded/updated", res.data);
+
       setPopup({
         show: true,
-        message: "Profile photo updated",
+        message: "Profile photo saved successfully",
         type: "success"
       });
 
       setProfileFile(null);
       setProfilePreview("");
-      fetchClient();
+      fetchProfilePhoto();
+      setShowPhotoModal(false);
 
     } catch (err) {
       console.error(err.response?.data);
+      setPopup({
+        show: true,
+        message:
+          err.response?.data?.detail?.[0]?.msg ||
+          "Failed to upload photo",
+        type: "error"
+      });
     }
   };
 
   const handleDeleteProfile = async () => {
     try {
-      await axios.delete(
-        `${BASE_URL}/clients/clients/${client_id}/delete-profile-photo`,
+      const res = await axios.delete(
+        `${BASE_URL}/clients/clients/${client_id}/delete-photo`,
         getAuthHeaders()
       );
+      console.log("Delete photo response:", res.data);
 
       setPopup({
         show: true,
@@ -398,10 +486,15 @@ function ClientProfile() {
         type: "success"
       });
 
-      fetchClient();
-
+      fetchProfilePhoto();
+      setShowPhotoModal(false);
     } catch (err) {
       console.error(err);
+      setPopup({
+        show: true,
+        message: "Failed to delete profile photo",
+        type: "error"
+      });
     }
   };
 
@@ -412,29 +505,24 @@ function ClientProfile() {
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-4">
           <div className="relative">
-
-              <img
-                src={
-                  profilePreview ||
-                  (client.photo
-                    ? `${BASE_URL}/${client.photo}`
-                    : "https://via.placeholder.com/100")
-                }
-                alt="profile"
-                className="w-24 h-24 rounded-full object-cover shadow"
-              />
-
-              {/* Upload Button */}
-              <label className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer">
-                <FiEdit/>
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleProfileChange}
-                />
-              </label>
-
-            </div>
+            <img
+              src={
+                profilePreview ||
+                (client.photo
+                  ? `${BASE_URL}/${client.photo}`
+                  : "https://via.placeholder.com/100")
+              }
+              alt="profile"
+              className="w-24 h-24 rounded-full object-cover shadow"
+            />
+            {/* CONDITIONAL ICON */}
+            <button
+              onClick={() => setShowPhotoModal(true)}
+              className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
+            >
+              {client.photo ? <FiEdit /> : <FiUpload />}
+            </button>
+          </div>
 
           <div>
             <h1 className="text-5xl font-bold text-gray-800">
@@ -582,49 +670,48 @@ function ClientProfile() {
             {/* ADD LINK BUTTON */}
             <button
               onClick={() => setShowLinkModal(true)}
-              className="bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow"
+              className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md"
             >
+              <FiLink />
               Add Link
             </button>
           </div>
 
           {/* LIST */}
-          {client.links?.length ? (
-            client.links.map((link, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
-              >
+          {links?.length ? (
+            links.map((link, i) => {
 
-                {/* LEFT */}
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">
-                    {link.name || "Untitled Link"}
-                  </p>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-green-700 underline"
-                  >
-                    {link.url}
-                  </a>
+              let name = link.link_type || "Untitled";
+              let url = link.link || "#";
+
+              return (
+                <div
+                  key={i}
+                  className="flex items-center justify-between px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {name}
+                    </p>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-green-700 underline"
+                    >
+                      {url}
+                    </a>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-gray-500">
+                    <FiTrash2
+                      className="cursor-pointer hover:text-green-700"
+                      onClick={() => handleDeleteLink(link.link)}
+                    />
+                  </div>
                 </div>
-
-                {/* RIGHT */}
-                <div className="text-gray-400 text-sm">
-                  🔗
-                </div>
-
-                <div className="flex items-center gap-4 text-gray-500">
-                  <FiTrash2
-                    className="cursor-pointer hover:text-green-700"
-                    onClick={() => handleDeleteLink(link.id)}
-                  />
-                </div>
-
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="p-6 text-gray-400">No links available</p>
           )}
@@ -637,20 +724,12 @@ function ClientProfile() {
 
           <div className="bg-white w-100 rounded-2xl shadow-xl p-6 relative">
 
-            {/* CLOSE */}
-            <button
-              onClick={() => setShowDocModal(false)}
-              className="absolute top-3 right-3 text-gray-500"
-            >
-              <FiX size={20} />
-            </button>
-
             <h2 className="text-xl font-semibold mb-4">
               Upload Document
             </h2>
 
             {/* DROP AREA */}
-            <div className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50">
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -663,7 +742,7 @@ function ClientProfile() {
                   Click to upload or drag file
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  PDF, DOC, JPG, PNG
+                  PDF, DOC, JPG, PNG, JPEG supported
                 </p>
               </label>
             </div>
@@ -709,50 +788,116 @@ function ClientProfile() {
 
           <div className="bg-white w-96 rounded-2xl shadow-xl p-6 relative">
 
-            {/* CLOSE */}
-            <button
-              onClick={() => setShowLinkModal(false)}
-              className="absolute top-3 right-3 text-gray-500"
-            >
-              <FiX size={20} />
-            </button>
-
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-3">
               Add Link
             </h2>
 
             {/* INPUTS */}
+            <label className="text-sm font-semibold mb-1 px-2 block">
+              Link Name <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="Enter link name"
               value={linkName}
               onChange={(e) => setLinkName(e.target.value)}
-              className="w-full border border-gray-200 p-2 rounded mb-3"
+              className="w-full border border-gray-200 p-3 rounded-2xl mb-3 hover:border-gray-200"
             />
 
+            <label className="text-sm font-semibold mb-1 px-2 block">
+              URL <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="Enter URL"
               value={linkURL}
               onChange={(e) => setLinkURL(e.target.value)}
-              className="w-full border border-gray-200 p-2 rounded"
+              className="w-full border border-gray-200 p-3 rounded-2xl hover:border-gray-200"
             />
 
             {/* ACTIONS */}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg"
+                className="px-4 py-2 bg-gray-200 rounded-2xl hover:bg-gray-300"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleAddLink}
-                className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
               >
                 Add
               </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {showPhotoModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+          <div className="bg-white p-6 rounded-2xl w-96 shadow-xl relative">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Upload Profile Photo
+            </h2>
+
+            {/* CLICK AREA */}
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+              <input
+                type="file"
+                id="profileUpload"
+                className="hidden"
+                onChange={handleProfileChange}
+              />
+
+              <label htmlFor="profileUpload" className="cursor-pointer">
+                <p className="text-gray-500">Click here to add photo</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  JPG, PNG, JPEG supported
+                </p>
+              </label>
+            </div>
+
+            {/* PREVIEW */}
+            {profilePreview && (
+              <img
+                src={profilePreview}
+                alt="preview"
+                className="w-24 h-24 rounded-full mx-auto mt-4 object-cover"
+              />
+            )}
+
+            {/* ACTIONS */}
+            <div className="flex justify-between mt-6">
+
+              {/* DELETE BUTTON */}
+              {client.photo && (
+                <button
+                  onClick={handleDeleteProfile}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                >
+                  Delete
+                </button>
+              )}
+
+              <div className="flex gap-2 ml-auto">
+                <button
+                  onClick={() => setShowPhotoModal(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleUploadProfile}
+                  className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                >
+                  Upload
+                </button>
+              </div>
             </div>
 
           </div>
@@ -801,7 +946,7 @@ function ClientProfile() {
                       ) : (
                   <button
                     onClick={() => setPopup({ show: false })}
-                    className="px-4 py-2 bg-green-800 text-white rounded-full hover:bg-green-700"
+                    className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
                   >
                       OK
                   </button>
