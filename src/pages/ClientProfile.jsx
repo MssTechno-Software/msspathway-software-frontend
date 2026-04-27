@@ -10,6 +10,7 @@ function ClientProfile() {
   const { client_id } = useParams();
   const [client, setClient] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [documents, setDocuments] = useState([]);
   const [showDocModal, setShowDocModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -19,6 +20,7 @@ function ClientProfile() {
   const [previewURL, setPreviewURL] = useState("");
   const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState("");
+  const [profileUrl, setProfileUrl] = useState(""); // ✅ ADD THIS
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
@@ -58,6 +60,26 @@ function ClientProfile() {
     }
   }, [client_id]);
 
+  /*fetch documents*/
+  const fetchDocuments = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/documents/clients/${client_id}/documents`,
+        getAuthHeaders()
+      );
+      console.log("Documents API Response:", res.data);
+      setDocuments(res.data.documents || []);
+    } catch (err) {
+      console.error("Error fetching documents:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (client_id) {
+      fetchDocuments();
+    }
+  }, [client_id]);
+
   /*fetch link*/
   const fetchLinks = async () => {
     try {
@@ -80,29 +102,31 @@ function ClientProfile() {
     }
   }, [client_id]);
 
-  const fetchProfilePhoto = async () => {
+  /*fetch profile photo*/
+  const fetchProfilePhotoView = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/clients/clients/${client_id}/photo`,
+        `${BASE_URL}/documents/clients/${client_id}/profile-picture/view`,
         {
           responseType: "blob",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
-
+      console.log("Profile photo fetched successfully:", res.data);
       const url = URL.createObjectURL(res.data);
-      setProfilePreview(url);
+      setProfileUrl(url);
 
     } catch (err) {
       console.log("No profile photo");
+      setProfileUrl("");
     }
   };
 
   useEffect(() => {
     if (client_id) {
-      fetchProfilePhoto();
+      fetchProfilePhotoView();
     }
   }, [client_id]);
 
@@ -145,8 +169,8 @@ function ClientProfile() {
         console.log(pair[0], pair[1]);
       }
 
-      await axios.post(
-        `${BASE_URL}/clients/clients/${client_id}/upload-documents`,
+      const response = await axios.post(
+        `${BASE_URL}/documents/clients/${client_id}/upload-documents`,
         formData,
         {
           headers: {
@@ -154,6 +178,7 @@ function ClientProfile() {
           }
         }
       );
+      console.log("Upload response:", response.data);
 
       setPopup({
         show: true,
@@ -178,20 +203,21 @@ function ClientProfile() {
     }
   };
 
-
   /*view document*/
   const handleView = async (doc) => {
     try {
-      const fileName =
-      typeof doc === "string"
-        ? doc.split("/").pop()
-        : doc.file_name || doc.name;
+      console.log("Viewing document:", doc);
+      const gcsPath =
+        typeof doc === "string"
+          ? doc
+          : doc.gcs_path || doc.file_path || doc.download_url;
 
-      console.log("VIEW FILE:", fileName);
+      console.log("VIEW PATH:", gcsPath); 
 
       const res = await axios.get(
-        `${BASE_URL}/clients/clients/documents/${fileName}`,
+        `${BASE_URL}/documents/view`,
         {
+          params: { gcs_path: gcsPath },
           responseType: "blob",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -199,15 +225,21 @@ function ClientProfile() {
         }
       );
 
-      const contentType = res.headers["content-type"];
-      const file = new Blob([res.data], { type: contentType });
-      const url = URL.createObjectURL(file);
-      window.open(url, "_blank");
+      const url = URL.createObjectURL(res.data);
+      window.open(url);
+
+      setPopup({
+        show: true,
+        message: "Document opened in new tab",
+        type: "success"
+      });
+      fetchDocuments();
+
     } catch (err) {
       console.error("View error:", err.response?.data || err.message);
       setPopup({
         show: true,
-        message: "File not found",
+        message: "Failed to open document",
         type: "error"
       });
     }
@@ -215,21 +247,24 @@ function ClientProfile() {
 
   /*download document*/
   const handleDownload = async (doc) => {
+    console.log("Downloading document:", doc);
     try {
-      const fileName =
+      const gcsPath =
         typeof doc === "string"
-          ? doc.split("/").pop()
-          : doc.file_name || doc.name;
+          ? doc
+          : doc.gcs_path || doc.file_path || doc.download_url;
 
-    console.log("DOWNLOAD FILE:", fileName);
+      console.log("DOWNLOAD PATH:", gcsPath);
+      const fileName = gcsPath.split("/").pop();
 
       const res = await axios.get(
-        `${BASE_URL}/clients/clients/documents/${fileName}`,
+        `${BASE_URL}/documents/download`,
         {
+          params: { gcs_path: gcsPath },
           responseType: "blob",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
 
@@ -242,34 +277,43 @@ function ClientProfile() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      setPopup({
+        show: true,
+        message: "Download started",
+        type: "success"
+      });
+      fetchDocuments();
 
     } catch (err) {
       console.error("Download error:", err.response?.data || err.message);
       setPopup({
         show: true,
-        message: "Download failed",
+        message: "Failed to download document",
         type: "error"
       });
     }
   };
 
+  /*delete document*/
   const handleDelete = (doc) => {
+    console.log("Deleting document:", doc);
+    const gcsPath =
+      typeof doc === "string"
+        ? doc
+        : doc.gcs_path || doc.file_path || doc.download_url;
+    console.log("DELETE PATH:", gcsPath);
+
     setPopup({
       show: true,
       message: "Are you sure you want to delete this document?",
       type: "confirm",
       onConfirm: async () => {
         try {
-          const fileName =
-            typeof doc === "string"
-              ? doc.split("/").pop()
-              : doc.file_name || doc.name;
-
           await axios.delete(
-            `${BASE_URL}/clients/clients/${client_id}/delete-document-by-name`,
+            `${BASE_URL}/documents/clients/${client_id}/documents`,
             {
               params: {
-                filename: fileName
+                gcs_path: gcsPath
               },
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -282,12 +326,10 @@ function ClientProfile() {
             message: "Document deleted successfully",
             type: "success"
           });
-
-          fetchClient();
+          fetchDocuments();
 
         } catch (err) {
-          console.error(err.response?.data);
-
+          console.error("Delete error:", err.response?.data);
           setPopup({
             show: true,
             message:
@@ -354,7 +396,7 @@ function ClientProfile() {
         }
       );
 
-      console.log("added link:", res.data);
+      console.log("Add link response:", res.data);
 
       setPopup({
         show: true,
@@ -383,7 +425,7 @@ function ClientProfile() {
   /*delete link*/
   const handleDeleteLink = async (linkUrl) => {
     try {
-      await axios.delete(
+      const res = await axios.delete(
         `${BASE_URL}/clients/clients/${client_id}/delete-source-link`,
         {
           ...getAuthHeaders(),
@@ -392,6 +434,8 @@ function ClientProfile() {
           }
         }
       );
+      
+      console.log("Link deleted successfully:", res.data);
 
       setPopup({
         show: true,
@@ -420,6 +464,11 @@ function ClientProfile() {
     setProfilePreview(URL.createObjectURL(file));
   };
 
+  const profileImage =
+    profileFile
+      ? profilePreview
+      : profileUrl || "https://via.placeholder.com/100";
+
   /*add or update profile photo*/
   const handleUploadProfile = async () => {
     if (!profileFile) {
@@ -434,41 +483,37 @@ function ClientProfile() {
       const formData = new FormData();
       formData.append("photo", profileFile);
 
-      const url = `${BASE_URL}/clients/clients/${client_id}/upload-photo`;
-      //const method = client.photo ? "put" : "post";
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
 
-      const res = await axios({
-          method: "put",
-          url,
-          data: formData, 
+      const res = await axios.post(
+        `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
+        formData,
+        {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-          }
+          },
         }
       );
-
-      console.log("Profile photo uploaded/updated", res.data);
-
-      setPopup({
-        show: true,
-        message: "Profile photo saved successfully",
-        type: "success"
-      });
+      console.log("Profile photo uploaded successfully:", res.data);
 
       setProfileFile(null);
       setProfilePreview("");
-      fetchProfilePhoto();
+      await fetchProfilePhotoView();
       setShowPhotoModal(false);
-      fetchProfilePhoto();
-      fetchClient();
 
-    } catch (err) {
-      console.error(err.response?.data);
       setPopup({
         show: true,
-        message:
-          err.response?.data?.detail?.[0]?.msg ||
-          "Failed to upload photo",
+        message: "Profile photo uploaded successfully",
+        type: "success"
+      });
+
+    } catch (err) {
+      console.error("Upload error:", err.response?.data);
+      setPopup({
+        show: true,
+        message: "Upload failed",
         type: "error"
       });
     }
@@ -478,24 +523,28 @@ function ClientProfile() {
   const handleDeleteProfile = async () => {
     try {
       const res = await axios.delete(
-        `${BASE_URL}/clients/clients/${client_id}/delete-photo`,
-        getAuthHeaders()
+        `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
+        {
+          ...getAuthHeaders(),
+          params: {gcs_path: profileUrl}  
+        }
       );
-      console.log("Delete photo response:", res.data);
+      console.log("Profile photo deleted successfully:", res.data);
 
+      setProfileUrl("");
       setPopup({
         show: true,
         message: "Profile photo deleted",
         type: "success"
       });
-      fetchClient();
-      fetchProfilePhoto();
+
       setShowPhotoModal(false);
+
     } catch (err) {
-      console.error(err);
+      console.error("Delete error:", err.response?.data);
       setPopup({
         show: true,
-        message: "Failed to delete profile photo",
+        message: "Delete failed",
         type: "error"
       });
     }
@@ -509,23 +558,15 @@ function ClientProfile() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <img
-              src={
-                profilePreview ||
-                (client.photo
-                  ? client.photo.startsWith("http")
-                    ? client.photo
-                    : `${BASE_URL}/${client.photo}`
-                  : "https://via.placeholder.com/100")
-              }
-              alt="profile"
-              className="w-36 h-36 rounded-full object-cover shadow"
+              src={profileImage}
+              className="w-28 h-28 rounded-full object-cover shadow"
             />
             {/* CONDITIONAL ICON */}
             <button
               onClick={() => setShowPhotoModal(true)}
               className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
             >
-              {client.photo ? <FiEdit /> : <FiUpload />}
+              {profileUrl ? <FiEdit /> : <FiUpload />}
             </button>
           </div>
 
@@ -870,7 +911,6 @@ function ClientProfile() {
             {profilePreview && (
               <img
                 src={profilePreview}
-                alt="preview"
                 className="w-24 h-24 rounded-full mx-auto mt-4 object-cover"
               />
             )}
@@ -879,7 +919,7 @@ function ClientProfile() {
             <div className="flex justify-between mt-6">
 
               {/* DELETE BUTTON */}
-              {client.photo && (
+              {profileUrl && (
                 <button
                   onClick={handleDeleteProfile}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg"
@@ -914,7 +954,7 @@ function ClientProfile() {
           editingClient={client}   // ✅ important
           onClose={() => setShowEdit(false)}
           onAdd={handleUpdate}     // ✅ reuse submit
-          setPopup={() => {}}
+          setPopup={() => { }}
         />
       )}
 
@@ -926,38 +966,38 @@ function ClientProfile() {
                 ${popup.type === "error" && "text-red-600"}
                 ${popup.type === "confirm" && "text-gray-800"}
             `}>
-             {popup.message}
+              {popup.message}
             </p>
-                  {/* BUTTONS */}
-                    <div className="flex justify-center gap-3">
-                      {popup.type === "confirm" ? (
-                        <>
-                          <button
-                            onClick={async () => {
-                              await popup.onConfirm();
-                            }}
-                              className="px-4 py-2 bg-red-600 text-white rounded"
-                          >
-                              Yes
-                          </button>
+            {/* BUTTONS */}
+            <div className="flex justify-center gap-3">
+              {popup.type === "confirm" ? (
+                <>
+                  <button
+                    onClick={async () => {
+                      await popup.onConfirm();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded"
+                  >
+                    Yes
+                  </button>
 
-                          <button
-                            onClick={() => setPopup({ show: false })}
-                            className="px-4 py-2 bg-gray-300 rounded"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
                   <button
                     onClick={() => setPopup({ show: false })}
-                    className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                    className="px-4 py-2 bg-gray-300 rounded"
                   >
-                      OK
+                    Cancel
                   </button>
-                )}
-              </div>
+                </>
+              ) : (
+                <button
+                  onClick={() => setPopup({ show: false })}
+                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                >
+                  OK
+                </button>
+              )}
             </div>
+          </div>
         </div>
       )}
     </div>

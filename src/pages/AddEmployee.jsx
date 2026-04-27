@@ -7,11 +7,13 @@ import {
   FiChevronDown,
   FiLock,
   FiEye,
-  FiEyeOff
+  FiEyeOff,
+  FiMapPin
 } from "react-icons/fi";
 
 function AddEmployee({ onClose, onSave, editingEmployee }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [isCurrentlyWorking, setIsCurrentlyWorking] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -25,14 +27,30 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     password: "",
     reporting_to: "",   
     hr_employee_id: "",
-    role: "Employee"
+    role: "Employee",
+    location: ""
   });
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   useEffect(() => {
     if (editingEmployee) {
-      setForm(editingEmployee);
+      setForm({
+        firstName: editingEmployee.first_name || "",
+        lastName: editingEmployee.last_name || "",
+        email: editingEmployee.email || "",
+        mobile: editingEmployee.mobile || "",
+        designation: editingEmployee.designation || "",
+        password: "",
+        reporting_to: editingEmployee.reporting_to || "",
+        hr_employee_id: editingEmployee.hr_employee_id || "",
+        aadhaar: editingEmployee.aadhaar || "",
+        role: editingEmployee.role || "Employee",
+        startDate: editingEmployee.start_date || "",
+        endDate: editingEmployee.end_date || "",
+        location: editingEmployee.location || ""
+      });
+      setIsCurrentlyWorking(!editingEmployee.end_date);
     }
   }, [editingEmployee]);
 
@@ -45,66 +63,83 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
     value = value.replace(/\s+/g, " ");
 
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const submit = () => {
-    if (
-      !form.firstName?.trim() ||
-      !form.lastName?.trim() ||
-      !form.aadhaar?.trim() ||
-      !form.startDate ||
-      !form.endDate ||
-      !form.email?.trim() ||
-      !form.mobile?.trim() ||
-      !form.designation?.trim() ||
-      !form.password?.trim() ||
-      !form.reporting_to?.trim() ||   
-      !form.hr_employee_id?.trim() ||  
-      !form.role?.trim()
-    ) {
-      onSave({
-        error: true,
-        message: "All fields are mandatory"
-      });
-      return;
+    if (!form.firstName?.trim()) {
+      return onSave({ error: true, message: "First name is required" });
+    }
+
+    if (!form.lastName?.trim()) {
+      return onSave({ error: true, message: "Last name is required" });
+    }
+
+    if (!form.email?.trim()) {
+      return onSave({ error: true, message: "Email is required" });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
-      onSave({
-        error: true,
-        message: "Enter a valid email address"
-      });
-      return;
+      return onSave({ error: true, message: "Enter a valid email address" });
+    }
+
+    if (!editingEmployee && !form.password?.trim()) {
+      return onSave({ error: true, message: "Password is required" });
+    }
+
+    if (!form.mobile?.trim()) {
+      return onSave({ error: true, message: "Mobile is required" });
     }
 
     if (form.mobile.length < 10) {
-      onSave({
-        error: true,
-        message: "Enter a valid mobile number"
-      });
-      return;
+      return onSave({ error: true, message: "Enter valid mobile number" });
     }
 
-    if (!form.password?.trim()) {
-      onSave({
-        error: true,
-        message: "Password is required"
-      });
-      return;
+    if (!/^\d{10}$/.test(form.mobile)) {
+      return onSave({ error: true, message: "Enter valid 10-digit mobile number" });
     }
 
-    // Aadhaar validation (12 digits)
+    if (!form.designation?.trim()) {
+      return onSave({ error: true, message: "Designation is required" });
+    }
+
+    if (!form.startDate) {
+      return onSave({ error: true, message: "Start date is required" });
+    }
+
+    if (!isCurrentlyWorking && !form.endDate) {
+      return onSave({ error: true, message: "End date is required" });
+    }
+
+    if (!form.reporting_to?.trim()) {
+      return onSave({ error: true, message: "Reporting manager is required" });
+    }
+
+    if (!form.hr_employee_id?.trim()) {
+      return onSave({ error: true, message: "HR ID is required" });
+    }
+
+    if (!form.aadhaar?.trim()) {
+      return onSave({ error: true, message: "Aadhaar is required" });
+    }
+
     if (!/^\d{12}$/.test(form.aadhaar)) {
-      onSave({
-        error: true,
-        message: "Aadhaar must be 12 digits"
-      });
-      return;
+      return onSave({ error: true, message: "Aadhaar must be 12 digits" });
     }
 
-    onSave(form);
+    if (!form.role) {
+      return onSave({ error: true, message: "Role is required" });
+    }
+    if (!form.location?.trim()) {
+      return onSave({ error: true, message: "Location is required" });
+    }
+
+    console.log("FORM BEFORE SEND:", form);
+    onSave(form); 
   };
 
   return (
@@ -134,7 +169,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 name="firstName"
                 value={form.firstName}
                 onChange={handleChange}
-                className="w-full mt-2 py-3 px-3 border rounded-xl"
+                className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
                 placeholder="Enter first name"
               />
             </div>
@@ -147,7 +182,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 name="lastName"
                 value={form.lastName}
                 onChange={handleChange}
-                className="w-full mt-2 py-3 px-3 border rounded-xl"
+                className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
                 placeholder="Enter last name"
               />
             </div>
@@ -163,7 +198,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
               value={form.aadhaar}
               onChange={handleChange}
               maxLength={12}
-              className="w-full mt-2 py-3 px-3 border rounded-xl"
+              className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
               placeholder="Enter 12-digit Aadhaar"
             />
           </div>
@@ -225,35 +260,45 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
           </div>
 
-          {/*start date end date*/}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Start Date <span className="text-red-500">*</span>
-              </label>
+          {/*start date*/}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Start Date <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              name="startDate"
+              value={form.startDate}
+              onChange={handleChange}
+              className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
+            />
+          </div>
+          {/*end date + currently working toggle*/}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              End Date <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center gap-2 mt-2">
               <input
-                type="date"
-                name="startDate"
-                value={form.startDate}
-                onChange={handleChange}
-                className="w-full mt-2 py-3 px-3 border rounded-xl"
+                type="checkbox"
+                checked={isCurrentlyWorking}
+                onChange={() => {
+                  setIsCurrentlyWorking(!isCurrentlyWorking);
+                  setForm({ ...form, endDate: "" });
+                }}
               />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                End Date <span className="text-red-500">*</span>
+              <label className="text-sm text-gray-600">
+                Currently Working
               </label>
-              <input
-                type="date"
-                name="endDate"
-                value={form.endDate}
-                onChange={handleChange}
-                className="w-full mt-2 py-3 px-3 border rounded-xl"
-              />
             </div>
-
+            <input
+              type="date"
+              name="endDate"
+              value={form.endDate}
+              onChange={handleChange}
+              disabled={isCurrentlyWorking}
+              className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
+            />
           </div>
 
           {/* REPORTING + HR */}
@@ -345,7 +390,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             {showRoleDropdown && (
               <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
-                {["Employee", "Admin", "Manager"].map((r) => (
+                {["Employee", "Admin", "User"].map((r) => (
                   <div
                     key={r}
                     onClick={() => {
@@ -361,6 +406,21 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             )}
           </div>
 
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Location <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+              <FiMapPin className="text-gray-400 mr-2" />
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="City, Country"
+                className="w-full py-3 text-sm outline-none"
+              />
+            </div>
+          </div>
         </div>
 
         {/* FOOTER */}

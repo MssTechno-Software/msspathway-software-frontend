@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
 import AddEmployee from "./AddEmployee";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +35,7 @@ function Employees() {
     try {
         const res = await API.get("/admin/users");
         console.log("feached employee data:",res.data);
-        setEmployees(res.data);
+        setEmployees(res.data.data || res.data);
     } catch (err) {
         console.error("Fetch error:", err.response?.data || err.message);
     }
@@ -47,23 +47,54 @@ function Employees() {
 
   /*add or update*/
   const handleSave = async (form) => {
+    if (form.error) {
+      setPopup({
+        show: true,
+        message: form.message,
+        type: "error"
+      });
+      return;
+    }
+
     try {
       const payload = {
-        first_name: form.Name,
-        email: form.email,
-        mobile: form.mobile,
-        designation: form.designation,
-        password: form.password,
-        reporting_to: form.reporting_to,      
-        hr_employee_id: form.hr_employee_id,  
+        first_name: form.firstName?.trim(),
+        last_name: form.lastName?.trim(),        
+        email: form.email?.trim(),
+        mobile: form.mobile?.trim(),
+        designation: form.designation?.trim(),
+        reporting_to: form.reporting_to?.trim(),
+        hr_employee_id: form.hr_employee_id?.trim(),
         role: form.role,
+        aadhaar: form.aadhaar?.trim(),
+        start_date: form.startDate,
+        end_date: form.endDate || null,
+        location: form.location?.trim()
       };
+      if (!editingEmployee) {
+        if (!form.password?.trim()) {
+          setPopup({
+            show: true,
+            message: "Password is required",
+            type: "error"
+          });
+          return; 
+        }
+        payload.password = form.password.trim();
+      } else if (form.password?.trim()) {
+        payload.password = form.password.trim();
+      }
 
       console.log("Payloads sending are:",payload);
 
       if (editingEmployee) {
         const employee_id = editingEmployee.employee_id;
-        const res = await API.put(`/admin/users/${employee_id}`, payload);
+        /*update*/
+        const res = await API.put(`/admin/users/${employee_id}`, payload, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
         console.log("Updated employee:",res.data);
         setPopup({
           show: true,
@@ -72,7 +103,12 @@ function Employees() {
         });
       } 
       else {
-        const res = await API.post("/admin/users", payload);
+        /*create*/
+        const res = await API.post("/admin/users", payload,{
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
         console.log("Created employee:",res.data);
         setPopup({
           show: true,
@@ -108,8 +144,7 @@ function Employees() {
         try {
           const res = await API.delete(`/admin/users/${employee_id}`);
           console.log("Deleting Employee:", res.data);
-          const response = await fetchEmployees();
-          console.log("Featch employee after deletion:", response.data);
+          await fetchEmployees();
           setPopup({
             show: true,
             message: "Employee deleted successfully.",
@@ -191,7 +226,7 @@ function Employees() {
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-md">
           <thead className="bg-gray-100 text-gray-600">
-            <tr>
+            <tr className="border-b border-gray-200">
               <th className="p-4 text-left">ID</th>
               <th className="p-4 text-left">Name</th>
               <th className="p-4 text-left">Mobile</th>
@@ -203,11 +238,11 @@ function Employees() {
 
           <tbody>
             {currentEmployees.map((emp) => (
-              <tr key={emp.employee_id ||emp.email || index}
-                onClick={() => navigate(`/employee-progile/${emp.employee_id}`)}
+              <tr key={emp.employee_id ||emp.email}
+                onClick={() => navigate(`employees/${emp.employee_id}`)}
                 className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
                 <td className="p-4">{emp.employee_id}</td>
-                <td className="p-4">{emp.name}</td>
+                <td className="p-4">{[emp.first_name, emp.last_name].filter(Boolean).join(" ")}</td>
                 <td className="p-4">{emp.mobile}</td>
                 <td className="p-4">{emp.email}</td>
                 <td className="p-4">{emp.reporting_to || "-"}</td>
@@ -215,14 +250,17 @@ function Employees() {
 
                 <td className="p-4 flex gap-3">
                   <FiEdit
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleEdit(emp.employee_id);
-                      setShowModal(true);
                     }}
                     className="cursor-pointer hover:text-green-600"
                   />
                   <FiTrash2
-                    onClick={() => handleDelete(emp.employee_id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(emp.employee_id);
+                    }}
                     className="cursor-pointer  hover:text-green-600"
                   />
                 </td>
@@ -280,8 +318,8 @@ function Employees() {
               {popup.type === "confirm" ? (
                 <>
                   <button
-                    onClick={() => {
-                      popup.onConfirm();
+                    onClick={async () => {
+                      await popup.onConfirm();
                       setPopup({ show: false });
                     }}
                     className="bg-red-600 text-white px-4 py-2 rounded"
