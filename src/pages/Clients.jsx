@@ -212,25 +212,42 @@ function Clients() {
     };
 
     // EDIT CLIENT
-    const editClient = async (client) => {
-        try {
-            const clientId = client.client_id || client.id;
+    // const editClient = async (client) => {
+    //     try {
+    //         const clientId = client.client_id || client.id;
 
-            console.log("Editing client ID:", clientId);
+    //         console.log("Editing client ID:", clientId);
 
-            const res = await axios.get(
-            `${BASE_URL}/clients/clients/${clientId}`, // GET API
-            getAuthHeaders()
-            );
+    //         const res = await axios.get(
+    //         `${BASE_URL}/clients/clients/${clientId}`, // GET API
+    //         getAuthHeaders()
+    //         );
 
-            console.log("Edit client data:", res.data);
+    //         console.log("Edit client data:", res.data);
 
-            setEditingClient(res.data); //  fresh backend data
-            setShowModal(true);
+    //         setEditingClient(res.data); //  fresh backend data
+    //         setShowModal(true);
 
-        } catch (err) {
-            console.error("Edit fetch error:", err.response?.data || err.message);
-        }
+    //     } catch (err) {
+    //         console.error("Edit fetch error:", err.response?.data || err.message);
+    //     }
+    // };
+    const editClient = (client) => {
+        setEditingClient({
+            ...client,
+            client_name: client.client_name,
+            mobile: client.mobile,
+            email: client.email,
+            technology: client.technology,
+            status: client.status,
+            employee_id: client.employee_id,
+            professional_role: client.professional_role,
+            aadhaar_number: client.aadhaar_number,
+            location: client.location,
+            notes: client.notes
+        });
+
+        setShowModal(true);
     };
 
     const filteredClients = clients.filter((client) =>

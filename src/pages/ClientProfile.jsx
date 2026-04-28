@@ -20,7 +20,7 @@ function ClientProfile() {
   const [previewURL, setPreviewURL] = useState("");
   const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState("");
-  const [profileUrl, setProfileUrl] = useState(""); // ✅ ADD THIS
+  const [profileUrl, setProfileUrl] = useState("");
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
@@ -64,7 +64,7 @@ function ClientProfile() {
   const fetchDocuments = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/clients/${client_id}/documents`,
+        `${BASE_URL}/documents/clients/${client_id}/view-documents`,
         getAuthHeaders()
       );
       console.log("Documents API Response:", res.data);
@@ -104,9 +104,10 @@ function ClientProfile() {
 
   /*fetch profile photo*/
   const fetchProfilePhotoView = async () => {
+    console.log("Fetching profile photo for client ID:", client_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/clients/${client_id}/profile-picture/view`,
+        `${BASE_URL}/documents/clients/${client_id}/profile-picture/view?v=${Date.now()}`, // cache buster
         {
           responseType: "blob",
           headers: {
@@ -129,25 +130,40 @@ function ClientProfile() {
       fetchProfilePhotoView();
     }
   }, [client_id]);
+  
+  useEffect(() => {
+    return () => {
+      if (profileUrl) {
+        URL.revokeObjectURL(profileUrl);
+      }
+    };
+  }, [profileUrl]);
 
   if (!client) {
     return <div className="p-6">Loading client details...</div>;
   }
 
-  /*update*/
-  const handleUpdate = async (updatedData) => {
-    try {
-      await axios.put(
-        `${BASE_URL}/clients/update/${client_id}`,
-        updatedData,
-        getAuthHeaders()
-      );
+  const handleUpdate = (updatedData) => {
+    console.log("Updated clients profile:", updatedData);
 
-      setShowEdit(false);
-      fetchClient(); // refresh data
-    } catch (err) {
-      console.error("Update error:", err);
-    }
+    // update UI only (no backend)
+    setClient((prev) => ({
+      ...prev,
+      client_name: updatedData.name,
+      mobile: updatedData.mobile,
+      email: updatedData.email,
+      technology: updatedData.tech.join(","),
+      professional_role: updatedData.role,
+      aadhaar_number: updatedData.aadhaar,
+      location: updatedData.location
+    }));
+    setPopup({
+      show: true,
+      message: "Client profile updated successfully",
+      type: "success"
+    });
+
+    setShowEdit(false);
   };
 
   /*upload document*/
@@ -188,6 +204,7 @@ function ClientProfile() {
       setShowDocModal(false);
       setSelectedFile(null);
       setPreviewURL("");
+      fetchDocuments();
       fetchClient();
 
     } catch (err) {
@@ -205,8 +222,8 @@ function ClientProfile() {
 
   /*view document*/
   const handleView = async (doc) => {
+    console.log("Viewing document:", doc);
     try {
-      console.log("Viewing document:", doc);
       const gcsPath =
         typeof doc === "string"
           ? doc
@@ -224,6 +241,7 @@ function ClientProfile() {
           },
         }
       );
+      console.log("View response received:", res.data);
 
       const url = URL.createObjectURL(res.data);
       window.open(url);
@@ -267,6 +285,7 @@ function ClientProfile() {
           },
         }
       );
+      console.log("Download response received:", res.data);
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
@@ -309,7 +328,7 @@ function ClientProfile() {
       type: "confirm",
       onConfirm: async () => {
         try {
-          await axios.delete(
+          const res = await axios.delete(
             `${BASE_URL}/documents/clients/${client_id}/documents`,
             {
               params: {
@@ -320,6 +339,7 @@ function ClientProfile() {
               }
             }
           );
+          console.log("Delete response:", res.data);
 
           setPopup({
             show: true,
@@ -434,9 +454,7 @@ function ClientProfile() {
           }
         }
       );
-      
-      console.log("Link deleted successfully:", res.data);
-
+      console.log("Delete response:", res.data);
       setPopup({
         show: true,
         message: "Link deleted successfully",
@@ -467,25 +485,28 @@ function ClientProfile() {
   const profileImage =
     profileFile
       ? profilePreview
-      : profileUrl || "https://via.placeholder.com/100";
+      : `${BASE_URL}/documents/clients/${client_id}/profile-picture/view?v=${Date.now()}` ;
 
   /*add or update profile photo*/
   const handleUploadProfile = async () => {
+    console.log("Uploading profile photo:", profileFile);
     if (!profileFile) {
-      return setPopup({
+      setPopup({
         show: true,
         message: "Please select an image",
         type: "error"
       });
+      return;
     }
 
     try {
       const formData = new FormData();
-      formData.append("photo", profileFile);
+      formData.append("file", profileFile);
 
       for (let pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
+      console.log("Uploading profile photo for client ID:", client_id);
 
       const res = await axios.post(
         `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
@@ -496,11 +517,11 @@ function ClientProfile() {
           },
         }
       );
-      console.log("Profile photo uploaded successfully:", res.data);
+      console.log("Profile photo upload response:", res.data);
 
       setProfileFile(null);
       setProfilePreview("");
-      await fetchProfilePhotoView();
+      fetchProfilePhotoView();
       setShowPhotoModal(false);
 
       setPopup({
@@ -521,7 +542,9 @@ function ClientProfile() {
 
   /*delete profile photo*/
   const handleDeleteProfile = async () => {
+    console.log("Deleting profile photo for client ID:", client_id);
     try {
+      console.log("Delete request sent for profile photo:", profileUrl);
       const res = await axios.delete(
         `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
         {
@@ -529,12 +552,12 @@ function ClientProfile() {
           params: {gcs_path: profileUrl}  
         }
       );
-      console.log("Profile photo deleted successfully:", res.data);
+      console.log("Profile photo delete response:", res.data);
 
       setProfileUrl("");
       setPopup({
         show: true,
-        message: "Profile photo deleted",
+        message: "Profile photo deleted successfully",
         type: "success"
       });
 
@@ -634,13 +657,13 @@ function ClientProfile() {
           </button>
         </div>
 
-        {/* LIST */}
-        {client.documents?.length ? (
-          client.documents.map((doc, i) => {
+        {/*Documents LIST */}
+        {documents?.length ? (
+          documents.map((doc, i) => {
             const fileName =
               typeof doc === "string"
                 ? doc.split("/").pop()
-                : doc.file_name || doc.name || "document";
+                : doc.gcs_path || doc.file_name || doc.name || "document";
 
             const fileType = fileName.split(".").pop().toUpperCase();
 
@@ -723,7 +746,7 @@ function ClientProfile() {
             </button>
           </div>
 
-          {/* LIST */}
+          {/*Links LIST */}
           {links?.length ? (
             links.map((link, i) => {
 
