@@ -25,7 +25,7 @@ function ClientProfile() {
   const [popup, setPopup] = useState({
     show: false,
     message: "",
-    type: "", // success | error | confirm
+    type: "",
     onConfirm: null
   });
   const getAuthHeaders = () => {
@@ -38,9 +38,8 @@ function ClientProfile() {
   };
 
   const fetchClient = async () => {
+    console.log("Fetching client ID:", client_id);
     try {
-      console.log("Fetching client ID:", client_id);
-
       const res = await axios.get(
         `${BASE_URL}/clients/client-profile/${client_id}`, // FIXED
         getAuthHeaders()
@@ -107,7 +106,7 @@ function ClientProfile() {
     console.log("Fetching profile photo for client ID:", client_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/clients/${client_id}/profile-picture/view?v=${Date.now()}`, // cache buster
+        `${BASE_URL}/documents/clients/${client_id}/profile-picture/view?v=${Date.now()}`,
         {
           responseType: "blob",
           headers: {
@@ -203,7 +202,7 @@ function ClientProfile() {
       });
       setShowDocModal(false);
       setSelectedFile(null);
-      setPreviewURL("");
+      setPreviewURL(null);
       fetchDocuments();
       fetchClient();
 
@@ -444,39 +443,57 @@ function ClientProfile() {
 
   /*delete link*/
   const handleDeleteLink = async (linkUrl) => {
-    try {
-      const res = await axios.delete(
-        `${BASE_URL}/clients/clients/${client_id}/delete-source-link`,
-        {
-          ...getAuthHeaders(),
-          params: {
-            link: linkUrl   //MUST be in params
-          }
+    setPopup({
+      show: true,
+      message: "Are you sure you want to delete this link?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          const res = await axios.delete(
+            `${BASE_URL}/clients/clients/${client_id}/delete-source-link`,
+            {
+              ...getAuthHeaders(),
+              params: {
+                link: linkUrl,
+              }
+            });
+          console.log("Delete response:", res.data);
+          setPopup({
+            show: true,
+            message: "Link deleted successfully",
+            type: "success"
+          });
+
+          fetchLinks();
+
+        } catch (err) {
+          console.error("DELETE ERROR:", err.response?.data);
+
+          setPopup({
+            show: true,
+            message: "Failed to delete link",
+            type: "error"
+          });
         }
-      );
-      console.log("Delete response:", res.data);
-      setPopup({
-        show: true,
-        message: "Link deleted successfully",
-        type: "success"
-      });
-
-      fetchLinks();
-
-    } catch (err) {
-      console.error("DELETE ERROR:", err.response?.data);
-
-      setPopup({
-        show: true,
-        message: "Failed to delete link",
-        type: "error"
-      });
-    }
+      }
+    });
   };
 
   const handleProfileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const allowed = ["png", "jpg", "jpeg"];
+    const ext = file.name.split(".").pop().toLowerCase();
+
+    if (!allowed.includes(ext)) {
+      setPopup({
+        show: true,
+        message: "Invalid file type",
+        type: "error"
+      });
+      return;
+    }
 
     setProfileFile(file);
     setProfilePreview(URL.createObjectURL(file));
@@ -616,22 +633,22 @@ function ClientProfile() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">EMAIL</p>
-          <p className="font-semibold">{client.email}</p>
+          <p className="font-semibold">{client.email || "No Email"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">MOBILE</p>
-          <p className="font-semibold">{client.mobile}</p>
+          <p className="font-semibold">{client.mobile || "No Mobile"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">AADHAAR</p>
-          <p className="font-semibold">{client.aadhaar_number}</p>
+          <p className="text-xs text-gray-400">AADHAAR NUMBER</p>
+          <p className="font-semibold">{client.aadhaar_number || "No AADHAR Number"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">LOCATION</p>
-          <p className="font-semibold">{client.location}</p>
+          <p className="font-semibold">{client.location || "No Location"}</p>
         </div>
       </div>
 

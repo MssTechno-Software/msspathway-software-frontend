@@ -152,14 +152,6 @@ function Clients() {
 
         } catch (error) {
             console.error("FULL ERROR:", error.response?.data || error.message);
-
-            if(error.response){
-                console.log("Backend Response:", error.response.data);
-                alert(JSON.stringify(error.response.data, null, 2));
-            }
-            else{
-                console.log("Error message:", error.message);
-            }
             setPopup({
                 show: true,
                 message: "An error occurred while saving the client",
@@ -212,26 +204,6 @@ function Clients() {
     };
 
     // EDIT CLIENT
-    // const editClient = async (client) => {
-    //     try {
-    //         const clientId = client.client_id || client.id;
-
-    //         console.log("Editing client ID:", clientId);
-
-    //         const res = await axios.get(
-    //         `${BASE_URL}/clients/clients/${clientId}`, // GET API
-    //         getAuthHeaders()
-    //         );
-
-    //         console.log("Edit client data:", res.data);
-
-    //         setEditingClient(res.data); //  fresh backend data
-    //         setShowModal(true);
-
-    //     } catch (err) {
-    //         console.error("Edit fetch error:", err.response?.data || err.message);
-    //     }
-    // };
     const editClient = (client) => {
         setEditingClient({
             ...client,

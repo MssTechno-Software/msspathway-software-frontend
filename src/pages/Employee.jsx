@@ -57,78 +57,60 @@ function Employees() {
     }
 
     try {
-      const payload = {
-        first_name: form.firstName?.trim(),
-        last_name: form.lastName?.trim(),        
-        email: form.email?.trim(),
-        mobile: form.mobile?.trim(),
-        designation: form.designation?.trim(),
-        reporting_to: form.reporting_to?.trim(),
-        hr_employee_id: form.hr_employee_id?.trim(),
-        role: form.role,
-        aadhaar: form.aadhaar?.trim(),
-        start_date: form.startDate,
-        end_date: form.endDate || null,
-        location: form.location?.trim()
-      };
-      if (!editingEmployee) {
-        if (!form.password?.trim()) {
-          setPopup({
-            show: true,
-            message: "Password is required",
-            type: "error"
-          });
-          return; 
-        }
-        payload.password = form.password.trim();
-      } else if (form.password?.trim()) {
-        payload.password = form.password.trim();
+      const formData = new FormData();
+      formData.append("email", form.email);
+      formData.append("password", form.password || "");
+      formData.append("role", form.role.toLowerCase());
+      formData.append("first_name", form.first_name);
+      formData.append("last_name", form.last_name);
+      formData.append("mobile", form.mobile);
+      formData.append("designation", form.designation);
+      formData.append("reporting_to", form.reporting_to);
+      formData.append("HR", form.hr);
+      formData.append("aadhaar_number", form.aadhaar_no);
+      formData.append("start_date", form.startDate);
+      if (form.endDate) {
+        formData.append("end_date", form.endDate);
+      } else {
+        formData.append("end_date", "currently working");
       }
 
-      console.log("Payloads sending are:",payload);
+      formData.append("location", form.location);
+
+      for (let [k, v] of formData.entries()) {
+        console.log(k, v);
+      }
 
       if (editingEmployee) {
-        const employee_id = editingEmployee.employee_id;
         /*update*/
-        const res = await API.put(`/admin/users/${employee_id}`, payload, {
-          headers: {
-            "Content-Type": "application/json"
-          }
+        console.log("Updating Employee with data:", Object.fromEntries(formData.entries()));
+        const res = await API.put(`/admin/users/${editingEmployee.employee_id}`, formData);
+        console.log("Updating Employee:", res.data);
+        setPopup({ 
+          show: true, 
+          message: "Employee updated successfully.", 
+          type: "success" 
         });
-        console.log("Updated employee:",res.data);
-        setPopup({
-          show: true,
-          message: "Employee updated successfully.",
-          type: "success"
-        });
-      } 
-      else {
-        /*create*/
-        const res = await API.post("/admin/users", payload,{
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-        console.log("Created employee:",res.data);
-        setPopup({
-          show: true,
-          message: "Employee added successfully.",
-          type: "success"
+      } else {
+        console.log("Adding Employee with data:", Object.fromEntries(formData.entries()));
+        const res = await API.post("/admin/users", formData);
+        console.log("Adding Employee:", res.data);
+        setPopup({ 
+          show: true, 
+          message: "Employee added successfully.", 
+          type: "success" 
         });
       }
 
-      await fetchEmployees();
-
+      fetchEmployees();
       setShowModal(false);
       setEditingEmployee(null);
 
-    }
-    catch (err) {
-      console.error("Save error:", err.response?.data || err.message);
-      console.log("ERROR FULL:", err.response?.data);
+    } catch (err) {
+      console.error("ERROR:", err.response?.data);
       setPopup({
         show: true,
-        message: "Failed to save employee.",
+        message: err.response?.data?.detail || "Failed to save employee",
         type: "error"
       });
     }
@@ -136,6 +118,7 @@ function Employees() {
 
   /*Delete*/
   const handleDelete = async (employee_id) => {
+    console.log("Attempting to delete employee with ID:", employee_id);
     setPopup({
       show: true,
       message: "Are you sure you want to delete this employee?",
@@ -144,7 +127,7 @@ function Employees() {
         try {
           const res = await API.delete(`/admin/users/${employee_id}`);
           console.log("Deleting Employee:", res.data);
-          await fetchEmployees();
+          fetchEmployees();
           setPopup({
             show: true,
             message: "Employee deleted successfully.",
@@ -163,14 +146,20 @@ function Employees() {
     });
   };
 
-  const handleEdit = async (employee_id) => {
-    try {
-      const res = await API.get(`/admin/users/${employee_id}`);
-      setEditingEmployee(res.data);
-      setShowModal(true);
-    } catch (err) {
-        console.error("Edit fetch error:", err.response?.data || err.message);
-    }
+  // const handleEdit = async (employee_id) => {
+  //   try {
+  //     const res = await API.get(`/admin/users/${employee_id}`);
+  //     setEditingEmployee(res.data);
+  //     setShowModal(true);
+  //   } catch (err) {
+  //       console.error("Edit fetch error:", err.response?.data || err.message);
+  //   }
+  // };
+  const handleEdit = (emp) => {
+    console.log("Editing employee:", emp);
+
+    setEditingEmployee(emp);
+    setShowModal(true);
   };
 
   // FILTER
@@ -239,20 +228,20 @@ function Employees() {
           <tbody>
             {currentEmployees.map((emp) => (
               <tr key={emp.employee_id ||emp.email}
-                onClick={() => navigate(`employees/${emp.employee_id}`)}
+               onClick={() => navigate(`/dashboard/employees/${emp.employee_id}`)} 
                 className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
                 <td className="p-4">{emp.employee_id}</td>
                 <td className="p-4">{[emp.first_name, emp.last_name].filter(Boolean).join(" ")}</td>
                 <td className="p-4">{emp.mobile}</td>
                 <td className="p-4">{emp.email}</td>
-                <td className="p-4">{emp.reporting_to || "-"}</td>
+                <td className="p-4">{emp.reporting_to}</td>
 
 
                 <td className="p-4 flex gap-3">
                   <FiEdit
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEdit(emp.employee_id);
+                      handleEdit(emp);
                     }}
                     className="cursor-pointer hover:text-green-600"
                   />

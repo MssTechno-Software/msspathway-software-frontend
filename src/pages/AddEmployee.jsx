@@ -15,9 +15,9 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isCurrentlyWorking, setIsCurrentlyWorking] = useState(false);
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    aadhaar: "",
+    first_name: "",
+    last_name: "",
+    aadhaar_no: "",
     email: "",
     mobile: "",
     designation: "",
@@ -26,7 +26,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     photo: "",
     password: "",
     reporting_to: "",   
-    hr_employee_id: "",
+    hr: "",
     role: "Employee",
     location: ""
   });
@@ -34,25 +34,26 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   useEffect(() => {
-    if (editingEmployee) {
-      setForm({
-        firstName: editingEmployee.first_name || "",
-        lastName: editingEmployee.last_name || "",
-        email: editingEmployee.email || "",
-        mobile: editingEmployee.mobile || "",
-        designation: editingEmployee.designation || "",
-        password: "",
-        reporting_to: editingEmployee.reporting_to || "",
-        hr_employee_id: editingEmployee.hr_employee_id || "",
-        aadhaar: editingEmployee.aadhaar || "",
-        role: editingEmployee.role || "Employee",
-        startDate: editingEmployee.start_date || "",
-        endDate: editingEmployee.end_date || "",
-        location: editingEmployee.location || ""
-      });
-      setIsCurrentlyWorking(!editingEmployee.end_date);
-    }
-  }, [editingEmployee]);
+  if (editingEmployee) {
+    setForm({
+      first_name: editingEmployee.first_name || "",
+      last_name: editingEmployee.last_name || "",
+      email: editingEmployee.email || "",
+      mobile: editingEmployee.mobile || "",
+      designation: editingEmployee.designation || "",
+      password: "",
+      reporting_to: editingEmployee.reporting_to || "",
+      hr: editingEmployee.HR || "", 
+      aadhaar_no: editingEmployee.aadhaar_number || "",
+      role: editingEmployee.role || "Employee",
+      startDate: editingEmployee.start_date?.split("T")[0] || "",
+      endDate: editingEmployee.end_date?.split("T")[0] || "",
+      location: editingEmployee.location || ""
+    });
+
+    setIsCurrentlyWorking(!editingEmployee.end_date);
+  }
+}, [editingEmployee]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -70,11 +71,11 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   };
 
   const submit = () => {
-    if (!form.firstName?.trim()) {
+    if (!form.first_name?.trim()) {
       return onSave({ error: true, message: "First name is required" });
     }
 
-    if (!form.lastName?.trim()) {
+    if (!form.last_name?.trim()) {
       return onSave({ error: true, message: "Last name is required" });
     }
 
@@ -111,23 +112,23 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
       return onSave({ error: true, message: "Start date is required" });
     }
 
-    if (!isCurrentlyWorking && !form.endDate) {
-      return onSave({ error: true, message: "End date is required" });
-    }
+    // if (!isCurrentlyWorking && !form.endDate) {
+    //   return onSave({ error: true, message: "End date is required" });
+    // }
 
     if (!form.reporting_to?.trim()) {
       return onSave({ error: true, message: "Reporting manager is required" });
     }
 
-    if (!form.hr_employee_id?.trim()) {
+    if (!form.hr?.trim()) {
       return onSave({ error: true, message: "HR ID is required" });
     }
 
-    if (!form.aadhaar?.trim()) {
+    if (!form.aadhaar_no?.trim()) {
       return onSave({ error: true, message: "Aadhaar is required" });
     }
 
-    if (!/^\d{12}$/.test(form.aadhaar)) {
+    if (!/^\d{12}$/.test(form.aadhaar_no)) {
       return onSave({ error: true, message: "Aadhaar must be 12 digits" });
     }
 
@@ -166,8 +167,8 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 First Name <span className="text-red-500">*</span>
               </label>
               <input
-                name="firstName"
-                value={form.firstName}
+                name="first_name"
+                value={form.first_name}
                 onChange={handleChange}
                 className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
                 placeholder="Enter first name"
@@ -179,8 +180,8 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 Last Name <span className="text-red-500">*</span>
               </label>
               <input
-                name="lastName"
-                value={form.lastName}
+                name="last_name"
+                value={form.last_name}
                 onChange={handleChange}
                 className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
                 placeholder="Enter last name"
@@ -194,8 +195,8 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             </label>
 
             <input
-              name="aadhaar"
-              value={form.aadhaar}
+              name="aadhaar_no"
+              value={form.aadhaar_no}
               onChange={handleChange}
               maxLength={12}
               className="w-full mt-2 py-3 px-3 border border-gray-200 bg-gray-50 rounded-xl outline-none"
@@ -276,7 +277,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*end date + currently working toggle*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              End Date <span className="text-red-500">*</span>
+              End Date {/*<span className="text-red-500">*</span> */}
             </label>
             <div className="flex items-center gap-2 mt-2">
               <input
@@ -331,10 +332,10 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
               <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
                 <FiUser className="text-gray-400 mr-2" />
                 <input
-                  name="hr_employee_id"
-                  value={form.hr_employee_id}
+                  name="hr"
+                  value={form.hr}
                   onChange={handleChange}
-                  placeholder="e.g. HR-2001"
+                  placeholder="e.g. MSS001"
                   className="w-full py-3 outline-none text-sm"
                 />
               </div>

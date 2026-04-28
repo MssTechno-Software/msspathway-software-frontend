@@ -1,320 +1,23 @@
-// // import { useParams } from "react-router-dom";
-// // import { useEffect, useState } from "react";
-// // import axios from "axios";
-
-// // const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
-
-// // function EmployeeProfile() {
-// //   const { employee_id } = useParams();
-// //   const [employee, setEmployee] = useState(null);
-
-// //   const getAuthHeaders = () => {
-// //     const token = localStorage.getItem("token");
-// //     return {
-// //       headers: {
-// //         Authorization: token ? `Bearer ${token}` : "",
-// //       },
-// //     };
-// //   };
-
-// //   const fetchEmployee = async () => {
-// //     try {
-// //       const res = await axios.get(
-// //         `${BASE_URL}/admin/users/${employee_id}`,
-// //         getAuthHeaders()
-// //       );
-// //       setEmployee(res.data);
-// //     } catch (err) {
-// //       console.error(err);
-// //     }
-// //   };
-
-// //   useEffect(() => {
-// //     fetchEmployee();
-// //   }, []);
-
-// //   if (!employee) return <div className="p-6">Loading Employee...</div>;
-
-// //   return (
-// //     <div className="p-6 bg-[#f5f7f6] min-h-screen">
-
-// //       {/* HEADER */}
-// //       <div className="flex items-center gap-4">
-// //         <div className="w-20 h-20 bg-green-800 text-white flex items-center justify-center rounded-xl text-2xl">
-// //           {employee.first_name?.[0]}
-// //         </div>
-
-// //         <div>
-// //           <h1 className="text-4xl font-bold">
-// //             {employee.first_name}
-// //           </h1>
-// //           <p className="text-gray-500">
-// //             {employee.designation}
-// //           </p>
-// //         </div>
-// //       </div>
-
-// //       {/* INFO CARDS */}
-// //       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
-
-// //         <div className="bg-white p-4 rounded-xl shadow">
-// //           <p className="text-xs text-gray-400">EMAIL</p>
-// //           <p className="font-semibold">{employee.email}</p>
-// //         </div>
-
-// //         <div className="bg-white p-4 rounded-xl shadow">
-// //           <p className="text-xs text-gray-400">MOBILE</p>
-// //           <p className="font-semibold">{employee.mobile}</p>
-// //         </div>
-
-// //         <div className="bg-white p-4 rounded-xl shadow">
-// //           <p className="text-xs text-gray-400">ROLE</p>
-// //           <p className="font-semibold">{employee.role}</p>
-// //         </div>
-
-// //         <div className="bg-white p-4 rounded-xl shadow">
-// //           <p className="text-xs text-gray-400">REPORTING TO</p>
-// //           <p className="font-semibold">
-// //             {employee.reporting_to || "-"}
-// //           </p>
-// //         </div>
-
-// //       </div>
-
-// //     </div>
-// //   );
-// // }
-
-// // export default EmployeeProfile;
-
-// import { useParams } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import { FiEye, FiDownload, FiUpload } from "react-icons/fi";
-
-// const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
-
-// function EmployeeProfile() {
-//   const { employee_id } = useParams();
-
-//   const [employee, setEmployee] = useState(null);
-//   const [documents, setDocuments] = useState([]);
-//   const [showUpload, setShowUpload] = useState(false);
-//   const [file, setFile] = useState(null);
-
-//   const getAuthHeaders = () => ({
-//     headers: {
-//       Authorization: `Bearer ${localStorage.getItem("token")}`
-//     }
-//   });
-
-//   /* FETCH EMPLOYEE */
-//   const fetchEmployee = async () => {
-//     try {
-//       const res = await axios.get(
-//         `${BASE_URL}/admin/users/${employee_id}`,
-//         getAuthHeaders()
-//       );
-
-//       setEmployee(res.data.data || res.data);
-
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (employee_id) 
-//       fetchEmployee();
-//   }, [employee_id]);
-
-//   /* VIEW FILE */
-//   const handleView = async (fileName) => {
-//     try {
-//       const res = await axios.get(
-//         `${BASE_URL}/employees/documents/${fileName}`,
-//         {
-//           responseType: "blob",
-//           ...getAuthHeaders()
-//         }
-//       );
-
-//       const url = URL.createObjectURL(new Blob([res.data]));
-//       window.open(url, "_blank");
-
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   /* DOWNLOAD FILE */
-//   const handleDownload = async (fileName) => {
-//     try {
-//       const res = await axios.get(
-//         `${BASE_URL}/employees/documents/${fileName}`,
-//         {
-//           responseType: "blob",
-//           ...getAuthHeaders()
-//         }
-//       );
-
-//       const url = window.URL.createObjectURL(new Blob([res.data]));
-//       const link = document.createElement("a");
-
-//       link.href = url;
-//       link.download = fileName;
-//       link.click();
-
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   if (!employee) return <div className="p-6">Loading Employee...</div>;
-
-//   return (
-//     <div className="p-6 bg-[#f5f7f6] min-h-screen">
-
-//       {/* HEADER */}
-//       <div className="flex justify-between items-start">
-
-//         <div className="flex items-center gap-4">
-//           <div className="w-24 h-24 bg-green-800 text-white flex items-center justify-center rounded-full text-3xl shadow">
-//             {employee.first_name?.[0]}
-//           </div>
-
-//           <div>
-//             <h1 className="text-4xl font-bold text-gray-800">
-//               {employee.first_name}
-//             </h1>
-//             <p className="text-gray-500">{employee.designation}</p>
-//           </div>
-//         </div>
-
-//         <button
-//           onClick={() => setShowUpload(true)}
-//           className="flex items-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg shadow"
-//         >
-//           <FiUpload /> Upload
-//         </button>
-//       </div>
-
-//       {/* INFO CARDS */}
-//       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
-
-//         <div className="bg-white p-4 rounded-xl shadow-sm">
-//           <p className="text-xs text-gray-400">EMAIL</p>
-//           <p className="font-semibold">{employee.email}</p>
-//         </div>
-
-//         <div className="bg-white p-4 rounded-xl shadow-sm">
-//           <p className="text-xs text-gray-400">MOBILE</p>
-//           <p className="font-semibold">{employee.mobile}</p>
-//         </div>
-
-//         <div className="bg-white p-4 rounded-xl shadow-sm">
-//           <p className="text-xs text-gray-400">ROLE</p>
-//           <p className="font-semibold">{employee.role}</p>
-//         </div>
-
-//         <div className="bg-white p-4 rounded-xl shadow-sm">
-//           <p className="text-xs text-gray-400">REPORTING TO</p>
-//           <p className="font-semibold">{employee.reporting_to || "-"}</p>
-//         </div>
-
-//       </div>
-
-//       {/* DOCUMENTS */}
-//       <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
-
-//         {/* HEADER */}
-//         <div className="p-6 bg-gray-100 flex justify-between">
-//           <div>
-//             <h2 className="text-lg font-semibold">
-//               Employee Documents
-//             </h2>
-//             <p className="text-sm text-gray-400">
-//               Uploaded employee files
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* LIST */}
-//         {documents.length ? (
-//           documents.map((doc, i) => (
-//             <div
-//               key={i}
-//               className="flex justify-between px-6 py-4 border-b hover:bg-gray-50"
-//             >
-//               <p>{doc}</p>
-
-//               <div className="flex gap-4 text-gray-500">
-//                 <FiEye onClick={() => handleView(doc)} className="cursor-pointer"/>
-//                 <FiDownload onClick={() => handleDownload(doc)} className="cursor-pointer"/>
-//               </div>
-//             </div>
-//           ))
-//         ) : (
-//           <p className="p-6 text-gray-400">No documents available</p>
-//         )}
-//       </div>
-
-//       {/* UPLOAD MODAL */}
-//       {showUpload && (
-//         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-
-//           <div className="bg-white p-6 rounded-xl w-96">
-
-//             <h2 className="text-lg font-semibold mb-4">
-//               Upload Document
-//             </h2>
-
-//             <input
-//               type="file"
-//               onChange={(e) => setFile(e.target.files[0])}
-//               className="mb-4"
-//             />
-
-//             <div className="flex justify-end gap-3">
-//               <button onClick={() => setShowUpload(false)}>
-//                 Cancel
-//               </button>
-
-//               <button className="bg-green-800 text-white px-4 py-2 rounded">
-//                 Upload
-//               </button>
-//             </div>
-
-//           </div>
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// }
-
-// export default EmployeeProfile;
-
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import axios from "axios";
-import {
-  FiDownload,
-  FiEye,
-  FiUpload,
-  FiEdit,
-  FiTrash2
-} from "react-icons/fi";
+import { FiDownload, FiEye, FiUpload, FiEdit, FiTrash2 } from "react-icons/fi";
+import AddEmployee from "./AddEmployee";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
 
 function EmployeeProfile() {
   const { employee_id } = useParams();
-
   const [employee, setEmployee] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [showDocModal, setShowDocModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [profilePreview, setProfilePreview] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [profileUrl, setProfileUrl] = useState(null);
+  const [profileFile, setProfileFile] = useState(null);
   const [popup, setPopup] = useState({
     show: false,
     message: "",
@@ -322,25 +25,30 @@ function EmployeeProfile() {
     onConfirm: null
   });
 
-  const getAuthHeaders = () => ({
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
-  });
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    };
+  };
 
-  // ✅ FETCH EMPLOYEE
+  // FETCH EMPLOYEE data
   const fetchEmployee = async () => {
+    console.log("Fetching employee data for ID:", employee_id);
     try {
       const res = await axios.get(
         `${BASE_URL}/admin/users/${employee_id}`,
         getAuthHeaders()
       );
 
+      console.log("Employee data response:", res.data);
       const data = res.data?.data ?? res.data;
       setEmployee(data);
-      setDocuments(data.documents || []);
+      //setDocuments(data.documents || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching employee data:", err.response || err.message);
     }
   };
 
@@ -348,108 +56,356 @@ function EmployeeProfile() {
     if (employee_id) fetchEmployee();
   }, [employee_id]);
 
-  // ✅ VIEW
-  const handleView = async (doc) => {
+  // FETCH DOCUMENTS
+  const fetchDocuments = async () => {
     try {
-      const fileName =
-        typeof doc === "string"
-          ? doc.split("/").pop()
-          : doc.file_name || doc.name;
-
       const res = await axios.get(
-        `${BASE_URL}/employees/documents/${fileName}`,
-        {
-          responseType: "blob",
-          ...getAuthHeaders()
-        }
+        `${BASE_URL}/documents/employees/${employee_id}/documents`,
+        getAuthHeaders()
       );
-
-      const url = URL.createObjectURL(new Blob([res.data]));
-      window.open(url, "_blank");
+      console.log("Documents response:", res.data);
+      setDocuments(res.data.documents || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching documents:", err.response || err.message);
     }
   };
 
-  // ✅ DOWNLOAD
-  const handleDownload = async (doc) => {
-    try {
-      const fileName =
-        typeof doc === "string"
-          ? doc.split("/").pop()
-          : doc.file_name || doc.name;
+  useEffect(() => {
+    if (employee_id) fetchDocuments();
+  }, [employee_id]);
 
+  //fetch profile photo if exists
+  const fetchProfilePhoto = async () => {
+    console.log("Fetching profile photo for employee ID:", employee_id);
+    try {
       const res = await axios.get(
-        `${BASE_URL}/employees/documents/${fileName}`,
+        `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}`,
+        getAuthHeaders()
+      );
+      console.log("Profile photo response:", res.data);
+      setProfileUrl(res.data.url);
+    } catch (err) {
+      console.error("Error fetching profile photo:", err.response || err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (employee_id) {
+      fetchProfilePhoto();
+    }
+  }, [employee_id]);
+
+  const handleUpdateEmployee = () => {
+    console.log("Updating employee data for ID:", employee_id);
+    setEmployee((prev) => ({
+      ...prev,
+        first_name: prev.first_name || "",
+        last_name: prev.last_name || "",
+        email: prev.email || "",
+        mobile: prev.mobile || "",
+        aadhaar_number: prev.aadhaar_number || "",
+        role: prev.role || "",
+        location: prev.location || "",
+        start_date: prev.start_date || "",
+        end_date: prev.end_date || ""
+    }));
+    setPopup({
+      show: true,
+      message: "Employee data updated successfully",
+      type: "success"
+    });
+    setShowEdit(true);
+  };
+
+  // UPLOAD documents
+  const handleUpload = async () => {
+    if (!selectedFile){
+      return setPopup({
+        show: true,
+        message: "Please select a file to upload",
+        type: "error"
+      });
+    }
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("employee_id", employee_id);
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/documents/employees/${employee_id}/upload-document`,
+        formData,
+        getAuthHeaders()
+      );
+      console.log("Upload response:", response.data);
+
+      setPopup({
+        show: true,
+        message: "Document uploaded successfully",
+        type: "success"
+      });
+      setShowDocModal(false);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      fetchEmployee();
+      fetchDocuments();
+    } catch (err) {
+      console.error("Error uploading document:", err.response || err.message);
+      setPopup({
+        show: true,
+        message: "Failed to upload document",
+        type: "error"
+      });
+    }
+  };
+
+  if (!employee) return <div className="p-6">Loading Employees...</div>;
+
+  //VIEW documnets
+  const handleView = async (doc) => {
+    console.log("Viewing document:", doc);
+    try {
+      const gcsPath =
+        typeof doc === "string"
+          ? doc
+          : doc.gcs_path || doc.file_path || doc.download_url || doc.file_name || doc.name;
+      console.log("GCS path for viewing:", gcsPath);
+      const res = await axios.get(
+        `${BASE_URL}/documents/employees/${employee_id}/view-documents`,
         {
+          params: {gcs_path: gcsPath},
           responseType: "blob",
           ...getAuthHeaders()
         }
       );
+      console.log("Document view response:", res.data);
+
+      const url = URL.createObjectURL(new Blob([res.data]));
+      window.open(url, "_blank");
+      setPopup({
+        show: true,
+        message: "Document opened in new tab",
+        type: "success"
+      });
+      fetchDocuments();
+    } catch (err) {
+      console.error("Error viewing document:", err.response || err.message);
+      setPopup({
+        show: true,
+        message: "Failed to open document",
+        type: "error"
+      });
+    }
+  };
+
+  // DOWNLOAD documents
+  const handleDownload = async (doc) => {
+    console.log("Downloading document:", doc);
+    try {
+      const gcsPath =
+        typeof doc === "string"
+          ? doc
+          : doc.gcs_path || doc.file_path || doc.download_url;
+      console.log("GCS path for download:", gcsPath);
+      const fileName = gcsPath.split("/").pop();
+
+      const res = await axios.get(
+        `${BASE_URL}/documents/employees/${employee_id}/download-document`,
+        {
+          params: { gcs_path: gcsPath },
+          responseType: "blob",
+          ...getAuthHeaders()
+        }
+      );
+      console.log("Download response:", res.data);
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.download = fileName;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
       link.click();
+      link.remove();
+      setPopup({
+        show: true,
+        message: "Download started",
+        type: "success"
+      });
+      fetchDocuments();
     } catch (err) {
-      console.error(err);
+      console.error("Full error:", err.response || err);
+      setPopup({
+        show: true,
+        message: "Failed to download document",
+        type: "error"
+      });
     }
   };
 
-  // ✅ DELETE
+  // DELETE documents
   const handleDelete = (doc) => {
+    console.log("Deleting document:", doc);
+    const gcsPath =
+      typeof doc === "string"
+        ? doc
+        : doc.gcs_path || doc.file_path || doc.download_url;
+    console.log("GCS path for deletion:", gcsPath);
     setPopup({
       show: true,
-      message: "Delete this document?",
+      message: "Are you sure you want to delete this document?",
       type: "confirm",
       onConfirm: async () => {
         try {
-          const fileName =
-            typeof doc === "string"
-              ? doc.split("/").pop()
-              : doc.file_name || doc.name;
-
-          await axios.delete(
-            `${BASE_URL}/employees/${employee_id}/delete-document`,
+          const res = await axios.delete(
+            `${BASE_URL}/documents/employees/${employee_id}/documents`,
             {
-              params: { filename: fileName },
+              params: { gcs_path: gcsPath },
               ...getAuthHeaders()
             }
           );
 
           fetchEmployee();
-          setPopup({ show: false });
+          fetchDocuments();
+          setPopup({
+            show: true,
+            message: "Document deleted successfully",
+            type: "success"
+          });
         } catch (err) {
-          console.error(err);
+          console.error("Full error:", err.response || err);
+          setPopup({
+            show: true,
+            message: "Failed to delete document",
+            type: "error"
+          });
         }
       }
     });
   };
 
-  // ✅ UPLOAD
-  const handleUpload = async () => {
-    if (!selectedFile) return;
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+    const allowed = ["pdf", "png", "jpg", "jpeg", "doc", "docx"];
+    const ext = file.name.split(".").pop().toLowerCase();
 
-      await axios.post(
-        `${BASE_URL}/employees/${employee_id}/upload-document`,
-        formData,
-        getAuthHeaders()
-      );
+    if (!allowed.includes(ext)) {
+      setPopup({
+        show: true,
+        message: "Invalid file type",
+        type: "error"
+      });
+      return;
+    }
 
-      setShowDocModal(false);
-      setSelectedFile(null);
-      fetchEmployee();
-    } catch (err) {
-      console.error(err);
+    setSelectedFile(file);
+
+    if (file.type.startsWith("image")) {
+      setPreviewURL(URL.createObjectURL(file));
+    } else {
+      setPreviewURL("");
     }
   };
 
-  if (!employee) return <div className="p-6">Loading...</div>;
+  const handleProfileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowed = ["png", "jpg", "jpeg"];
+    const ext = file.name.split(".").pop().toLowerCase();
+
+    if (!allowed.includes(ext)) {
+      setPopup({
+        show: true,
+        message: "Invalid file type",
+        type: "error"
+      });
+      return;
+    }
+
+    setProfileFile(file);
+    setProfilePreview(URL.createObjectURL(file));
+  };
+
+  const profileImage =
+    profileFile
+      ? profilePreview
+      : `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}` ;
+
+ /* UPLOAD PROFILE PHOTO */
+  const handleUploadProfile = async () => {
+    if (!profileFile) {
+      setPopup({
+        show: true,
+        message: "Please select an image",
+        type: "error"
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", profileFile);
+
+       for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+      console.log("Uploading profile photo for employee ID:", employee_id);
+
+      const res = await axios.post(
+        `${BASE_URL}/documents/employees/${employee_id}/upload-profile-pic`,
+        formData,
+        getAuthHeaders()
+      );
+      console.log("Profile upload response:", res.data);
+
+      setPopup({
+        show: true,
+        message: "Profile photo uploaded successfully",
+        type: "success"
+      });
+
+      setShowPhotoModal(false);
+      setProfileFile(null);
+      fetchEmployee();
+      fetchProfilePhoto();
+    } catch (err) {
+      console.error("Profile upload error:", err.response || err);
+      setPopup({
+        show: true,
+        message: "Failed to upload profile photo",
+        type: "error"
+      });
+    }
+  };
+ /* DELETE PROFILE PHOTO */
+  const handleDeleteProfile = async () => {
+    try {
+      await axios.delete(
+        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        getAuthHeaders()
+      );
+      setProfileUrl(null);
+      setProfilePreview(null);
+      fetchProfilePhoto();
+      setPopup({
+        show: true,
+        message: "Profile photo deleted successfully",
+        type: "success"
+      });
+    } catch (err) {
+      console.error("Profile delete error:", err.response || err);
+      setPopup({
+        show: true,
+        message: "Failed to delete profile photo",
+        type: "error"
+      });
+    }
+  };
 
   return (
     <div className="p-6 bg-white min-h-screen">
@@ -458,45 +414,82 @@ function EmployeeProfile() {
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-4">
 
-          <div className="w-36 h-36 bg-green-800 text-white flex items-center justify-center rounded-full text-4xl">
-            {employee.first_name?.[0]}
+          <div className="relative">
+            <img
+              src={
+                profilePreview ||
+                `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}`
+              }
+              className="w-28 h-28 rounded-full object-cover shadow"
+            />
+            {/* CONDITIONAL ICON */}
+            <button
+              onClick={() => setShowPhotoModal(true)}
+              className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
+            >
+              {profileUrl ? <FiEdit /> : <FiUpload />}
+            </button>
           </div>
 
           <div>
-            <h1 className="text-5xl font-bold">
+            <h1 className="text-5xl font-bold ">
               {[employee.first_name, employee.last_name].join(" ")}
             </h1>
             <p className="text-lg font-semibold mt-1">
-              {employee.designation}
+              {employee.designation || "No Designation"}
             </p>
           </div>
         </div>
 
-        <button className="flex items-center gap-2 bg-green-800 text-white px-5 py-2 rounded-xl">
-          <FiEdit /> Edit
+        <button
+          onClick={() => setShowEdit(true)}
+          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md"
+        >
+          <FiEdit />
+          Update Employee
         </button>
       </div>
 
       {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">EMPLOYEE ID</p>
+          <p className="font-semibold">{employee.employee_id || "No Employee ID"}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">EMAIL</p>
-          <p className="font-semibold">{employee.email}</p>
+          <p className="font-semibold">{employee.email || "No Email"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">MOBILE</p>
-          <p className="font-semibold">{employee.mobile}</p>
+          <p className="font-semibold">{employee.mobile || "No Mobile"}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">AADHAAR NUMBER </p>
+          <p className="font-semibold">{employee.aadhaar_number || "No Aadhaar Number"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">ROLE</p>
-          <p className="font-semibold">{employee.role}</p>
+          <p className="font-semibold">{employee.role || "No Role"}</p>
         </div>
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">LOCATION</p>
-          <p className="font-semibold">{employee.location}</p>
+          <p className="font-semibold">{employee.location || "No Location"}</p>
+        </div>
+
+         <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">START DATE</p>
+          <p className="font-semibold">{employee.start_date || "No Start Date"}</p>
+        </div>
+
+         <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">END DATE</p>
+          <p className="font-semibold">{employee.end_date || "No End Date"}</p>
         </div>
       </div>
 
@@ -526,25 +519,52 @@ function EmployeeProfile() {
             const fileName =
               typeof doc === "string"
                 ? doc.split("/").pop()
-                : doc.file_name || doc.name;
+                : doc.gcs_path || doc.file_name || doc.name || "document";
+
+            const fileType = fileName.split(".").pop().toUpperCase();
 
             return (
               <div
                 key={i}
-                className="flex justify-between px-6 py-4 border-b hover:bg-gray-50"
+                className="flex items-center justify-between px-6 py-4 border-b hover:bg-gray-50"
               >
-                <p>{fileName}</p>
+                <div className="flex items-center gap-4">
 
-                <div className="flex gap-4">
-                  <FiEye onClick={() => handleView(doc)} />
-                  <FiDownload onClick={() => handleDownload(doc)} />
-                  <FiTrash2 onClick={() => handleDelete(doc)} />
+                  {/* FILE ICON */}
+                  <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg">
+                    📄
+                  </div>
+
+                  {/* FILE INFO */}
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {fileName}
+                    </p>
+
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                      {fileType} • {doc.created_at
+                        ? new Date(doc.created_at).toLocaleDateString()
+                        : "Recently added"}
+                    </p>
+                  </div>
+                </div>
+                {/*right side actions */}
+                <div className="flex items-center gap-4 text-gray-500">
+                  <FiEye 
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleView(doc)} />
+                  <FiDownload 
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleDownload(doc)} />
+                  <FiTrash2 
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleDelete(doc)} />
                 </div>
               </div>
             );
           })
         ) : (
-          <p className="p-6 text-gray-400">No documents</p>
+          <p className="p-6 text-gray-400">No documents available</p>
         )}
       </div>
 
@@ -572,6 +592,126 @@ function EmployeeProfile() {
               >
                 Upload
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PROFILE PHOTO MODAL */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+          <div className="bg-white p-6 rounded-2xl w-96 shadow-xl relative">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Upload Profile Photo
+            </h2>
+
+            {/* CLICK AREA */}
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+              <input
+                type="file"
+                id="profileUpload"
+                className="hidden"
+                onChange={handleProfileChange}
+              />
+
+              <label htmlFor="profileUpload" className="cursor-pointer">
+                <p className="text-gray-500">Click here to add photo</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  JPG, PNG, JPEG, DOC supported
+                </p>
+              </label>
+            </div>
+
+            {/* PREVIEW */}
+            {profilePreview && (
+              <img
+                src={profilePreview}
+                className="w-24 h-24 rounded-full mx-auto mt-4 object-cover"
+              />
+            )}
+
+            {/* ACTIONS */}
+            <div className="flex justify-between mt-6">
+
+              {/* DELETE BUTTON */}
+              {profileUrl && (
+                <button
+                  onClick={handleDeleteProfile}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                >
+                  Delete
+                </button>
+              )}
+
+              <div className="flex gap-2 ml-auto">
+                <button
+                  onClick={() => setShowPhotoModal(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleUploadProfile}
+                  className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                >
+                  Upload
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {showEdit && (
+        <AddEmployee
+          editingEmployee={employee}
+          onClose={() => setShowEdit(false)}
+          onAdd={fetchEmployee}
+          setPopup={setPopup}
+        />
+      )}
+
+      {popup.show && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+            <p className={`text-lg font-semibold mb-4
+                ${popup.type === "success" && "text-green-600"}
+                ${popup.type === "error" && "text-red-600"}
+                ${popup.type === "confirm" && "text-gray-800"}
+            `}>
+              {popup.message}
+            </p>
+            {/* BUTTONS */}
+            <div className="flex justify-center gap-3">
+              {popup.type === "confirm" ? (
+                <>
+                  <button
+                    onClick={async () => {
+                      await popup.onConfirm();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded"
+                  >
+                    Yes
+                  </button>
+
+                  <button
+                    onClick={() => setPopup({ show: false })}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setPopup({ show: false })}
+                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                >
+                  OK
+                </button>
+              )}
             </div>
           </div>
         </div>
