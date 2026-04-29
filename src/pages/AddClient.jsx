@@ -19,6 +19,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     const [showTechDropdown, setShowTechDropdown] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+    const [employeeIds, setEmployeeIds] = useState([]);
 
     const techOptions = [
         "React",
@@ -71,6 +72,25 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         }
     }, [editingClient]);
 
+    /*fetch employee IDs for dropdown*/
+    useEffect(() => {
+        const fetchEmployeeIds = async () => {
+            try {
+                const res = await fetch("https://timesheet-api-790373899641.asia-south1.run.app/employee-ids", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+                const data = await res.json();
+                console.log("Employee IDs:", data);
+                setEmployeeIds(data.data || data);
+            } catch (error) {
+                console.error("Error fetching employee IDs:", error);
+            }
+        };
+        fetchEmployeeIds();
+    }, []);
+
     //Handle form input changes
     const handleChange = (e) => {
         let { name, value } = e.target;
@@ -106,7 +126,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     //submit new or edited client
     const submit = () => {
 
-        // ✅ Trim all values before validation
+        // Trim all values before validation
         const trimmedData = {
             ...formData,
             name: formData.name.trim(),
@@ -327,7 +347,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
                         >
                             <div className="flex items-center gap-2">
-                                <FiClock className="text-gray-400" />
+                                <FiUser className="text-gray-400" />
                                 <span className="text-sm text-gray-700">{formData.employeeId || "Select Employee ID"}</span>
                             </div>
                             <FiChevronDown
@@ -337,7 +357,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </div>
                         {showEmployeeDropdown && (
                             <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
-                                {["MSS001", "MSS002", "MSS003", "MSS004", "MSS005"].map((tz) => (
+                                {employeeIds.map((tz) => (
                                     <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                         <input
                                             type="radio"

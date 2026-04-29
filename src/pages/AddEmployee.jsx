@@ -32,6 +32,27 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   });
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showReportingDropdown, setShowReportingDropdown] = useState(false);
+  const [showHrDropdown, setShowHrDropdown] = useState(false);
+  const [employeeIds, setEmployeeIds] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployeeIds = async () => {
+      try {
+        const res = await fetch("https://timesheet-api-790373899641.asia-south1.run.app/employee-ids", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        const data = await res.json();
+        setEmployeeIds(data.data || data);
+      } catch (error) {
+        console.error("Error fetching employee IDs:", error);
+      }
+    };
+
+    fetchEmployeeIds();
+  }, []);
 
   useEffect(() => {
   if (editingEmployee) {
@@ -111,10 +132,6 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     if (!form.startDate) {
       return onSave({ error: true, message: "Start date is required" });
     }
-
-    // if (!isCurrentlyWorking && !form.endDate) {
-    //   return onSave({ error: true, message: "End date is required" });
-    // }
 
     if (!form.reporting_to?.trim()) {
       return onSave({ error: true, message: "Reporting manager is required" });
@@ -306,39 +323,82 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Reporting To */}
-            <div>
+            <div className="relative">
               <label className="text-sm font-medium text-gray-700">
                 Reporting To (Employee ID) <span className="text-red-500">*</span>
               </label>
 
-              <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                <FiUser className="text-gray-400 mr-2" />
-                <input
-                  name="reporting_to"
-                  value={form.reporting_to}
-                  onChange={handleChange}
-                  placeholder="e.g. EMP-1001"
-                  className="w-full py-3 outline-none text-sm"
+              <div 
+                onClick={() => setShowReportingDropdown(!showReportingDropdown)}
+                className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
+              >
+                <div className="flex items-center gap-2">
+                  <FiUser className="text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-700">{form.reporting_to || "Select Reporting Manager"}</span>
+                </div>
+                <FiChevronDown
+                  className={`text-gray-500 transition-transform duration-200 
+                  ${showReportingDropdown ? "rotate-180" : ""}`}
                 />
               </div>
+              {showReportingDropdown && (
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                  {employeeIds.map((tz) => (
+                    <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={form.reporting_to === tz}
+                        onChange={() => {
+                        setForm({ ...form, reporting_to: tz });
+                        setShowReportingDropdown(false);
+                        }
+                        }
+                        className="mr-2 accent-green-700"
+                      />
+                        {tz}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* HR Employee ID */}
-            <div>
+            <div className="relative">
               <label className="text-sm font-medium text-gray-700">
                 HR Employee ID <span className="text-red-500">*</span>
               </label>
 
-              <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                <FiUser className="text-gray-400 mr-2" />
-                <input
-                  name="hr"
-                  value={form.hr}
-                  onChange={handleChange}
-                  placeholder="e.g. MSS001"
-                  className="w-full py-3 outline-none text-sm"
+              <div 
+                onClick={() => setShowHrDropdown(!showHrDropdown)}
+                className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
+              >
+                <div className="flex items-center gap-2">
+                  <FiUser className="text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-700">{form.hr || "Select Employee ID"}</span>
+                </div>
+                <FiChevronDown
+                  className={`text-gray-500 transition-transform duration-200 
+                  ${showHrDropdown ? "rotate-180" : ""}`}
                 />
               </div>
+              {showHrDropdown && (
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                  {employeeIds.map((tz) => (
+                    <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={form.hr === tz}
+                        onChange={() => {
+                        setForm({ ...form, hr: tz });
+                        setShowHrDropdown(false);
+                        }}
+                        className="mr-2 accent-green-700"
+                      />
+                        {tz}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>

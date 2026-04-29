@@ -502,7 +502,7 @@ function EmployeeProfile() {
 
          <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">END DATE</p>
-          <p className="font-semibold">{employee.end_date || "No End Date"}</p>
+          <p className="font-semibold">{employee.end_date || "Currently Working" || "No End Date"}</p>
         </div>
       </div>
 

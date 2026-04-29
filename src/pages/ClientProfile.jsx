@@ -142,27 +142,53 @@ function ClientProfile() {
     return <div className="p-6">Loading client details...</div>;
   }
 
-  const handleUpdate = (updatedData) => {
-    console.log("Updated clients profile:", updatedData);
+  const handleUpdate = async (updatedData) => {
+    console.log("Updating client with data:", updatedData);
+    try {
+      const formData = new FormData();
 
-    // update UI only (no backend)
-    setClient((prev) => ({
-      ...prev,
-      client_name: updatedData.name,
-      mobile: updatedData.mobile,
-      email: updatedData.email,
-      technology: updatedData.tech.join(","),
-      professional_role: updatedData.role,
-      aadhaar_number: updatedData.aadhaar,
-      location: updatedData.location
-    }));
-    setPopup({
-      show: true,
-      message: "Client profile updated successfully",
-      type: "success"
-    });
+      formData.append("client_name", updatedData.name);
+      formData.append("mobile", updatedData.mobile);
+      formData.append("email", updatedData.email);
+      formData.append("technology", updatedData.tech.join(","));
+      formData.append("status", updatedData.status);
+      formData.append("employee_id", updatedData.employeeId);
+      formData.append("professional_role", updatedData.role);
+      formData.append("aadhaar_number", updatedData.aadhaar);
+      formData.append("location", updatedData.location);
 
-    setShowEdit(false);
+      const response = await axios.get(
+        `${BASE_URL}/clients/update-client/${client_id}`,
+        formData,
+        {
+          ...getAuthHeaders(),
+          headers: {
+            ...getAuthHeaders().headers,
+            "Content-Type": "multipart/form-data"
+          }
+        }
+      );
+      console.log("Update response:", response.data);
+      
+      await fetchClient();
+
+      setPopup({
+        show: true,
+        message: "Client updated successfully",
+        type: "success"
+      });
+
+      setShowEdit(false);
+
+    } catch (error) {
+      console.error("UPDATE ERROR:", error.response?.data || error.message);
+
+      setPopup({
+        show: true,
+        message: "Update failed",
+        type: "error"
+      });
+    }
   };
 
   /*upload document*/

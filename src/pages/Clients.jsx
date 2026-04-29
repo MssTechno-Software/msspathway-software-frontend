@@ -138,7 +138,7 @@ function Clients() {
                 console.log("Create response:", response.data);
             }
 
-            const res = await fetchClients(); // refresh UI
+            const res = await fetchClients();
             console.log("Fetched clients after save:", res.data);
 
             setShowModal(false);
@@ -291,6 +291,7 @@ function Clients() {
                                 <th className="p-4 text-left">NAME</th>
                                 <th className="p-4 text-left">MOBILE NUMBER</th>
                                 <th className="p-4 text-left">TECHNOLOGY STACK</th>
+                                <th className="p-4 text-left">ASSIGNED TO</th>
                                 <th className="p-4 text-left">STATUS</th>
                                 <th className="p-4 text-left">ACTIONS</th>
                             </tr>
@@ -351,6 +352,11 @@ function Clients() {
                                                 +{client.technology.split(",").length - 4} more
                                                 </span>
                                             )}
+                                        </td>
+
+                                        {/*Assigned to Employee*/}
+                                        <td className="p-4">
+                                            {client.employee_id ? `${client.employee_id}` : "Unassigned"}
                                         </td>
                                         {/* STATUS */}
                                         <td className="p-4">
