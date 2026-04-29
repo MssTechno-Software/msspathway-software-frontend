@@ -140,7 +140,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     }
 
     console.log("FORM BEFORE SEND:", form);
-    onSave(form); 
+    //onSave(form); 
   };
 
   return (

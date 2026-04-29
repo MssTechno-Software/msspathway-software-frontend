@@ -502,7 +502,7 @@ function ClientProfile() {
   const profileImage =
     profileFile
       ? profilePreview
-      : `${BASE_URL}/documents/clients/${client_id}/profile-picture/view?v=${Date.now()}` ;
+      : profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   /*add or update profile photo*/
   const handleUploadProfile = async () => {
@@ -579,6 +579,7 @@ function ClientProfile() {
       });
 
       setShowPhotoModal(false);
+      fetchProfilePhotoView();
 
     } catch (err) {
       console.error("Delete error:", err.response?.data);

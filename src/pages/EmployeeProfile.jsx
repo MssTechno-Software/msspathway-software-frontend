@@ -79,13 +79,24 @@ function EmployeeProfile() {
     console.log("Fetching profile photo for employee ID:", employee_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}`,
-        getAuthHeaders()
+        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       console.log("Profile photo response:", res.data);
-      setProfileUrl(res.data.url);
+      const url = URL.createObjectURL(new Blob([res.data]));
+      setProfileUrl(url);
     } catch (err) {
-      console.error("Error fetching profile photo:", err.response || err.message);
+      console.error("Error fetching profile photo:", err);
+      setPopup({
+        show: true,
+        message: "Failed to load profile photo",
+        type: "error"
+      });
     }
   };
 
@@ -128,7 +139,7 @@ function EmployeeProfile() {
     }
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
+      formData.append("files", selectedFile);
       formData.append("employee_id", employee_id);
 
       for (let pair of formData.entries()) {
@@ -136,7 +147,7 @@ function EmployeeProfile() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/documents/employees/${employee_id}/upload-document`,
+        `${BASE_URL}/documents/employees/${employee_id}/upload-documents`,
         formData,
         getAuthHeaders()
       );
@@ -149,8 +160,6 @@ function EmployeeProfile() {
       });
       setShowDocModal(false);
       setSelectedFile(null);
-      setPreviewUrl(null);
-      fetchEmployee();
       fetchDocuments();
     } catch (err) {
       console.error("Error uploading document:", err.response || err.message);
@@ -173,8 +182,9 @@ function EmployeeProfile() {
           ? doc
           : doc.gcs_path || doc.file_path || doc.download_url || doc.file_name || doc.name;
       console.log("GCS path for viewing:", gcsPath);
+
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/view-documents`,
+        `${BASE_URL}/documents/employees/${employee_id}/view-document`,
         {
           params: {gcs_path: gcsPath},
           responseType: "blob",
@@ -183,7 +193,7 @@ function EmployeeProfile() {
       );
       console.log("Document view response:", res.data);
 
-      const url = URL.createObjectURL(new Blob([res.data]));
+      const url = window.URL.createObjectURL(res.data);
       window.open(url, "_blank");
       setPopup({
         show: true,
@@ -305,9 +315,9 @@ function EmployeeProfile() {
     setSelectedFile(file);
 
     if (file.type.startsWith("image")) {
-      setPreviewURL(URL.createObjectURL(file));
+      setPreviewUrl(URL.createObjectURL(file));
     } else {
-      setPreviewURL("");
+      setPreviewUrl("");
     }
   };
 
@@ -331,10 +341,9 @@ function EmployeeProfile() {
     setProfilePreview(URL.createObjectURL(file));
   };
 
-  const profileImage =
-    profileFile
-      ? profilePreview
-      : `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}` ;
+  const profileImage = profileFile
+    ? profilePreview
+    : profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
  /* UPLOAD PROFILE PHOTO */
   const handleUploadProfile = async () => {
@@ -349,17 +358,21 @@ function EmployeeProfile() {
 
     try {
       const formData = new FormData();
-      formData.append("file", profileFile);
+      formData.append("photo", profileFile);
 
        for (let pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
       console.log("Uploading profile photo for employee ID:", employee_id);
 
-      const res = await axios.post(
+      const res = await axios.put(
         `${BASE_URL}/documents/employees/${employee_id}/upload-profile-pic`,
         formData,
-        getAuthHeaders()
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       console.log("Profile upload response:", res.data);
 
@@ -370,9 +383,9 @@ function EmployeeProfile() {
       });
 
       setShowPhotoModal(false);
+      setProfilePreview("");
       setProfileFile(null);
-      fetchEmployee();
-      fetchProfilePhoto();
+      await fetchProfilePhoto();
     } catch (err) {
       console.error("Profile upload error:", err.response || err);
       setPopup({
@@ -382,16 +395,19 @@ function EmployeeProfile() {
       });
     }
   };
+  
  /* DELETE PROFILE PHOTO */
   const handleDeleteProfile = async () => {
     try {
       await axios.delete(
         `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
-        getAuthHeaders()
+        {
+          ...getAuthHeaders(),
+          params: {gcs_path: profileUrl}  
+        }
       );
       setProfileUrl(null);
-      setProfilePreview(null);
-      fetchProfilePhoto();
+      setShowPhotoModal(false);
       setPopup({
         show: true,
         message: "Profile photo deleted successfully",
@@ -416,10 +432,7 @@ function EmployeeProfile() {
 
           <div className="relative">
             <img
-              src={
-                profilePreview ||
-                `${BASE_URL}/documents/employees/${employee_id}/profile-pic?v=${Date.now()}`
-              }
+              src={ profileImage }
               className="w-28 h-28 rounded-full object-cover shadow"
             />
             {/* CONDITIONAL ICON */}
@@ -526,7 +539,7 @@ function EmployeeProfile() {
             return (
               <div
                 key={i}
-                className="flex items-center justify-between px-6 py-4 border-b hover:bg-gray-50"
+                className="flex items-center justify-between px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
               >
                 <div className="flex items-center gap-4">
 
@@ -570,29 +583,65 @@ function EmployeeProfile() {
 
       {/* UPLOAD MODAL */}
       {showDocModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-96">
-            <h2 className="text-lg font-semibold mb-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+          <div className="bg-white w-100 rounded-2xl shadow-xl p-6 relative">
+
+            <h2 className="text-xl font-semibold mb-4">
               Upload Document
             </h2>
 
-            <input
-              type="file"
-              onChange={(e) => setSelectedFile(e.target.files[0])}
-            />
+            {/* DROP AREA */}
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                id="fileUpload"
+              />
 
-            <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowDocModal(false)}>
+              <label htmlFor="fileUpload" className="cursor-pointer">
+                <p className="text-gray-500">
+                  Click to upload or drag file
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  PDF, DOC, JPG, PNG, JPEG supported
+                </p>
+              </label>
+            </div>
+
+            {/* PREVIEW */}
+            {selectedFile && (
+              <div className="mt-4">
+                <p className="text-sm font-medium">{selectedFile.name}</p>
+
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="preview"
+                    className="w-20 h-20 mt-2 rounded object-cover"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setShowDocModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
                 Cancel
               </button>
 
               <button
                 onClick={handleUpload}
-                className="bg-green-800 text-white px-4 py-2 rounded"
+                className="px-4 py-2 bg-green-800 text-white rounded-lg"
               >
                 Upload
               </button>
             </div>
+
           </div>
         </div>
       )}

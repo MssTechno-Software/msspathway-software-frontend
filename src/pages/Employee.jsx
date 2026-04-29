@@ -33,7 +33,7 @@ function Employees() {
   /*fetch api*/
   const fetchEmployees = async () => {
     try {
-        const res = await API.get("/admin/users");
+        const res = await API.get("/admin/users-table");
         console.log("feached employee data:",res.data);
         setEmployees(res.data.data || res.data);
     } catch (err) {
@@ -231,7 +231,7 @@ function Employees() {
                onClick={() => navigate(`/dashboard/employees/${emp.employee_id}`)} 
                 className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
                 <td className="p-4">{emp.employee_id}</td>
-                <td className="p-4">{[emp.first_name, emp.last_name].filter(Boolean).join(" ")}</td>
+                <td className="p-4">{emp.name}</td>
                 <td className="p-4">{emp.mobile}</td>
                 <td className="p-4">{emp.email}</td>
                 <td className="p-4">{emp.reporting_to}</td>
