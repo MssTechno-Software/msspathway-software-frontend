@@ -223,35 +223,43 @@ function Employees() {
           </thead>
 
           <tbody>
-            {currentEmployees.map((emp) => (
-              <tr key={emp.employee_id ||emp.email}
-               onClick={() => navigate(`/dashboard/employees/${emp.employee_id}`)} 
-                className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
-                <td className="p-4">{emp.employee_id}</td>
-                <td className="p-4">{emp.name}</td>
-                <td className="p-4">{emp.mobile}</td>
-                <td className="p-4">{emp.email}</td>
-                <td className="p-4">{emp.reporting_to}</td>
-
-
-                <td className="p-4 flex gap-3">
-                  <FiEdit
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(emp.employee_id);
-                    }}
-                    className="cursor-pointer hover:text-green-600"
-                  />
-                  <FiTrash2
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(emp.employee_id);
-                    }}
-                    className="cursor-pointer  hover:text-green-600"
-                  />
+            {currentEmployees.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="text-center py-10 text-gray-400">
+                  No employees available. Click "Add New Employee"
                 </td>
               </tr>
-            ))}
+            ) : (
+              currentEmployees.map((emp) => (
+                <tr key={emp.employee_id ||emp.email}
+                onClick={() => navigate(`/dashboard/employees/${emp.employee_id}`)} 
+                  className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
+                  <td className="p-4">{emp.employee_id}</td>
+                  <td className="p-4">{emp.name}</td>
+                  <td className="p-4">{emp.mobile}</td>
+                  <td className="p-4">{emp.email}</td>
+                  <td className="p-4">{emp.reporting_to}</td>
+
+
+                  <td className="p-4 flex gap-3">
+                    <FiEdit
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(emp.employee_id);
+                      }}
+                      className="cursor-pointer hover:text-green-600"
+                    />
+                    <FiTrash2
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(emp.employee_id);
+                      }}
+                      className="cursor-pointer  hover:text-green-600"
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
 

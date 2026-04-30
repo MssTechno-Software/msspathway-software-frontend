@@ -8,7 +8,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [invalidPopup, setInvalidPopup] = useState(false);
@@ -51,7 +51,7 @@ function Login() {
 
     const isValid = handleSignIn();
     if (!isValid) return;
-
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://timesheet-api-790373899641.asia-south1.run.app/auth/login",
@@ -84,6 +84,9 @@ function Login() {
         console.error("Login Error:", error);
         setInvalidPopup(true);
     }
+      finally {
+        setLoading(false);
+      }
   };
 
   return (
@@ -173,8 +176,9 @@ function Login() {
         <button
           type="submit"
           className="w-full py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition text-sm"
+          disabled={loading}
         >
-          Sign In
+          {loading ? "Signing In..." : "Sign In"}
         </button>
       </form>
 
