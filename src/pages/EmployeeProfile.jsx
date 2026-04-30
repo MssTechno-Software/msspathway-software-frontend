@@ -459,7 +459,7 @@ function EmployeeProfile() {
       </div>
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">EMPLOYEE ID</p>
           <p className="font-semibold">{employee.employee_id || "No Employee ID"}</p>
@@ -488,6 +488,11 @@ function EmployeeProfile() {
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">LOCATION</p>
           <p className="font-semibold">{employee.location || "No Location"}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">REPORTING TO EMPLOYEE</p>
+          <p className="font-semibold">{employee.reporting_to || ""}</p>
         </div>
 
          <div className="bg-white p-4 rounded-xl shadow-sm">
@@ -713,7 +718,51 @@ function EmployeeProfile() {
         <AddEmployee
           editingEmployee={employee}
           onClose={() => setShowEdit(false)}
-          onAdd={fetchEmployee}
+          onSave={async (formData) => {
+            try {
+              console.log("Updating employee:", formData);
+
+              await axios.put(
+                `${BASE_URL}/admin/users/${employee_id}`,
+                {
+                  first_name: formData.first_name,
+                  last_name: formData.last_name,
+                  email: formData.email,
+                  mobile: formData.mobile,
+                  designation: formData.designation,
+                  aadhaar_number: formData.aadhaar_no,
+                  role: formData.role,
+                  location: formData.location,
+                  reporting_to: formData.reporting_to,
+                  start_date: formData.startDate,
+                  end_date: formData.endDate || null
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                  }
+                }
+              );
+
+              setPopup({
+                show: true,
+                message: "Employee updated successfully",
+                type: "success"
+              });
+
+              fetchEmployee();      // refresh data
+              setShowEdit(false);   // close modal
+
+            } catch (err) {
+              console.error("Update error:", err.response || err);
+
+              setPopup({
+                show: true,
+                message: "Failed to update employee",
+                type: "error"
+              });
+            }
+          }}
           setPopup={setPopup}
         />
       )}

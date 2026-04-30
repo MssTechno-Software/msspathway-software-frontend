@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { FiFileText, FiKey, FiBarChart2, FiUser, FiGrid } from "react-icons/fi";
+import { FiFileText, FiKey, FiBarChart2, FiUser, FiGrid, FiArrowLeft } from "react-icons/fi";
 import { useState, useEffect } from "react";
 
 function ClientLayout() {
@@ -27,14 +27,22 @@ function ClientLayout() {
       <div className="w-62 bg-[#301E0F] text-white flex flex-col justify-between">
 
         <div>
-          <div className="px-6 py-6 border-b border-white/10">
-            <h1 className="text-xl font-semibold truncate">
-              {clientName}
-            </h1>
+          <div className="px-6 py-6 border-b border-white/10 flex items-center gap-4">
+            {/* BACK ICON */}
+            <FiArrowLeft
+              size={20}
+              className="cursor-pointer hover:text-gray-300"
+              onClick={() => navigate("/dashboard/clients")}
+            />
+            <div>
+              <h1 className="text-2xl font-semibold truncate">
+                {clientName}
+              </h1>
 
-            <p className="text-xs text-gray-300">
-              Client Dashboard
-            </p>
+              <p className="text-md text-gray-300">
+                Client Dashboard
+              </p>
+            </div>
           </div>
 
           <div className="mt-4 space-y-1">
@@ -104,15 +112,6 @@ function ClientLayout() {
             </div>
 
           </div>
-        </div>
-
-        <div className="p-4">
-          <button
-            onClick={() => navigate("/dashboard/clients")}
-            className="w-full bg-green-800 px-4 py-2 rounded-lg"
-          >
-            ← Back to clients
-          </button>
         </div>
       </div>
       <div className="flex-1 p-6">

@@ -1,13 +1,31 @@
-import { NavLink } from "react-router-dom";
-import { FiUsers, FiClock } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FiUsers, FiClock, FiArrowLeft } from "react-icons/fi";
 import { FaUserTie} from "react-icons/fa";
 
 function Sidebar() {
+     const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
+        navigate("/login");
+    };
     return (
         <div className="w-62 bg-[#301E0F] text-white flex flex-col p-4">
 
-            {/* Logo */}
-            <h2 className="text-xl font-semibold mb-8">MSS Techno</h2>
+            <div className="flex items-center gap-3 mb-8">
+
+                {/* BACK ICON */}
+                <FiArrowLeft
+                    size={20}
+                    className="cursor-pointer hover:text-gray-300"
+                    onClick={handleLogout}
+                    title="Logout"
+                />
+
+                {/* Logo */}
+                <h2 className="text-2xl font-semibold">MSS Techno</h2>
+            </div>
 
             {/* Menu */}
             <nav className="flex flex-col gap-3">

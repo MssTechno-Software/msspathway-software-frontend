@@ -12,7 +12,7 @@ import Overview from "./pages/Overview";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/dashboard/*" element={<Dashboard />} />
       <Route path="/clients" element={<Clients />} />
 
