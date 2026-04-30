@@ -41,7 +41,7 @@ function ClientProfile() {
     console.log("Fetching client ID:", client_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/clients/client-profile/${client_id}`, // FIXED
+        `${BASE_URL}/clients/clients/${client_id}`,
         getAuthHeaders()
       );
 
@@ -145,19 +145,30 @@ function ClientProfile() {
   const handleUpdate = async (updatedData) => {
     console.log("Updating client with data:", updatedData);
     try {
+      const statusMap = {
+        Active: "A",
+        Completed: "C",
+        Pause: "P",
+        Terminate: "T"
+      };
       const formData = new FormData();
 
       formData.append("client_name", updatedData.name);
       formData.append("mobile", updatedData.mobile);
       formData.append("email", updatedData.email);
       formData.append("technology", updatedData.tech.join(","));
-      formData.append("status", updatedData.status);
-      formData.append("employee_id", updatedData.employeeId);
+      formData.append("status", statusMap[updatedData.status]);
+      formData.append("employee_id", String(updatedData.employeeId));
       formData.append("professional_role", updatedData.role);
       formData.append("aadhaar_number", updatedData.aadhaar);
       formData.append("location", updatedData.location);
+      formData.append("notes", updatedData.notes);
 
-      const response = await axios.get(
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+      const response = await axios.put(
         `${BASE_URL}/clients/update-client/${client_id}`,
         formData,
         {
@@ -1018,9 +1029,15 @@ function ClientProfile() {
 
       {showEdit && (
         <AddClient
-          editingClient={client}   // ✅ important
+          editingClient={{
+            ...client,
+            technology: client.technology || "",
+            status: client.status || "A",
+            employee_id: client.employee_id || "",
+            notes: client.notes || ""
+          }}
           onClose={() => setShowEdit(false)}
-          onAdd={handleUpdate}     // ✅ reuse submit
+          onAdd={handleUpdate}     
           setPopup={() => { }}
         />
       )}

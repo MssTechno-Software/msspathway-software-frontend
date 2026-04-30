@@ -92,11 +92,6 @@ function EmployeeProfile() {
       setProfileUrl(url);
     } catch (err) {
       console.error("Error fetching profile photo:", err);
-      setPopup({
-        show: true,
-        message: "Failed to load profile photo",
-        type: "error"
-      });
     }
   };
 

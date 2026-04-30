@@ -83,8 +83,10 @@ function Employees() {
 
       if (editingEmployee) {
         /*update*/
+        const employee_id = editingEmployee.employee_id;
+        console.log("Updating ID:", editingEmployee?.employee_id);
         console.log("Updating Employee with data:", Object.fromEntries(formData.entries()));
-        const res = await API.put(`/admin/users/${editingEmployee.employee_id}`, formData);
+        const res = await API.put(`/admin/users/${employee_id}`, formData);
         console.log("Updating Employee:", res.data);
         setPopup({ 
           show: true, 
@@ -92,6 +94,7 @@ function Employees() {
           type: "success" 
         });
       } else {
+        /*add*/
         console.log("Adding Employee with data:", Object.fromEntries(formData.entries()));
         const res = await API.post("/admin/users", formData);
         console.log("Adding Employee:", res.data);
@@ -107,7 +110,7 @@ function Employees() {
       setEditingEmployee(null);
 
     } catch (err) {
-      console.error("ERROR:", err.response?.data);
+      console.error("backend full error:", err.response?.data || err.message);
       setPopup({
         show: true,
         message: err.response?.data?.detail || "Failed to save employee",
@@ -146,20 +149,14 @@ function Employees() {
     });
   };
 
-  // const handleEdit = async (employee_id) => {
-  //   try {
-  //     const res = await API.get(`/admin/users/${employee_id}`);
-  //     setEditingEmployee(res.data);
-  //     setShowModal(true);
-  //   } catch (err) {
-  //       console.error("Edit fetch error:", err.response?.data || err.message);
-  //   }
-  // };
-  const handleEdit = (emp) => {
-    console.log("Editing employee:", emp);
-
-    setEditingEmployee(emp);
-    setShowModal(true);
+  const handleEdit = async (employee_id) => {
+    try {
+      const res = await API.get(`/admin/users/${employee_id}`);
+      setEditingEmployee(res.data.data ||res.data);
+      setShowModal(true);
+    } catch (err) {
+        console.error("Edit fetch error:", err.response?.data || err.message);
+    }
   };
 
   // FILTER
@@ -241,7 +238,7 @@ function Employees() {
                   <FiEdit
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEdit(emp);
+                      handleEdit(emp.employee_id);
                     }}
                     className="cursor-pointer hover:text-green-600"
                   />

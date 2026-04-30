@@ -52,18 +52,23 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         T: "Terminate"
     };
 
-    // When editing, load previous client data
     useEffect(() => {
         if (editingClient) {
             setFormData({
                 name: editingClient.client_name || "",
                 mobile: editingClient.mobile || "",
                 email: editingClient.email || "",
+
                 tech: editingClient.technology
-                    ? editingClient.technology.split(",")
+                    ? editingClient.technology.split(",").filter(Boolean)
                     : [],
+
                 status: reverseStatusMap[editingClient.status] || "Active",
-                employeeId: editingClient.employee_id || "",
+
+                employeeId: editingClient.employee_id
+                    ? String(editingClient.employee_id)
+                    : "",
+
                 role: editingClient.professional_role || "",
                 aadhaar: editingClient.aadhaar_number || "",
                 location: editingClient.location || "",

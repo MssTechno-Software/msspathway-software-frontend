@@ -36,6 +36,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   const [showHrDropdown, setShowHrDropdown] = useState(false);
   const [employeeIds, setEmployeeIds] = useState([]);
 
+  /* Fetch employee IDs for dropdowns */
   useEffect(() => {
     const fetchEmployeeIds = async () => {
       try {
@@ -157,7 +158,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     }
 
     console.log("FORM BEFORE SEND:", form);
-    //onSave(form); 
+    onSave(form); 
   };
 
   return (

@@ -104,6 +104,7 @@ function Clients() {
             formData.append("professional_role", client.role);
             formData.append("aadhaar_number", client.aadhaar);
             formData.append("location", client.location)
+            formData.append("notes", client.notes);
 
             // DEBUG (optional but useful)
             for (let pair of formData.entries()) {
@@ -356,7 +357,7 @@ function Clients() {
 
                                         {/*Assigned to Employee*/}
                                         <td className="p-4">
-                                            {client.employee_id ? `${client.employee_id}` : "Unassigned"}
+                                            {client.employee_name || "Unassigned"}
                                         </td>
                                         {/* STATUS */}
                                         <td className="p-4">
