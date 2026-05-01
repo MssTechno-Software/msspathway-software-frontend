@@ -105,15 +105,15 @@ function EmployeeProfile() {
     console.log("Updating employee data for ID:", employee_id);
     setEmployee((prev) => ({
       ...prev,
-        first_name: prev.first_name || "",
-        last_name: prev.last_name || "",
-        email: prev.email || "",
-        mobile: prev.mobile || "",
-        aadhaar_number: prev.aadhaar_number || "",
-        role: prev.role || "",
-        location: prev.location || "",
-        start_date: prev.start_date || "",
-        end_date: prev.end_date || ""
+      first_name: prev.first_name || "",
+      last_name: prev.last_name || "",
+      email: prev.email || "",
+      mobile: prev.mobile || "",
+      aadhaar_number: prev.aadhaar_number || "",
+      role: prev.role || "",
+      location: prev.location || "",
+      start_date: prev.start_date || "",
+      end_date: prev.end_date || ""
     }));
     setPopup({
       show: true,
@@ -125,7 +125,7 @@ function EmployeeProfile() {
 
   // UPLOAD documents
   const handleUpload = async () => {
-    if (!selectedFile){
+    if (!selectedFile) {
       return setPopup({
         show: true,
         message: "Please select a file to upload",
@@ -181,7 +181,7 @@ function EmployeeProfile() {
       const res = await axios.get(
         `${BASE_URL}/documents/employees/${employee_id}/view-document`,
         {
-          params: {gcs_path: gcsPath},
+          params: { gcs_path: gcsPath },
           responseType: "blob",
           ...getAuthHeaders()
         }
@@ -340,7 +340,7 @@ function EmployeeProfile() {
     ? profilePreview
     : profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
- /* UPLOAD PROFILE PHOTO */
+  /* UPLOAD PROFILE PHOTO */
   const handleUploadProfile = async () => {
     if (!profileFile) {
       setPopup({
@@ -355,7 +355,7 @@ function EmployeeProfile() {
       const formData = new FormData();
       formData.append("photo", profileFile);
 
-       for (let pair of formData.entries()) {
+      for (let pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
       console.log("Uploading profile photo for employee ID:", employee_id);
@@ -390,15 +390,15 @@ function EmployeeProfile() {
       });
     }
   };
-  
- /* DELETE PROFILE PHOTO */
+
+  /* DELETE PROFILE PHOTO */
   const handleDeleteProfile = async () => {
     try {
       await axios.delete(
         `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
         {
           ...getAuthHeaders(),
-          params: {gcs_path: profileUrl}  
+          params: { gcs_path: profileUrl }
         }
       );
       setProfileUrl(null);
@@ -427,7 +427,7 @@ function EmployeeProfile() {
 
           <div className="relative">
             <img
-              src={ profileImage }
+              src={profileImage}
               className="w-28 h-28 rounded-full object-cover shadow"
             />
             {/* CONDITIONAL ICON */}
@@ -492,15 +492,17 @@ function EmployeeProfile() {
 
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">REPORTING TO EMPLOYEE</p>
-          <p className="font-semibold">{employee.reporting_to || ""}</p>
+          <p className="font-semibold">{employee.reporting_to
+            ? `${employee.reporting_to} - ${employee.reporting_to_name}`
+            : "No Reporting Manager"}</p>
         </div>
 
-         <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">START DATE</p>
           <p className="font-semibold">{employee.start_date || "No Start Date"}</p>
         </div>
 
-         <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">END DATE</p>
           <p className="font-semibold">{employee.end_date ? employee.end_date : "Currently Working"}</p>
         </div>
@@ -563,13 +565,13 @@ function EmployeeProfile() {
                 </div>
                 {/*right side actions */}
                 <div className="flex items-center gap-4 text-gray-500">
-                  <FiEye 
+                  <FiEye
                     className="cursor-pointer hover:text-green-700"
                     onClick={() => handleView(doc)} />
-                  <FiDownload 
+                  <FiDownload
                     className="cursor-pointer hover:text-green-700"
                     onClick={() => handleDownload(doc)} />
-                  <FiTrash2 
+                  <FiTrash2
                     className="cursor-pointer hover:text-green-700"
                     onClick={() => handleDelete(doc)} />
                 </div>
