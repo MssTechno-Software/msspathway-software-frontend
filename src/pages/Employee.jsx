@@ -210,7 +210,7 @@ function Employees() {
 
       {/* TABLE */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full text-md">
+        <table className="w-full text-sm">
           <thead className="bg-gray-100 text-gray-600">
             <tr className="border-b border-gray-200">
               <th className="p-4 text-left">ID</th>

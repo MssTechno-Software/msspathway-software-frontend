@@ -502,7 +502,7 @@ function EmployeeProfile() {
 
          <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">END DATE</p>
-          <p className="font-semibold">{employee.end_date || "Currently Working" || "No End Date"}</p>
+          <p className="font-semibold">{employee.end_date ? employee.end_date : "Currently Working"}</p>
         </div>
       </div>
 
@@ -720,29 +720,33 @@ function EmployeeProfile() {
           onClose={() => setShowEdit(false)}
           onSave={async (formData) => {
             try {
-              console.log("Updating employee:", formData);
+              const data = new FormData();
 
+              data.append("first_name", formData.first_name);
+              data.append("last_name", formData.last_name);
+              data.append("email", formData.email);
+              data.append("mobile", formData.mobile);
+              data.append("designation", formData.designation);
+              data.append("aadhaar_number", formData.aadhaar_no);
+              data.append("role", formData.role.toLowerCase());
+              data.append("location", formData.location);
+              data.append("reporting_to", formData.reporting_to);
+              data.append("HR", formData.hr);
+              data.append("start_date", formData.startDate);
+
+              if (formData.endDate) {
+                data.append("end_date", formData.endDate);
+              } else {
+                data.append("end_date", "");
+              }
+
+              // ✅ CALL UPDATE API
               await axios.put(
                 `${BASE_URL}/admin/users/${employee_id}`,
-                {
-                  first_name: formData.first_name,
-                  last_name: formData.last_name,
-                  email: formData.email,
-                  mobile: formData.mobile,
-                  designation: formData.designation,
-                  aadhaar_number: formData.aadhaar_no,
-                  role: formData.role,
-                  location: formData.location,
-                  reporting_to: formData.reporting_to,
-                  start_date: formData.startDate,
-                  end_date: formData.endDate || null
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                  }
-                }
+                data,
+                getAuthHeaders()
               );
+              await fetchEmployee();
 
               setPopup({
                 show: true,
@@ -750,17 +754,10 @@ function EmployeeProfile() {
                 type: "success"
               });
 
-              fetchEmployee();      // refresh data
-              setShowEdit(false);   // close modal
+              setShowEdit(false);
 
             } catch (err) {
-              console.error("Update error:", err.response || err);
-
-              setPopup({
-                show: true,
-                message: "Failed to update employee",
-                type: "error"
-              });
+              console.error(err);
             }
           }}
           setPopup={setPopup}

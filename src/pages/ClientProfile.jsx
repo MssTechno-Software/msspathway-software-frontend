@@ -142,6 +142,7 @@ function ClientProfile() {
     return <div className="p-6">Loading client details...</div>;
   }
 
+  /*update client*/
   const handleUpdate = async (updatedData) => {
     console.log("Updating client with data:", updatedData);
     try {
@@ -687,6 +688,11 @@ function ClientProfile() {
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">LOCATION</p>
           <p className="font-semibold">{client.location || "No Location"}</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">TECHNOLOGY STACKS</p>
+          <p className="font-semibold">{client.technology || "No Technology Stacks"}</p>
         </div>
       </div>
 
