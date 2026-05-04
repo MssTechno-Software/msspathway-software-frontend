@@ -92,68 +92,63 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     }));
   };
 
+  const isEdit = !!editingEmployee;
   const submit = () => {
-    if (!form.first_name?.trim()) {
+    if (!isEdit && !form.first_name?.trim()) {
       return onSave({ error: true, message: "First name is required" });
     }
 
-    if (!form.last_name?.trim()) {
+    if (!isEdit && !form.last_name?.trim()) {
       return onSave({ error: true, message: "Last name is required" });
     }
 
-    if (!form.email?.trim()) {
+    if (!isEdit && !form.email?.trim()) {
       return onSave({ error: true, message: "Email is required" });
     }
 
+    if (form.email?.trim()) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
       return onSave({ error: true, message: "Enter a valid email address" });
     }
+  }
 
-    if (!editingEmployee && !form.password?.trim()) {
-      return onSave({ error: true, message: "Password is required" });
-    }
-
-    if (!form.mobile?.trim()) {
+    if (!isEdit && !form.mobile?.trim()) {
       return onSave({ error: true, message: "Mobile is required" });
     }
 
-    if (form.mobile.length < 10) {
-      return onSave({ error: true, message: "Enter valid mobile number" });
+    if (form.mobile?.trim()) {
+      const mobile = form.mobile.replace(/\s+/g, "");
+
+      if (!/^\+?\d{10,15}$/.test(mobile)) {
+        return onSave({
+          error: true,
+          message: "Enter valid mobile number"
+        });
+      }
     }
 
-    if (!/^\d{10}$/.test(form.mobile)) {
-      return onSave({ error: true, message: "Enter valid 10-digit mobile number" });
-    }
-
-    if (!form.designation?.trim()) {
+    if (!isEdit && !form.designation?.trim()) {
       return onSave({ error: true, message: "Designation is required" });
     }
 
-    if (!form.startDate) {
+    if (!isEdit && !form.startDate) {
       return onSave({ error: true, message: "Start date is required" });
     }
 
-    if (!form.reporting_to?.trim()) {
+    if (!isEdit && !form.reporting_to?.trim()) {
       return onSave({ error: true, message: "Reporting manager is required" });
     }
 
-    if (!form.hr?.trim()) {
+    if (!isEdit && !form.hr?.trim()) {
       return onSave({ error: true, message: "HR ID is required" });
     }
 
-    if (!form.aadhaar_no?.trim()) {
+    if (!isEdit && !form.aadhaar_no?.trim()) {
       return onSave({ error: true, message: "Aadhaar is required" });
     }
 
-    if (!/^\d{12}$/.test(form.aadhaar_no)) {
-      return onSave({ error: true, message: "Aadhaar must be 12 digits" });
-    }
-
-    if (!form.role) {
-      return onSave({ error: true, message: "Role is required" });
-    }
-    if (!form.location?.trim()) {
+    if (!isEdit && !form.location?.trim()) {
       return onSave({ error: true, message: "Location is required" });
     }
 
@@ -182,7 +177,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                First Name <span className="text-red-500">*</span>
+                First Name {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
               <input
                 name="first_name"
@@ -195,7 +190,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Last Name <span className="text-red-500">*</span>
+                Last Name {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
               <input
                 name="last_name"
@@ -209,7 +204,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Aadhaar Number <span className="text-red-500">*</span>
+              Aadhaar Number {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
 
             <input
@@ -225,7 +220,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/* EMAIL */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Email Address <span className="text-red-500">*</span>
+              Email Address {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -245,7 +240,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Mobile Number <span className="text-red-500">*</span>
+                Mobile Number {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
 
               <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -262,7 +257,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Designation <span className="text-red-500">*</span>
+                Designation {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
 
               <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -282,7 +277,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*start date*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Start Date <span className="text-red-500">*</span>
+              Start Date {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
             <input
               type="date"
@@ -295,7 +290,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*end date + currently working toggle*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              End Date {/*<span className="text-red-500">*</span> */}
+              End Date {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
             <div className="flex items-center gap-2 mt-2">
               <input
@@ -326,7 +321,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* Reporting To */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                Reporting To (Employee ID) <span className="text-red-500">*</span>
+                Reporting To (Employee ID) {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
 
               <div 
@@ -366,7 +361,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* HR Employee ID */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                HR Employee ID <span className="text-red-500">*</span>
+                HR Employee ID {!editingEmployee && <span className="text-red-500">*</span>}
               </label>
 
               <div 
@@ -407,7 +402,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*Password*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Password <span className="text-red-500">*</span>
+              Password {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -437,7 +432,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/* ROLE DROPDOWN */}
           <div className="relative">
             <label className="text-sm font-medium text-gray-700">
-              Role <span className="text-red-500">*</span>
+              Role {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
 
             <div
@@ -470,7 +465,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Location <span className="text-red-500">*</span>
+              Location {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
               <FiMapPin className="text-gray-400 mr-2" />
@@ -487,13 +482,13 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
         {/* FOOTER */}
         <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
-          <button onClick={onClose} className="text-gray-600">
+          <button onClick={onClose} className="text-gray-600 cursor-pointer hover:bg-gray-100 px-6 py-2 rounded-lg transition">
             Cancel
           </button>
 
           <button
             onClick={submit}
-            className="bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow"
+            className="bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
           >
             {editingEmployee ? "Update" : "Save"}
           </button>

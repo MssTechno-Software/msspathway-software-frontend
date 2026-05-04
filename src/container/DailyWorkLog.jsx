@@ -463,7 +463,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
           {!submitted && (
             <button
               onClick={saveLog}
-              className={`flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm w-full sm:max-w-45 text-white
+              className={`flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm w-full sm:max-w-45 text-white cursor-pointer
             ${editIndex !== null
                   ? "bg-green-800 hover:bg-green-700"
                   : "bg-green-800 hover:bg-green-700"}`}
@@ -551,7 +551,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
           <button
             disabled = {submitted}
             onClick={() => setShowSubmitModal(true)}
-            className="bg-green-800 text-white px-6 py-3 rounded-xl mt-4 w-full hover:bg-green-700"
+            className="bg-green-800 text-white px-6 py-3 rounded-xl mt-4 w-full hover:bg-green-700 cursor-pointer"
           >
             Submit Day
           </button>
@@ -568,13 +568,13 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
               <div className="flex justify-end gap-6">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="text-gray-500"
+                  className="text-gray-500 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+                  className="bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
                 >
                   Delete
                 </button>
@@ -594,13 +594,13 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
               <div className="flex justify-end gap-6">
                 <button
                   onClick={() => setShowSubmitModal(false)}
-                  className="text-gray-500"
+                  className="text-gray-500 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmSubmit}
-                  className="bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+                  className="bg-green-800 text-white px-6 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
                 >
                   Submit
                 </button>
@@ -627,7 +627,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
               <button
                 onClick={() => setShowPopup(false)}
-                className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm"
+                className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm cursor-pointer"
               >
                 OK
               </button>

@@ -46,26 +46,38 @@ function AddCredential({ onClose, onSave, editingData }) {
     //validation can be added here before submission
     const validate = () => {
         let newError = {};
+        const isEdit = !!editingData;
 
-        if (!form.portal.trim()) {
-            newError.portal = "Portal name is required";
+        //REQUIRED only when adding
+        if (!isEdit) {
+            if (!form.portal.trim()) {
+                newError.portal = "Portal name is required";
+            }
+
+            if (!form.portalLink.trim()) {
+                newError.portalLink = "Portal link is required";
+            }
+
+            if (!form.email.trim()) {
+                newError.email = "Email address is required";
+            }
+
+            if (!form.password.trim()) {
+                newError.password = "Password is required";
+            }
         }
 
-        if (!form.portalLink.trim()) {
-            newError.portalLink = "Portal link is required";
-        } else if (!/^https?:\/\/\S+$/.test(form.portalLink)) {
+        //Validate only if value exists (for both add & edit)
+
+        if (form.portalLink.trim() && !/^https?:\/\/\S+$/.test(form.portalLink)) {
             newError.portalLink = "Portal link must be a valid URL";
         }
 
-        if (!form.email.trim()) {
-            newError.email = "Email address is required";
-        } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+        if (form.email.trim() && !/\S+@\S+\.\S+/.test(form.email)) {
             newError.email = "Email address is invalid";
         }
 
-        if (!form.password.trim()) {
-            newError.password = "Password is required";
-        }else if (form.password.length < 8) {
+        if (form.password.trim() && form.password.length < 8) {
             newError.password = "Password must be at least 8 characters";
         }
 
@@ -121,7 +133,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                     {/* PORTAL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Portal Name <span className="text-red-500">*</span>
+                            Portal Name {!editingData && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -140,7 +152,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                     {/* PORTAL LINK*/}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Portal Link <span className="text-red-500">*</span>
+                            Portal Link {!editingData && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -158,7 +170,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                     {/* EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Email Address <span className="text-red-500">*</span>
+                            Email Address {!editingData && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -176,7 +188,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                     {/* PASSWORD */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Password <span className="text-red-500">*</span>
+                            Password {!editingData && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -194,7 +206,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="text-gray-400"
+                                className="text-gray-400 cursor-pointer focus:outline-none"
                             >
                                 {showPassword ? <FiEyeOff /> : <FiEye />}
                             </button>
@@ -206,14 +218,14 @@ function AddCredential({ onClose, onSave, editingData }) {
 
                         <button
                             onClick={onClose}
-                            className="flex-1 border border-gray-300 py-3 rounded-xl text-gray-700 hover:bg-gray-100"
+                            className="flex-1 border border-gray-300 py-3 rounded-xl text-gray-700 hover:bg-gray-100 cursor-pointer"
                         >
                             Cancel
                         </button>
 
                         <button
                             onClick={handleSubmit}
-                            className="flex-1 bg-green-800 hover:bg-green-700 text-white py-3 rounded-xl shadow-md"
+                            className="flex-1 bg-green-800 hover:bg-green-700 text-white py-3 rounded-xl shadow-md cursor-pointer"
                         >
                             {editingData ? "Update" : "Save"}
                         </button>
@@ -245,7 +257,7 @@ function AddCredential({ onClose, onSave, editingData }) {
 
                         <button
                             onClick={() => setPopup({ show: false })}
-                            className="bg-green-800 text-white px-4 py-2 rounded"
+                            className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                         >
                             OK
                         </button>

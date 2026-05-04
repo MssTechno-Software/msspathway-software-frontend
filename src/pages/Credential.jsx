@@ -229,7 +229,7 @@ function Credentials() {
                                         setSearch("");
                                         setCurrentPage(1);
                                     }}
-                                    className="ml-2 text-gray-400 hover:text-gray-700 transition"
+                                    className="ml-2 text-gray-400 hover:text-gray-700 transition cursor-pointer"
                                 >
                                     <FiX size={16} />
                                 </button>
@@ -239,7 +239,7 @@ function Credentials() {
                         {/* ADD BUTTON */}
                         <button
                             onClick={() => setShowModal(true)}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 transition"
                         >
                             Add New Credential
                         </button>
@@ -277,7 +277,7 @@ function Credentials() {
 
                                     <tr
                                         key={item.id || index}
-                                        className="border-t border-gray-100 hover:bg-gray-50 transition duration-150"
+                                        className="border-t border-gray-100 hover:bg-gray-50 transition duration-150 cursor-pointer"
                                     >
 
                                         {/* PORTAL NAME */}
@@ -306,7 +306,7 @@ function Credentials() {
 
                                                 <button
                                                     onClick={() => togglePassword(item.id)}
-                                                    className="text-gray-400 hover:text-gray-700 transition"
+                                                    className="text-gray-400 hover:text-gray-700 transition cursor-pointer"
                                                 >
                                                     {visiblePasswords[item.id] ? <FiEyeOff /> : <FiEye />}
                                                 </button>
@@ -318,7 +318,7 @@ function Credentials() {
                                             <a
                                                 href={item.portalLink}
                                                 target="_blank"
-                                                className="text-green-700 font-medium"
+                                                className="text-green-700 font-medium cursor-pointer hover:underline"
                                             >
                                                 View ↗
                                             </a>
@@ -326,18 +326,18 @@ function Credentials() {
 
                                         {/* ACTIONS */}
                                         <td className="p-4">
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2">
 
                                                 <button
                                                     onClick={() => editCredential(item)}
-                                                    className="p-2 rounded-lg hover:bg-green-50 transition"
+                                                    className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
                                                 >
                                                     <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
                                                 </button>
 
                                                 <button
                                                     onClick={() => deleteCredential(item.id)}
-                                                    className="p-2 rounded-lg hover:bg-green-50 transition"
+                                                    className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
                                                 >
                                                     <FiTrash2 size={18} className="text-gray-500 hover:text-green-600" />
                                                 </button>
@@ -361,19 +361,19 @@ function Credentials() {
                             <button
                                 disabled={currentPage === 1}
                                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                                className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 cursor-pointer"
                             >
                                 Previous
                             </button>
 
-                            <button className="bg-green-800 text-white px-3 py-1 rounded">
+                            <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
                                 {currentPage}
                             </button>
 
                             <button
                                 disabled={currentPage === totalPages}
                                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                className="px-3 py-1 rounded bg-gray-100 disabled:opacity-40"
+                                className="px-3 py-1 rounded bg-gray-100 cursor-pointer disabled:opacity-40"
                             >
                                 Next
                             </button>
@@ -414,14 +414,14 @@ function Credentials() {
                                             popup.onConfirm();
                                             setPopup({ show: false });
                                         }}
-                                        className="bg-red-600 text-white px-4 py-2 rounded"
+                                        className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
                                     >
                                         Yes
                                     </button>
 
                                     <button
                                         onClick={() => setPopup({ show: false })}
-                                        className="bg-gray-300 px-4 py-2 rounded"
+                                        className="bg-gray-300 px-4 py-2 rounded cursor-pointer"
                                     >
                                         Cancel
                                     </button>
@@ -429,7 +429,7 @@ function Credentials() {
                             ) : (
                                 <button
                                     onClick={() => setPopup({ show: false })}
-                                    className="bg-green-800 text-white px-4 py-2 rounded"
+                                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                                 >
                                     OK
                                 </button>

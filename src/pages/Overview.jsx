@@ -210,7 +210,7 @@ export default function Overview() {
               setAppliedFromDate(fromDate);
               setAppliedToDate(toDate);
             }}
-            className="bg-green-800 text-white px-4 py-1 rounded-lg text-sm"
+            className="bg-green-800 text-white px-4 py-1 rounded-lg text-sm cursor-pointer"
           >
             Search
           </button>
@@ -223,7 +223,7 @@ export default function Overview() {
               setAppliedFromDate("");
               setAppliedToDate("");
             }}
-            className="text-gray-600 text-sm px-3 py-1"
+            className="text-gray-600 text-sm px-3 py-1 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer"
           >
             Clear
           </button>

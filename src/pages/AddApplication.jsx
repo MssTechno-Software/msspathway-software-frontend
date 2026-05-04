@@ -37,16 +37,21 @@ function AddApplication({ onClose, onAdd, editingApp }) {
     }, [editingApp]);
 
     const handleSubmit = () => {
-
+        const isEdit = !!editingApp;
         let newErrors = {};
 
-        if (!form.company.trim()) newErrors.company = "Company is required";
-        if (!form.role.trim()) newErrors.role = "Role is required";
-        if (!form.platform || form.platform === "Select a platform")
-            newErrors.platform = "Platform is required";
-        if (!form.date) newErrors.date = "Date is required";
-        if (!form.link.trim()) newErrors.link = "Link is required";
+        if (!isEdit) {
+            if (!form.company.trim()) newErrors.company = "Company is required";
+            if (!form.role.trim()) newErrors.role = "Role is required";
+            if (!form.platform || form.platform === "Select a platform")
+                newErrors.platform = "Platform is required";
+            if (!form.date) newErrors.date = "Date is required";
+            if (!form.link.trim()) newErrors.link = "Link is required";
+        }
 
+        if (form.link.trim() && !/^https?:\/\/.+/.test(form.link)) {
+            newErrors.link = "Enter valid URL";
+        }
         setErrors(newErrors);
 
         //stop if any error
@@ -81,7 +86,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Company Name <span className="text-red-500">*</span>
+                                Company Name {!editingApp && <span className="text-red-500">*</span>}
                             </label>
                             <input
                                 name="company"
@@ -94,7 +99,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Role of Application <span className="text-red-500">*</span>
+                                Role of Application {!editingApp && <span className="text-red-500">*</span>}
                             </label>
                             <input
                                 name="role"
@@ -112,7 +117,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Select Platform <span className="text-red-500">*</span>
+                                Select Platform {!editingApp && <span className="text-red-500">*</span>}
                             </label>
 
                             <div
@@ -151,7 +156,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Date Applied <span className="text-red-500">*</span>
+                                Date Applied {!editingApp && <span className="text-red-500">*</span>}
                             </label>
 
                             <div className="relative">
@@ -176,7 +181,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                     {/* Link */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Application Link <span className="text-red-500">*</span>
+                            Application Link {!editingApp && <span className="text-red-500">*</span>}
                         </label>
 
                         <div
@@ -226,14 +231,14 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                     <button
                         onClick={onClose}
-                        className="text-gray-600 hover:text-black"
+                        className="text-gray-600 hover:text-black border border-gray-300 py-2 px-6 rounded-xl hover:bg-gray-100 transition cursor-pointer"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={handleSubmit}
-                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md"
+                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md cursor-pointer"
                     >
                         {editingApp ? "Update" : "Save"}
                     </button>

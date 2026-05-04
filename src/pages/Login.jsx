@@ -196,7 +196,7 @@ function Login() {
 
             <button
               onClick={() => setShowPopup(false)}
-              className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm"
+              className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm cursor-pointer"
             >
               OK
             </button>
@@ -217,7 +217,7 @@ function Login() {
 
             <button
               onClick={() => setInvalidPopup(false)}
-              className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm"
+              className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm cursor-pointer"
             >
               OK
             </button>

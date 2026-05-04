@@ -661,7 +661,7 @@ function ClientProfile() {
 
         <button
           onClick={() => setShowEdit(true)}
-          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md"
+          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
         >
           <FiEdit />
           Update Client
@@ -711,7 +711,7 @@ function ClientProfile() {
           </div>
           <button
             onClick={() => setShowDocModal(true)}
-            className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md"
+            className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
           >
             <FiUpload />
             Upload
@@ -800,7 +800,7 @@ function ClientProfile() {
             {/* ADD LINK BUTTON */}
             <button
               onClick={() => setShowLinkModal(true)}
-              className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md"
+              className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
             >
               <FiLink />
               Add Link
@@ -896,14 +896,14 @@ function ClientProfile() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowDocModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg"
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleUploadDocument}
-                className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
               >
                 Upload
               </button>
@@ -918,7 +918,7 @@ function ClientProfile() {
 
           <div className="bg-white w-96 rounded-2xl shadow-xl p-6 relative">
 
-            <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-3">
+            <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-3 cursor-pointer">
               Add Link
             </h2>
 
@@ -949,14 +949,14 @@ function ClientProfile() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded-2xl hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 rounded-2xl border border-gray-200 hover:bg-gray-300 cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleAddLink}
-                className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700 cursor-pointer"
               >
                 Add
               </button>
@@ -1006,7 +1006,7 @@ function ClientProfile() {
               {profileUrl && (
                 <button
                   onClick={handleDeleteProfile}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer"
                 >
                   Delete
                 </button>
@@ -1015,14 +1015,14 @@ function ClientProfile() {
               <div className="flex gap-2 ml-auto">
                 <button
                   onClick={() => setShowPhotoModal(false)}
-                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                  className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleUploadProfile}
-                  className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                  className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
                 >
                   Upload
                 </button>
@@ -1066,14 +1066,14 @@ function ClientProfile() {
                     onClick={async () => {
                       await popup.onConfirm();
                     }}
-                    className="px-4 py-2 bg-red-600 text-white rounded"
+                    className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
                   >
                     Yes
                   </button>
 
                   <button
                     onClick={() => setPopup({ show: false })}
-                    className="px-4 py-2 bg-gray-300 rounded"
+                    className="px-4 py-2 bg-gray-300 rounded border border-gray-300 cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1081,7 +1081,7 @@ function ClientProfile() {
               ) : (
                 <button
                   onClick={() => setPopup({ show: false })}
-                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700 cursor-pointer"
                 >
                   OK
                 </button>

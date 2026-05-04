@@ -5,7 +5,7 @@ export default function AddReport({ onClose, onSave, editData }) {
 
     const STAGES = ["Call", "Mail", "L1", "L2", "Offer"];
 
-    const isEdit = editData;
+    const isEdit = !!editData;
 
     const today = new Date().toISOString().split("T")[0];
     const [stageOpen, setStageOpen] = useState(false);
@@ -60,24 +60,26 @@ export default function AddReport({ onClose, onSave, editData }) {
 
     const validateForm = () => {
         let newErrors = {};
+        if (!isEdit) {
+            if (!form.company.trim()) newErrors.company = "Company is required";
+            if (!form.recruiterName.trim()) newErrors.recruiterName = "Recruiter name is required";
+            if (!form.recruiterContact.trim()) newErrors.recruiterContact = "Recruiter contact is required";
+            if (!form.recruiterEmail.trim()) newErrors.recruiterEmail = "Recruiter email is required";
+            if (!form.stage) newErrors.stage = "Stage is required";
+            if (!form.status) newErrors.status = "Status is required";
+            if (!form.date) newErrors.date = "Date is required";
+        }
+        if (form.recruiterContact.trim()) {
+            if (!/^\d{10}$/.test(form.recruiterContact.trim())) {
+                newErrors.recruiterContact = "Contact must be a 10-digit number";
+            }
+        }
 
-        if (!form.company.trim()) newErrors.company = "Company is required";
-        if (!form.recruiterName.trim()) newErrors.recruiterName = "Recruiter name is required";
-        if (!form.recruiterContact.trim()) {
-            newErrors.recruiterContact = "Recruiter contact is required";
+        if (form.recruiterEmail.trim()) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.recruiterEmail.trim())) {
+                newErrors.recruiterEmail = "Invalid email format";
+            }
         }
-        else if (!/^\d{10}$/.test(form.recruiterContact.trim())) {
-            newErrors.recruiterContact = "Contact must be a 10-digit number";
-        }
-        if (!form.recruiterEmail.trim()) {
-            newErrors.recruiterEmail = "Recruiter email is required";
-        }
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.recruiterEmail.trim())) {
-            newErrors.recruiterEmail = "Invalid email format";
-        }
-        if (!form.stage) newErrors.stage = "Stage is required";
-        if (!form.status) newErrors.status = "Status is required";
-        if (!form.date) newErrors.date = "Date is required";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -110,7 +112,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                     {/* COMPANY */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Company Name <span className="text-red-500">*</span>
+                            Company Name {!isEdit && <span className="text-red-500">*</span>}
                         </label>
                             <input
                                 placeholder="Enter company name"
@@ -120,14 +122,13 @@ export default function AddReport({ onClose, onSave, editData }) {
                                 className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
                                 ${errors.company ? "border-red-500" : "border-gray-200"}`}
                             />
-                            {errors.company && <p className="text-red-500 text-sm">{errors.company}</p>}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* RECRUITER NAME */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Recruiter Name <span className="text-red-500">*</span>
+                                Recruiter Name {!isEdit && <span className="text-red-500">*</span>}
                             </label>
                             <input
                                 placeholder="Enter recruiter name"
@@ -136,13 +137,12 @@ export default function AddReport({ onClose, onSave, editData }) {
                                 className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
                                     ${errors.recruiterName ? "border-red-500" : "border-gray-200"}`}
                             />
-                            {errors.recruiterName && <p className="text-red-500 text-sm">{errors.recruiterName}</p>}
                         </div>
 
                         {/* RECRUITER CONTACT */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Recruiter Contact <span className="text-red-500">*</span>
+                                Recruiter Contact {!isEdit && <span className="text-red-500">*</span>}
                             </label>
                             <input
                                 placeholder="Enter recruiter contact"
@@ -151,14 +151,13 @@ export default function AddReport({ onClose, onSave, editData }) {
                                 className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
                                     ${errors.recruiterContact ? "border-red-500" : "border-gray-200"}`}
                             />
-                            {errors.recruiterContact && <p className="text-red-500 text-sm">{errors.recruiterContact}</p>}
                         </div>
                     </div>
 
                     {/* RECRUITER EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Recruiter Email <span className="text-red-500">*</span>
+                            Recruiter Email {!isEdit && <span className="text-red-500">*</span>}
                         </label>
                         <input
                             placeholder="Enter recruiter email"
@@ -167,7 +166,6 @@ export default function AddReport({ onClose, onSave, editData }) {
                             className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
                                 ${errors.recruiterEmail ? "border-red-500" : "border-gray-200"}`}
                         />
-                        {errors.recruiterEmail && <p className="text-red-500 text-sm">{errors.recruiterEmail}</p>}
                     </div>
 
 
@@ -176,7 +174,7 @@ export default function AddReport({ onClose, onSave, editData }) {
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Interview Stage <span className="text-red-500">*</span>
+                                Interview Stage {!isEdit && <span className="text-red-500">*</span>}
                             </label>
                             <div
                                 onClick={() => setStageOpen(!stageOpen)}
@@ -218,7 +216,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                         {/* STATUS */}
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Interview Status <span className="text-red-500">*</span>
+                                Interview Status {!isEdit && <span className="text-red-500">*</span>}
                             </label>
                             <div
                                 onClick={() => setStatusOpen(!statusOpen)}
@@ -260,7 +258,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                     {/* DATE */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Date <span className="text-red-500">*</span>
+                            Date {!isEdit && <span className="text-red-500">*</span>}
                         </label>
                         <input
                             type="date"
@@ -308,14 +306,14 @@ export default function AddReport({ onClose, onSave, editData }) {
                 <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 rounded-lg"
+                        className="px-4 py-2 rounded-lg border border-gray-200 cursor-pointer"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={handleSubmit}
-                        className="bg-green-800 text-white px-5 py-2 rounded-lg hover:bg-green-700"
+                        className="bg-green-800 text-white px-5 py-2 rounded-lg hover:bg-green-700 cursor-pointer"
                     >
                         {isEdit ? "Update" : "Save Entry"}
                     </button>

@@ -14,7 +14,7 @@ function LeaveRequestStatus({ open, onClose, selectedRequest, onApprove, onRejec
               
             <button
                 onClick={onClose}
-                className="text-xl leading-none text-[#7C7873] hover:text-black"
+                className="text-xl leading-none text-[#7C7873] hover:text-black cursor-pointer"
             >
                 <FiX />
             </button>
@@ -37,14 +37,14 @@ function LeaveRequestStatus({ open, onClose, selectedRequest, onApprove, onRejec
           <div className="space-y-6">
             <button
               onClick={() => onApprove(selectedRequest)}
-              className="w-full rounded-xl bg-green-800 py-5 text-xl font-semibold text-white shadow-lg hover:bg-green-700"
+              className="w-full rounded-xl bg-green-800 py-5 text-xl font-semibold text-white shadow-lg hover:bg-green-700 cursor-pointer"
             >
               Approve
             </button>
 
             <button
               onClick={() => onReject(selectedRequest)}
-              className="w-full rounded-xl border border-gray-300 bg-white py-5 text-xl font-semibold text-red-400 hover:bg-gray-100"
+              className="w-full rounded-xl border border-gray-300 bg-white py-5 text-xl font-semibold text-red-400 hover:bg-gray-100 cursor-pointer"
             >
               Reject
             </button>

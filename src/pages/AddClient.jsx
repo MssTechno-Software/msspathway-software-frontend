@@ -104,6 +104,11 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         if (name === "mobile") {
             value = value.replace(/[^0-9+\-\s()]/g, "");
         }
+        
+        // For aadhaar, only allow numbers and dashes
+        if (name === "aadhaar") {
+            value = value.replace(/[^0-9\s-]/g, "");
+        }
 
         // Trim multiple spaces → single space
         value = value.replace(/\s+/g, " ");
@@ -129,6 +134,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     };
 
     //submit new or edited client
+    const isEdit = !!editingClient;
     const submit = () => {
 
         // Trim all values before validation
@@ -145,32 +151,67 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             location: formData.location,
 
         };
-        if (
-            !trimmedData.name ||
-            !trimmedData.mobile ||
-            !trimmedData.email ||
-            trimmedData.tech.length === 0 ||
-            !trimmedData.status ||
-            !trimmedData.employeeId ||
-            !trimmedData.role ||
-            !trimmedData.aadhaar ||
-            !trimmedData.location
-        ) {
-            setPopup({
-                show: true,
-                message: "Please fill all required fields!",
-                type: "error"
-            });
+        
+        if (!isEdit) {
+            if (!trimmedData.name) {
+                return setPopup({ show: true, message: "Name is required", type: "error" });
+            }
 
-            return;
-        }
+            if (!trimmedData.mobile) {
+                return setPopup({ show: true, message: "Mobile is required", type: "error" });
+            }
 
-        if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            return setPopup({
-                show: true,
-                message: "Invalid email format",
-                type: "error"
-            });
+            if (trimmedData.mobile) {
+                const mobile = trimmedData.mobile.replace(/\s+/g, "");
+
+                if (!/^\+?\d{10,15}$/.test(mobile)) {
+                    return setPopup({
+                        show: true,
+                        message: "Enter valid mobile number",
+                        type: "error"
+                    });
+                }
+            }
+
+            if (!trimmedData.email) {
+                return setPopup({ show: true, message: "Email is required", type: "error" });
+            }
+
+            if (trimmedData.email && !/\S+@\S+\.\S+/.test(trimmedData.email)) {
+                return setPopup({
+                    show: true,
+                    message: "Invalid email format",
+                    type: "error"
+                });
+            }
+
+            if (trimmedData.tech.length === 0) {
+                return setPopup({ show: true, message: "Select at least one technology", type: "error" });
+            }
+
+            if (!trimmedData.employeeId) {
+                return setPopup({ show: true, message: "Employee ID is required", type: "error" });
+            }
+
+            if (!trimmedData.role) {
+                return setPopup({ show: true, message: "Role is required", type: "error" });
+            }
+
+            if (!trimmedData.aadhaar) {
+                return setPopup({ show: true, message: "Aadhaar is required", type: "error" });
+            }
+
+            if (trimmedData.aadhaar && !/^\d{12}$/.test(trimmedData.aadhaar)) {
+                return setPopup({
+                    show: true,
+                    message: "Aadhaar must be 12 digits",
+                    type: "error"
+                });
+            }
+
+            if (!trimmedData.location) {
+                return setPopup({ show: true, message: "Location is required", type: "error" });
+            }
         }
 
         const client = {
@@ -199,7 +240,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Client Name */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Client Name <span className="text-red-500">*</span>
+                            Client Name {!editingClient && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -217,7 +258,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Mobile */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Mobile Number <span className="text-red-500">*</span>
+                            Mobile Number {!editingClient && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -235,7 +276,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/*email*/}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Email <span className="text-red-500">*</span>
+                            Email {!editingClient && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -255,7 +296,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Technology Stack <span className="text-red-500">*</span>
+                                Technology Stack {!editingClient && <span className="text-red-500">*</span>}
                             </label>
 
                             {/* Dropdown Button */}
@@ -300,7 +341,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Initial Status <span className="text-red-500">*</span>
+                                Initial Status {!editingClient && <span className="text-red-500">*</span>}
                             </label>
 
                             <div
@@ -344,7 +385,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Employee ID */}
                     <div className="relative">
                         <label className="text-sm font-medium text-gray-700">
-                            Assigned Employee ID <span className="text-red-500">*</span>
+                            Assigned Employee ID {!editingClient && <span className="text-red-500">*</span>}
                         </label>
 
                         <div
@@ -384,7 +425,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         {/* Professional Role */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Professional Role <span className="text-red-500">*</span>
+                                Professional Role {!editingClient && <span className="text-red-500">*</span>}
                             </label>
                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
                                 <FiBriefcase className="text-gray-400 mr-2" />
@@ -402,7 +443,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         {/* Aadhaar */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Aadhaar / ID Number <span className="text-red-500">*</span>
+                                Aadhaar / ID Number {!editingClient && <span className="text-red-500">*</span>}
                             </label>
                              <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
                                 <FiCreditCard className="text-gray-400 mr-2" />
@@ -420,7 +461,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Location <span className="text-red-500">*</span>
+                            Location {!editingClient && <span className="text-red-500">*</span>}
                         </label>
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
                             <FiMapPin className="text-gray-400 mr-2" />
@@ -467,14 +508,14 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                     <button
                         onClick={onClose}
-                        className="text-gray-600 hover:text-black"
+                        className="text-gray-600 border border-gray-300 hover:text-black cursor-pointer px-6 py-2 rounded-lg transition hover:bg-gray-100"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={submit}
-                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow"
+                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
                     >
                         {editingClient ? "Update Client" : "Add Client"}
                     </button>

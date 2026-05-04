@@ -274,7 +274,7 @@ function Clients() {
 
                 <button
                     onClick={() => setShowModal(true)}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer"
                 >
                     Add New Client
                 </button>
@@ -411,7 +411,7 @@ function Clients() {
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded disabled:opacity-40"
+                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
                             >
                                 Previous
                             </button>
@@ -425,7 +425,7 @@ function Clients() {
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded disabled:opacity-40"
+                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
                             >
                                 Next
                             </button>
@@ -470,14 +470,14 @@ function Clients() {
                                         onClick={async () => {
                                             await popup.onConfirm();
                                         }}
-                                        className="px-4 py-2 bg-red-600 text-white rounded"
+                                        className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer hover:bg-red-500"
                                     >
                                         Yes
                                     </button>
 
                                     <button
                                         onClick={() => setPopup({ show: false })}
-                                        className="px-4 py-2 bg-gray-300 rounded"
+                                        className="px-4 py-2 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
                                     >
                                         Cancel
                                     </button>
@@ -485,7 +485,7 @@ function Clients() {
                             ) : (
                                 <button
                                     onClick={() => setPopup({ show: false })}
-                                    className="px-4 py-2 bg-green-800 text-white rounded-full hover:bg-green-700"
+                                    className="px-4 py-2 bg-green-800 text-white rounded-full hover:bg-green-700 cursor-pointer"
                                 >
                                     OK
                                 </button>

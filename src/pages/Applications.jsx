@@ -20,7 +20,7 @@ function Applications() {
     const { client_id } = useParams();
 
     const [applications, setApplications] = useState([]);
-    const [activeTab, setActiveTab] = useState("Naukri");
+    const [activeTab, setActiveTab] = useState("All");
     const [showModal, setShowModal] = useState(false);
     const [editingApp, setEditingApp] = useState(null);
     const [search, setSearch] = useState("");
@@ -41,6 +41,7 @@ function Applications() {
     );
 
     const platforms = [
+        "All",
         "Naukri",
         "LinkedIn",
         "Career Pages",
@@ -210,7 +211,11 @@ function Applications() {
 
     //count
     const currentCounts = platforms.reduce((acc, platform) => {
-        acc[platform] = applications.filter(a => a.platform === platform).length;
+        if (platform === "All") {
+            acc[platform] = applications.length;
+        } else {
+            acc[platform] = applications.filter(a => a.platform === platform).length;
+        }
         return acc;
     }, {});
 
@@ -244,7 +249,7 @@ function Applications() {
             : true;
 
         const matchesTo = appliedToDate
-            ? appDate <= new Date(appliedToDate)
+            ? appDate <= new Date(new Date(appliedToDate).setHours(23, 59, 59, 999))
             : true;
 
         return matchesTab && matchesSearch && matchesFrom && matchesTo;
@@ -290,7 +295,7 @@ function Applications() {
 
                 <button
                     onClick={() => setShowModal(true)}
-                    className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+                    className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700 cursor-pointer"
                 >
                     Add Application
                 </button>
@@ -298,7 +303,7 @@ function Applications() {
         </div>
 
         {/* CARDS */}
-        <div className="grid grid-cols-1 shadow-xs sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 bg-gray-100 p-6 rounded-2xl">
+        <div className="grid grid-cols-1 shadow-xs sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 bg-gray-100 p-6 rounded-2xl">
 
             {platforms.map((item) => {
                 const current = currentCounts[item] || 0;
@@ -377,7 +382,7 @@ function Applications() {
                 setAppliedFromDate(fromDate);
                 setAppliedToDate(toDate);
                 }}
-                className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition"
+                className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition cursor-pointer"
             >
                 Search
             </button>
@@ -390,7 +395,7 @@ function Applications() {
                 setAppliedFromDate("");
                 setAppliedToDate("");
                 }}
-                className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition"
+                className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer"
             >
                 Clear
             </button>
@@ -400,7 +405,7 @@ function Applications() {
             {/* TABS */}
             <div className="flex gap-6 border-b mb-4 overflow-x-auto">
 
-                {["Naukri", "LinkedIn", "Career Pages", "Cold Emails", "Other"].map((tab) => (
+                {["All", "Naukri", "LinkedIn", "Career Pages", "Cold Emails", "Other"].map((tab) => (
                 <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -447,7 +452,7 @@ function Applications() {
                                             <a
                                                 href={app.link}
                                                 target="_blank"
-                                                className="text-green-700 font-medium"
+                                                className="text-green-700 font-medium cursor-pointer hover:underline"
                                             >
                                                 View ↗
                                             </a>
@@ -496,13 +501,13 @@ function Applications() {
                                     [activeTab]: Math.max(currentPage - 1, 1),
                                 })
                             }
-                            className="px-3 py-1 rounded text-gray-600 bg-gray-100 disabled:opacity-40"
+                            className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
                         >
                             Previous
                         </button>
 
                         {/* PAGE */}
-                        <button className="bg-green-800 text-white px-3 py-1 rounded">
+                        <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
                             {currentPage}
                         </button>
                         {/* NEXT */}
@@ -514,7 +519,7 @@ function Applications() {
                                 [activeTab]: Math.min(currentPage + 1, totalPages),
                                 })
                             }
-                            className="px-3 py-1 rounded text-gray-600 bg-gray-100 disabled:opacity-40"
+                            className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
                         >
                             Next
                         </button>
@@ -554,14 +559,14 @@ function Applications() {
                                     onClick={async () => {
                                         await popup.onConfirm();
                                     }}
-                                    className="px-4 py-2 bg-red-600 text-white rounded"
+                                    className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
                                 >
                                     Yes
                                 </button>
 
                                 <button
                                     onClick={() => setPopup({ show: false })}
-                                    className="px-4 py-2 bg-gray-300 rounded"
+                                    className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -569,7 +574,7 @@ function Applications() {
                         ) : ( 
                             <button
                                 onClick={() => setPopup({ show: false })}
-                                className="bg-green-800 text-white px-4 py-2 rounded"
+                                className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                             >
                                  OK
                             </button>

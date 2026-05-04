@@ -202,7 +202,7 @@ function Employees() {
 
         <button
             onClick={() => setShowModal(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 rounded-xl shadow hover:bg-green-700"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 rounded-xl shadow hover:bg-green-700 cursor-pointer"
         >
                 Add New Employee
         </button>
@@ -270,13 +270,19 @@ function Employees() {
           </p>
 
           <div className="flex gap-2">
-            <button onClick={() => setCurrentPage(p => Math.max(p-1,1))}>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(p-1,1))}
+              className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+            >
               Prev
             </button>
-            <button className="bg-green-800 text-white px-3 rounded">
+            <button className="bg-green-800 text-white px-3 rounded cursor-pointer hover:bg-green-700">
               {currentPage}
             </button>
-            <button onClick={() => setCurrentPage(p => Math.min(p+1,totalPages))}>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(p+1,totalPages))}
+              className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+            >
               Next
             </button>
           </div>
@@ -316,14 +322,14 @@ function Employees() {
                       await popup.onConfirm();
                       setPopup({ show: false });
                     }}
-                    className="bg-red-600 text-white px-4 py-2 rounded"
+                    className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-500"
                   >
                     Yes
                   </button>
 
                   <button
                     onClick={() => setPopup({ show: false })}
-                    className="bg-gray-300 px-4 py-2 rounded"
+                    className="bg-gray-300 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
                   >
                     Cancel
                   </button>
@@ -331,7 +337,7 @@ function Employees() {
               ) : (
                 <button
                   onClick={() => setPopup({ show: false })}
-                  className="bg-green-800 text-white px-4 py-2 rounded"
+                  className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-700"
                 >
                   OK
                 </button>

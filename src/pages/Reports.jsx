@@ -332,7 +332,7 @@ export default function Reports() {
                             setEditData(null);
                             setShowModal(true);
                         }}
-                        className="w-full sm:w-auto flex justify-center items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow"
+                        className="w-full sm:w-auto flex justify-center items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
                     >
                         Add Report
                     </button>
@@ -384,7 +384,7 @@ export default function Reports() {
                         {/* BUTTON */}
                         <div className="sm:pl-5 flext item-center gap-3">
                             <button
-                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto"
+                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
                             >
                                 Search
                             </button>
@@ -395,7 +395,7 @@ export default function Reports() {
                                     setToDate("");
                                     setCurrentPage(1); // optional (good UX)
                                 }}
-                                className="rounded-xl font-medium tect-xs text-gray-700 hover:bg-gray-100 transition px-5 py-2"
+                                className="rounded-xl font-medium tect-xs text-gray-700 hover:bg-gray-100 transition px-5 py-2 cursor-pointer"
                             >
                                 Clear
                             </button>
@@ -545,14 +545,14 @@ export default function Reports() {
                                             popup.onConfirm();
                                             setPopup({ show: false });
                                         }}
-                                        className="bg-red-600 text-white px-4 py-2 rounded"
+                                        className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
                                     >
                                         Yes
                                     </button>
 
                                     <button
                                         onClick={() => setPopup({ show: false })}
-                                        className="bg-gray-300 px-4 py-2 rounded"
+                                        className="bg-gray-300 px-4 py-2 rounded border border-gray-200 cursor-pointer"
                                     >
                                         Cancel
                                     </button>
@@ -560,7 +560,7 @@ export default function Reports() {
                             ) : (
                                 <button
                                     onClick={() => setPopup({ show: false })}
-                                    className="bg-green-800 text-white px-4 py-2 rounded"
+                                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                                 >
                                     OK
                                 </button>
@@ -573,290 +573,3 @@ export default function Reports() {
         </div>
     );
 }
-
-
-// import { useState, useEffect, useCallback } from "react";
-// import AddReports from "./AddReports";
-// import CompanyCard from "../container/CompanyCard";
-// import { FiSearch } from "react-icons/fi";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-
-// const STAGES = ["Call", "Mail", "L1", "L2", "Offer"];
-
-// const API = axios.create({
-//     baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
-// });
-
-// API.interceptors.request.use((config) => {
-//     const token = localStorage.getItem("token");
-//     if (token) config.headers.Authorization = `Bearer ${token}`;
-//     return config;
-// });
-
-// export default function Reports() {
-//     const [entries, setEntries] = useState([]);
-//     const [showModal, setShowModal] = useState(false);
-//     const [currentPage, setCurrentPage] = useState(1);
-//     const [search, setSearch] = useState("");
-//     const [editData, setEditData] = useState(null);
-//     const { client_id } = useParams();
-//     const [fromDate, setFromDate] = useState("");
-//     const [toDate, setToDate] = useState("");
-//     const [popup, setPopup] = useState({
-//         show: false,
-//         message: "",
-//         type: "",
-//         onConfirm: null
-//     });
-
-//     const itemsPerPage = 6;
-
-//     // --- REUSABLE FETCH FUNCTION ---
-//     const fetchReports = useCallback(async () => {
-//         if (!client_id) return;
-//         try {
-//             const res = await API.get(`/reports/clients/${client_id}/reports`);
-//             const data = res.data?.company_progression || [];
-
-//             const formatted = data.map((item) => ({
-//                 // Ensure we capture the ID regardless of key name from backend
-//                 id: item.report_id || item.id || (item.report && item.report.id),
-//                 company: item.company_name || item.company,
-//                 recruiterName: item.recruiter_name || "",
-//                 recruiterContact: item.recruiter_contact || "",
-//                 recruiterEmail: item.recruiter_email || "",
-//                 stage: item.type || "Call",
-//                 status: item.status || "Pending",
-//                 date: item.date,
-//                 notes: item.notes || ""
-//             }));
-
-//             setEntries(formatted);
-//         } catch (err) {
-//             console.error("FETCH ERROR:", err.response?.data || err.message);
-//         }
-//     }, [client_id]);
-
-//     useEffect(() => {
-//         fetchReports();
-//     }, [fetchReports]);
-
-//     // --- SAVE / UPDATE ---
-//     const handleSave = async (newEntry) => {
-//         const isUpdating = !!editData?.id;
-//         const payload = {
-//             company_name: newEntry.company,
-//             recruiter_name: newEntry.recruiterName,
-//             recruiter_contact: newEntry.recruiterContact,
-//             recruiter_email: newEntry.recruiterEmail,
-//             type: newEntry.stage,
-//             status: newEntry.status,
-//             date: newEntry.date,
-//             notes: newEntry.notes
-//         };
-
-//         try {
-//             if (isUpdating) {
-//                 await API.put(`/reports/reports/${editData.id}`, payload);
-//             } else {
-//                 await API.post(`/reports/clients/${client_id}/reports`, payload);
-//             }
-
-//             setPopup({
-//                 show: true,
-//                 message: isUpdating ? "Report updated successfully." : "Report added successfully.",
-//                 type: "success"
-//             });
-
-//             setShowModal(false);
-//             setEditData(null);
-//             fetchReports(); // Refresh data from server
-
-//         } catch (err) {
-//             console.error("SAVE ERROR:", err.response?.data || err.message);
-//             setPopup({
-//                 show: true,
-//                 message: "Failed to save report. Check console for details.",
-//                 type: "error"
-//             });
-//         }
-//     };
-
-//     // --- DELETE ---
-//     const handleDelete = async (report_id) => {
-//         if (!report_id) {
-//             setPopup({ show: true, message: "Invalid ID", type: "error" });
-//             return;
-//         }
-
-//         setPopup({
-//             show: true,
-//             message: "Are you sure you want to delete this report?",
-//             type: "confirm",
-//             onConfirm: async () => {
-//                 try {
-//                     await API.delete(`/reports/reports/${report_id}`);
-//                     setPopup({ show: true, message: "Deleted successfully.", type: "success" });
-//                     fetchReports(); // Refresh data
-//                 } catch (err) {
-//                     console.error("DELETE ERROR:", err.response?.data || err.message);
-//                     setPopup({ show: true, message: "Delete failed.", type: "error" });
-//                 }
-//             }
-//         });
-//     };
-
-//     // --- LOGIC & FILTERING ---
-//     const counts = {
-//         "Call Received": entries.filter(e => e.stage === "Call").length,
-//         "Mail Received": entries.filter(e => e.stage === "Mail").length,
-//         "L1 Interview": entries.filter(e => e.stage === "L1").length,
-//         "L2 Interview": entries.filter(e => e.stage === "L2").length,
-//         "Offer Letter": entries.filter(e => e.stage === "Offer").length,
-//     };
-
-//     const grouped = Object.values(
-//         entries.reduce((acc, entry) => {
-//             if (!acc[entry.company]) {
-//                 acc[entry.company] = { company: entry.company, stages: [] };
-//             }
-//             acc[entry.company].stages.push({ ...entry });
-//             acc[entry.company].stages.sort((a, b) => STAGES.indexOf(a.stage) - STAGES.indexOf(b.stage));
-//             return acc;
-//         }, {})
-//     );
-
-//     const filtered = grouped.filter(company => {
-//         const matchesSearch = company.company?.toLowerCase().includes(search.toLowerCase());
-//         const latestDate = company.stages[company.stages.length - 1]?.date;
-//         const matchesDate = (!fromDate || latestDate >= fromDate) && (!toDate || latestDate <= toDate);
-//         return matchesSearch && matchesDate;
-//     });
-
-//     const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-//     const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-//     const handleEdit = (company) => {
-//         const latest = [...company.stages].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-//         setEditData(latest);
-//         setShowModal(true);
-//     };
-
-//     return (
-//         <div className="bg-gray-50 min-h-screen p-4 sm:p-6">
-//             {/* HEADER */}
-//             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-//                 <div>
-//                     <h2 className="text-3xl font-bold mb-1">Reports</h2>
-//                     <p className="text-gray-500">Track your application pipeline progression.</p>
-//                 </div>
-
-//                 <div className="flex flex-col sm:flex-row items-center gap-3">
-//                     <div className="flex items-center bg-white border px-3 py-2 rounded-full shadow-sm w-full sm:w-64">
-//                         <FiSearch className="text-gray-400 mr-2" />
-//                         <input
-//                             placeholder="Search companies..."
-//                             value={search}
-//                             onChange={(e) => setSearch(e.target.value)}
-//                             className="outline-none w-full bg-transparent"
-//                         />
-//                     </div>
-//                     <button
-//                         onClick={() => { setEditData(null); setShowModal(true); }}
-//                         className="w-full sm:w-auto bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition"
-//                     >
-//                         Add Report
-//                     </button>
-//                 </div>
-//             </div>
-
-//             {/* PIPELINE STATS */}
-//             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
-//                 {Object.entries(counts).map(([key, val]) => (
-//                     <div key={key} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center">
-//                         <p className="text-gray-500 text-xs uppercase font-semibold mb-1">{key}</p>
-//                         <h2 className="text-2xl font-bold text-gray-800">{val}</h2>
-//                     </div>
-//                 ))}
-//             </div>
-
-//             {/* PROGRESSION LIST */}
-//             <div className="flex justify-between items-center mb-4">
-//                 <h3 className="text-lg font-semibold text-gray-700">Company Status Progression</h3>
-//                 <div className="hidden sm:flex gap-4 text-xs">
-//                     <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span> Cleared</span>
-//                     <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Pending</span>
-//                     <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span> Rejected</span>
-//                 </div>
-//             </div>
-
-//             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-//                 {paginated.map((company, idx) => (
-//                 <CompanyCard 
-//                     key={idx} 
-//                     data={company} 
-//                     // Pass the ID of the most recent stage for deletion
-//                     onDelete={() => {
-//                         const latestId = company.stages[company.stages.length - 1]?.id;
-//                         handleDelete(latestId);
-//                     }} 
-//                     onEdit={handleEdit} 
-//                 />
-//             ))}  
-//             </div>
-
-//             {/* PAGINATION */}
-//             <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
-//                 <p className="text-gray-500 text-sm">
-//                     {filtered.length === 0 ? "No data found" : `Showing ${paginated.length} of ${filtered.length} companies`}
-//                 </p>
-//                 <div className="flex gap-2">
-//                     <button 
-//                         disabled={currentPage === 1}
-//                         onClick={() => setCurrentPage(p => p - 1)}
-//                         className="px-4 py-2 bg-white border rounded shadow-sm disabled:opacity-50"
-//                     >
-//                         Previous
-//                     </button>
-//                     <button 
-//                         disabled={currentPage === totalPages}
-//                         onClick={() => setCurrentPage(p => p + 1)}
-//                         className="px-4 py-2 bg-white border rounded shadow-sm disabled:opacity-50"
-//                     >
-//                         Next
-//                     </button>
-//                 </div>
-//             </div>
-
-//             {/* MODALS & POPUPS */}
-//             {showModal && (
-//                 <AddReports 
-//                     onClose={() => setShowModal(false)} 
-//                     onSave={handleSave} 
-//                     editData={editData} 
-//                 />
-//             )}
-
-//             {popup.show && (
-//                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-//                     <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full mx-4">
-//                         <p className={`text-center mb-6 font-medium ${popup.type === 'error' ? 'text-red-600' : 'text-gray-800'}`}>
-//                             {popup.message}
-//                         </p>
-//                         <div className="flex justify-center gap-3">
-//                             {popup.type === "confirm" ? (
-//                                 <>
-//                                     <button onClick={() => { popup.onConfirm(); setPopup({ show: false }); }} className="bg-red-600 text-white px-6 py-2 rounded-lg">Delete</button>
-//                                     <button onClick={() => setPopup({ show: false })} className="bg-gray-200 px-6 py-2 rounded-lg">Cancel</button>
-//                                 </>
-//                             ) : (
-//                                 <button onClick={() => setPopup({ show: false })} className="bg-green-800 text-white px-8 py-2 rounded-lg">Close</button>
-//                             )}
-//                         </div>
-//                     </div>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// }

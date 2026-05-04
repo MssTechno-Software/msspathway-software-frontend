@@ -292,13 +292,13 @@ function Calender({ selectedDate, onDateSelect }) {
             })
           )
         }
-        className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700">
+        className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer">
           Apply for Leave
       </button>
 
       <button
         onClick={() => navigate("/dashboard/leave-requests")}
-        className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700"
+        className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer"
       >
         Leave Requests
       </button>

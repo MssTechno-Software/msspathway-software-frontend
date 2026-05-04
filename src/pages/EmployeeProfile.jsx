@@ -451,7 +451,7 @@ function EmployeeProfile() {
 
         <button
           onClick={() => setShowEdit(true)}
-          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md"
+          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
         >
           <FiEdit />
           Update Employee
@@ -523,7 +523,7 @@ function EmployeeProfile() {
 
           <button
             onClick={() => setShowDocModal(true)}
-            className="flex items-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg"
+            className="flex items-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700"
           >
             <FiUpload /> Upload
           </button>
@@ -631,14 +631,14 @@ function EmployeeProfile() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowDocModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg"
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleUpload}
-                className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
               >
                 Upload
               </button>
@@ -689,7 +689,7 @@ function EmployeeProfile() {
               {profileUrl && (
                 <button
                   onClick={handleDeleteProfile}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer"
                 >
                   Delete
                 </button>
@@ -698,14 +698,14 @@ function EmployeeProfile() {
               <div className="flex gap-2 ml-auto">
                 <button
                   onClick={() => setShowPhotoModal(false)}
-                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                  className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleUploadProfile}
-                  className="px-4 py-2 bg-green-800 text-white rounded-lg"
+                  className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
                 >
                   Upload
                 </button>
@@ -784,14 +784,14 @@ function EmployeeProfile() {
                     onClick={async () => {
                       await popup.onConfirm();
                     }}
-                    className="px-4 py-2 bg-red-600 text-white rounded"
+                    className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
                   >
                     Yes
                   </button>
 
                   <button
                     onClick={() => setPopup({ show: false })}
-                    className="px-4 py-2 bg-gray-300 rounded"
+                    className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -799,7 +799,7 @@ function EmployeeProfile() {
               ) : (
                 <button
                   onClick={() => setPopup({ show: false })}
-                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700"
+                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700 cursor-pointer"
                 >
                   OK
                 </button>
