@@ -1,13 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FiUsers, FiClock, FiArrowLeft } from "react-icons/fi";
+import { FiUsers, FiClock, FiArrowLeft, FiUser } from "react-icons/fi";
 import { FaUserTie} from "react-icons/fa";
 
 function Sidebar() {
      const navigate = useNavigate();
+     const employee_id = localStorage.getItem("employee_id");
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user_id");
+        localStorage.removeItem("employee_id");
         navigate("/login");
     };
     return (
@@ -29,6 +31,16 @@ function Sidebar() {
 
             {/* Menu */}
             <nav className="flex flex-col gap-3">
+                <NavLink
+                    to={`/dashboard/my-profile/${employee_id}`}
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-4 py-2 rounded-xl ${isActive ? "bg-green-800" : "hover:bg-green-700"
+                        }`
+                    }
+                >
+                    <FiUser />
+                    My Profile
+                </NavLink>
 
                 <NavLink
                     to="/dashboard/clients"

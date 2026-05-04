@@ -22,6 +22,7 @@ function Credentials() {
     const [editing, setEditing] = useState(null);
     const [search, setSearch] = useState("");
     const [visiblePasswords, setVisiblePasswords] = useState({});
+    const [loadingEdit, setLoadingEdit] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 10;
     const credential_id = editing?.id;
@@ -37,7 +38,7 @@ function Credentials() {
         const fetchCredentials = async () => {
             try {
                 const res = await API.get(`/credentials/${client_id}`);
-                console.log("Fetched credentials:", res.data);
+                console.log("editing credentials response:", res.data);
 
                 const data = Array.isArray(res.data?.credentials)
                     ? res.data.credentials
@@ -70,7 +71,7 @@ function Credentials() {
                 portal_link: data.portalLink,
                 username: data.email,
                 password: data.password,
-                notes: ""
+                notes: data.notes || ""
             };
 
             console.log("Payload being sent:", payload);
@@ -169,9 +170,37 @@ function Credentials() {
     };
 
     // EDIT
-    const editCredential = (cred) => {
-        setEditing(cred);
-        setShowModal(true);
+    const editCredential = async (credential_id) => {
+        console.log("Editing Credential ID:", credential_id);
+
+        setLoadingEdit(true);
+
+        try {
+            const res = await API.get(`/credentials/credentials/${credential_id}`);
+
+            const data = res.data?.data || res.data;
+
+            setEditing({
+                id: data.id,
+                portal: data.portal_name,
+                portalLink: data.portal_link,
+                email: data.username,
+                password: data.password,
+                notes: data.notes
+            });
+
+            setShowModal(true);
+
+        } catch (error) {
+            console.error("Error fetching credential:", error);
+            setPopup({
+                show: true,
+                message: "Failed to edit credentials.",
+                type: "error"
+            });
+        } finally {
+            setLoadingEdit(false);
+        }
     };
 
     // TOGGLE PASSWORD
@@ -329,7 +358,9 @@ function Credentials() {
                                             <div className="flex items-center gap-2">
 
                                                 <button
-                                                    onClick={() => editCredential(item)}
+                                                    onClick={() => {
+                                                        console.log("Edit button clicked",item.id);
+                                                        editCredential(item.id)}}
                                                     className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
                                                 >
                                                     <FiEdit size={18} className="text-gray-500 hover:text-green-600" />

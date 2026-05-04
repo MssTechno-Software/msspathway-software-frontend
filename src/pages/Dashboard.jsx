@@ -7,6 +7,7 @@ import LeaveRequests from "./LeaveRequest";
 import Employee from "./Employee";
 import AddEmployee from "./AddEmployee";
 import EmployeeProfile from "./EmployeeProfile";
+import MyProfilePage from "./MyProfilePage";
 
 function Dashboard() {
     return (
@@ -18,7 +19,7 @@ function Dashboard() {
             {/* Main Content */}
             <div className="flex-1 p-6">
                 <Routes>
-                    <Route path="/" element={<Navigate to="clients" />} />
+                    <Route path="/" element={<Navigate to={`my-profile/${localStorage.getItem("employee_id") || ""}`} />} />
                     <Route path="clients" element={<Clients />} />
                     <Route path="timesheet" element={<Timesheet />} />
                     <Route path="employee" element={<Employee />} />
@@ -26,6 +27,7 @@ function Dashboard() {
                     <Route path="employees/:employee_id" element={<EmployeeProfile />} />
                     <Route path="leave-requests" element={<LeaveRequests />} />
                     <Route path="add-client" element={<AddClient />} />
+                    <Route path="my-profile/:employee_id" element={<MyProfilePage />} />
                 </Routes>
             </div>
 

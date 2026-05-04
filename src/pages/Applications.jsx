@@ -209,6 +209,31 @@ function Applications() {
         });
     };
 
+    const handleEdit = async (application_id) => {
+        try {
+            console.log("Editing application id:", application_id);
+            const res = await API.get(`/applications/applacations/application_id`, {
+                params: { application_id: application_id }
+            });
+            console.log("Edit API response:", res.data);
+            const data = res.data;
+            setEditingApp({
+                id: data.id,
+                platform: data.platform,
+                company: data.company_name,
+                role: data.role,
+                date: data.date_applied || data.date,
+                link: data.application_link,
+                notes: data.notes || ""
+            });
+
+            setShowModal(true);
+
+        } catch (err) {
+            console.error("Edit API error:", err.response?.data || err.message);
+        }
+    };
+
     //count
     const currentCounts = platforms.reduce((acc, platform) => {
         if (platform === "All") {
@@ -463,8 +488,8 @@ function Applications() {
                                                 size={18}
                                                 className="cursor-pointer hover:text-green-600"
                                                 onClick={() => {
-                                                setEditingApp(app);   // set selected app
-                                                setShowModal(true);   // open modal
+                                                handleEdit(app.id);   
+                                                //setShowModal(true);
                                                 }}
                                             />
 

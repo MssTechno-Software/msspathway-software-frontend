@@ -8,7 +8,8 @@ function AddCredential({ onClose, onSave, editingData }) {
         portal: "",
         portalLink: "",
         email: "",
-        password: ""
+        password: "",
+        notes: ""
     });
 
     const [error, setError] = useState({});
@@ -26,7 +27,8 @@ function AddCredential({ onClose, onSave, editingData }) {
                 portal: editingData.portal || "",
                 portalLink: editingData.portalLink || "",
                 email: editingData.email || "",
-                password: editingData.password || ""
+                password: editingData.password || "",
+                notes: editingData.notes || ""
             });
         }
     }, [editingData]);
@@ -81,6 +83,8 @@ function AddCredential({ onClose, onSave, editingData }) {
             newError.password = "Password must be at least 8 characters";
         }
 
+        
+
         setError(newError);
         return newError;
     };
@@ -109,16 +113,15 @@ function AddCredential({ onClose, onSave, editingData }) {
             portal: "",
             portalLink: "",
             email: "",
-            password: ""
+            password: "",
+            notes: ""
         });
-
-        onClose();
     };
 
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-            <div className="bg-white w-120 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="bg-white w-120 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] mx-2">
 
                 {/* HEADER */}
                 <div className="flex justify-between items-center px-6 py-5 border-b border-gray-200">
@@ -128,7 +131,7 @@ function AddCredential({ onClose, onSave, editingData }) {
                 </div>
 
                 {/* BODY */}
-                <div className="px-6 pb-6 space-y-5">
+                <div className="px-6 pb-6 overflow-y-auto space-y-5">
 
                     {/* PORTAL */}
                     <div>
@@ -213,36 +216,51 @@ function AddCredential({ onClose, onSave, editingData }) {
                         </div>
                     </div>
 
-                    {/* BUTTONS */}
-                    <div className="flex gap-4 pt-2">
+                    {/* Notes */}
+                    <div>
+                        <div className="flex justify-between items-center">
+                            <label className="text-sm font-medium text-gray-700">
+                                Notes (Optional)
+                            </label>
+                            <p
+                                className={`text-xs mt-1 text-right 
+                                    ${form.notes.length === 500 ? "text-red-500" : "text-gray-500"}`}
+                            >
+                                {form.notes.length}/500
+                            </p>
+                        </div>
 
-                        <button
-                            onClick={onClose}
-                            className="flex-1 border border-gray-300 py-3 rounded-xl text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            onClick={handleSubmit}
-                            className="flex-1 bg-green-800 hover:bg-green-700 text-white py-3 rounded-xl shadow-md cursor-pointer"
-                        >
-                            {editingData ? "Update" : "Save"}
-                        </button>
-
+                        <textarea
+                            name="notes"
+                            value={form.notes}
+                            onChange={handleChange}
+                            placeholder="Mention referral, specific recruiter, etc."
+                            rows="4"
+                            maxLength={500}
+                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
+                        />
                     </div>
 
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-gray-50 px-6 py-4 text-sm text-gray-500 flex items-start gap-2">
-                    <span>ℹ</span>
-                    <p>
-                        These credentials will be encrypted using industry-standard AES-256
-                        protocols before being stored in our secure vault.
-                    </p>
-                </div>
+                <div className="flex gap-4 pt-2 p-4 border-t border-gray-100 bg-white sticky bottom-0">
 
+                    <button
+                        onClick={onClose}
+                        className="flex-1 border border-gray-300 py-3 rounded-xl text-gray-700 hover:bg-gray-100 cursor-pointer font-medium"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={handleSubmit}
+                        className="flex-1 bg-green-800 hover:bg-green-700 text-white py-3 rounded-xl shadow-md cursor-pointer font-medium"
+                    >
+                        {editingData ? "Update" : "Save"}
+                    </button>
+
+                </div>
             </div>
 
             {popup.show && (
@@ -256,7 +274,10 @@ function AddCredential({ onClose, onSave, editingData }) {
                         </p>
 
                         <button
-                            onClick={() => setPopup({ show: false })}
+                            onClick={() => {
+                                setPopup({ show: false });
+                                onClose();
+                            }}
                             className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                         >
                             OK
