@@ -45,56 +45,6 @@ function Login() {
   };
 
   // api
-  // const loginHandler = async (e) => {
-  //   console.log("Hello",email);
-  //   e.preventDefault();
-
-  //   const isValid = handleSignIn();
-  //     if (!isValid) return;
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.post(
-  //         "https://timesheet-api-790373899641.asia-south1.run.app/auth/login",
-          
-  //         {
-  //           email: email,
-  //           password: password,
-  //         }
-  //       );
-
-  //       console.log("Login Success:", response.data);
-
-  //       localStorage.removeItem("token");
-  //       localStorage.removeItem("user_id");
-  //       localStorage.removeItem("employee_id");
-
-  //       // Optional: store token if API returns it
-  //       if (response.data.refresh_token) {
-  //         localStorage.setItem("token", response.data.refresh_token);
-  //       }
-
-  //       if (response.data.user_id) {
-  //         localStorage.setItem("user_id", response.data.user_id);
-  //       } else if (response.data.user?.id) {
-  //         localStorage.setItem("user_id", response.data.user.id);
-  //       }
-  //       if (response.data.employee_id) {
-  //         localStorage.setItem("employee_id", response.data.employee_id);
-  //       } else if (response.data.user?.employee_id) {
-  //         localStorage.setItem("employee_id", response.data.user.employee_id);
-  //       }
-
-  //       navigate("/dashboard");
-
-  //     } catch (error) {
-  //         console.error("Login Error:", error);
-  //         setInvalidPopup(true);
-  //     }
-  //     finally {
-  //       setLoading(false);
-  //     }
-  // };
-
   const loginHandler = async (e) => {
     console.log("Hello",email)
     e.preventDefault();
@@ -115,27 +65,28 @@ function Login() {
 
       console.log("FULL RESPONSE:", response.data);
 
-      // ✅ Clear old data
       localStorage.removeItem("token");
       localStorage.removeItem("user_id");
       localStorage.removeItem("employee_id");
 
-      // ✅ Store token
+      // Store token
       if (response.data.refresh_token) {
         localStorage.setItem("token", response.data.refresh_token);
       }
 
-      // ✅ Store user_id
+      // Store user_id
       const userId =
         response.data.user_id ||
         response.data.user?.id ||
         response.data.data?.user_id;
 
+      console.log("User_id:", userId);
+      
       if (userId) {
         localStorage.setItem("user_id", userId);
       }
 
-      // ✅ Store employee_id (IMPORTANT FIX)
+      // Store employee_id (IMPORTANT FIX)
       const empId =
         response.data.employee_id ||
         response.data.user?.employee_id ||
@@ -146,10 +97,10 @@ function Login() {
       if (empId) {
         localStorage.setItem("employee_id", empId);
       } else {
-        console.error("❌ employee_id NOT FOUND in response");
+        console.error("employee_id NOT FOUND in response");
       }
 
-      // ✅ Navigate after storing
+      // Navigate after storing
       navigate("/dashboard");
 
     } catch (error) {
