@@ -80,11 +80,11 @@ function MyProfilePage() {
   }, [employee_id]);
 
   //fetch profile photo
-  const fetchProfilePhoto = async () => {
+   const fetchProfilePhoto = async () => {
     console.log("Fetching profile photo for employee ID:", employee_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture-view`,
         {
           responseType: "blob",
           headers: {
@@ -93,10 +93,11 @@ function MyProfilePage() {
         }
       );
       console.log("Profile photo response:", res.data);
-      const url = URL.createObjectURL(new Blob([res.data]));
+      const url = URL.createObjectURL(res.data);
       setProfileUrl(url);
     } catch (err) {
       console.error("Error fetching profile photo:", err);
+      setProfileUrl("");
     }
   };
 
@@ -110,24 +111,19 @@ function MyProfilePage() {
   const handleView = async (doc) => {
     console.log("Viewing document:", doc);
     try {
-      const gcsPath =
-        typeof doc === "string"
-          ? doc
-          : doc.gcs_path || doc.file_path || doc.download_url || doc.file_name || doc.name;
-      console.log("GCS path for viewing:", gcsPath);
-
+     console.log("VIEW FILE ID:", doc.file_id);
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/view-document`,
+        `${BASE_URL}/documents/files/view`,
         {
-          params: { gcs_path: gcsPath },
-          responseType: "blob",
-          ...getAuthHeaders()
+          params: { file_id: doc.file_id },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       console.log("Document view response:", res.data);
-
-      const url = window.URL.createObjectURL(res.data);
-      window.open(url, "_blank");
+      const viewUrl = res.data.view_url;
+      window.open(viewUrl, "_blank");
       setPopup({
         show: true,
         message: "Document opened in new tab",
@@ -148,27 +144,23 @@ function MyProfilePage() {
   const handleDownload = async (doc) => {
     console.log("Downloading document:", doc);
     try {
-      const gcsPath =
-        typeof doc === "string"
-          ? doc
-          : doc.gcs_path || doc.file_path || doc.download_url;
-      console.log("GCS path for download:", gcsPath);
-      const fileName = gcsPath.split("/").pop();
-
+      console.log("DOWNLOAD FILE ID:", doc.file_id);
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/download-document`,
+        `${BASE_URL}/documents/files/download`,
         {
-          params: { gcs_path: gcsPath },
-          responseType: "blob",
-          ...getAuthHeaders()
+          params: { file_id: doc.file_id },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
         }
       );
       console.log("Download response:", res.data);
+      const downloadUrl = res.data.download_url;
 
-      const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
+      link.href = downloadUrl;
+      link.setAttribute("download", doc.original_name);
+
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -225,15 +217,12 @@ function MyProfilePage() {
 
     try {
       const formData = new FormData();
-      formData.append("photo", profileFile);
-
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
+      formData.append("file", profileFile);
+      console.log("PROFILE FILE:", profileFile);
       console.log("Uploading profile photo for employee ID:", employee_id);
 
-      const res = await axios.put(
-        `${BASE_URL}/documents/employees/${employee_id}/upload-profile-pic`,
+      const res = await axios.post(
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture`,
         formData,
         {
           headers: {
@@ -267,19 +256,20 @@ function MyProfilePage() {
   const handleDeleteProfile = async () => {
     try {
       await axios.delete(
-        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture`,
         {
           ...getAuthHeaders(),
           params: { gcs_path: profileUrl }
         }
       );
-      setProfileUrl(null);
-      setShowPhotoModal(false);
       setPopup({
         show: true,
         message: "Profile photo deleted successfully",
         type: "success"
       });
+      setProfileUrl(null);
+      setShowPhotoModal(false);
+      fetchProfilePhoto();
     } catch (err) {
       console.error("Profile delete error:", err.response || err);
       setPopup({
@@ -293,40 +283,41 @@ function MyProfilePage() {
   return (
     <div className="p-6 bg-white min-h-screen">
       {!employee && (
-        <div className="p-6 text-gray-500">Loading profile...</div>
+        <div className="p-6 text-gray-500">Loading my profile...</div>
       )}
 
       {/* HEADER */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
 
-          <div className="relative">
-            <img
-              src={profileImage}
-              className="w-28 h-28 rounded-full object-cover shadow"
-            />
-            {/* CONDITIONAL ICON */}
-            <button
-              onClick={() => setShowPhotoModal(true)}
-              className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
-            >
-              {profileUrl ? <FiEdit /> : <FiUpload />}
-            </button>
-          </div>
+        {/* PROFILE IMAGE */}
+        <div className="relative">
+          <img
+            src={profileImage}
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
+          />
 
-          <div>
-            <h1 className="text-5xl font-bold ">
-              {employee ? `${employee.first_name} ${employee.last_name}` : ""}
-            </h1>
-            <p className="text-lg font-semibold mt-1">
-              {employee?.designation || "No Designation"}
-            </p>
-          </div>
+          <button
+            onClick={() => setShowPhotoModal(true)}
+            className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow"
+          >
+            {profileUrl ? <FiEdit /> : <FiUpload />}
+          </button>
+        </div>
+
+        {/* TEXT */}
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-4xl font-bold">
+            {employee?.first_name} {employee?.last_name}
+          </h1>
+
+          <p className="text-sm sm:text-lg text-gray-600 mt-1">
+            {employee?.designation}
+          </p>
         </div>
       </div>
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">EMPLOYEE ID</p>
           <p className="font-semibold">{employee?.employee_id || "No Employee ID"}</p>
@@ -378,24 +369,17 @@ function MyProfilePage() {
       {/* DOCUMENTS */}
       <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
 
-        <div className="p-6 bg-gray-100 flex justify-between items-center">
+        <div className="p-4 sm:p-6 bg-gray-100">
           <div>
             <h2 className="text-lg font-semibold">
-              Document Repository
+              Documents
             </h2>
-            <p className="text-sm text-gray-400">
-              Employee documents
-            </p>
           </div>
         </div>
 
         {documents.length ? (
           documents.map((doc, i) => {
-            const fileName =
-              typeof doc === "string"
-                ? doc.split("/").pop()
-                : doc.gcs_path || doc.file_name || doc.name || "document";
-
+            const fileName = doc.original_name || "document";
             const fileType = fileName.split(".").pop().toUpperCase();
 
             return (

@@ -194,19 +194,21 @@ function Employees() {
       </div>
 
       {/* HEADER */}
-      <div className="flex justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Employees</h1>
-          <p className="text-gray-500">Manage corporate personnel records</p>
-        </div>
+         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Employees</h1>
+              <p className="text-gray-500 text-sm sm:text-base">
+                Manage corporate personnel records
+              </p>
+            </div>
 
-        <button
-            onClick={() => setShowModal(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 rounded-xl shadow hover:bg-green-700 cursor-pointer"
-        >
-                Add New Employee
-        </button>
-      </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+            >
+              Add Employee
+            </button>
+         </div>
 
       {/* TABLE */}
       <div className="bg-white rounded-xl shadow overflow-hidden">

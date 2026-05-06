@@ -343,62 +343,64 @@ export default function Reports() {
             {/* PIPELINE OVERVIEW */}
             <div className="mb-6">
                 {/* HEADER + FILTER IN SAME ROW */}
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
-                    
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 w-full">
+
                     {/* LEFT TITLE */}
                     <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                         <span className="text-green-700">📊</span> Pipeline Overview
                     </h3>
 
                     {/* RIGHT FILTER */}
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 shadow-sm">
-                        
-                        {/* FROM */}
-                        <div className="flex items-center gap-2 sm:pr-5 sm:border-r border-gray-200">
-                            <span className="text-sm font-semibold text-gray-400 uppercase">
-                                From
-                            </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 lg:w-auto">
 
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(e) => setFromDate(e.target.value)}
-                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer"
-                            />
+                        {/* FROM */}
+                        <div className="flex items-center gap-2 sm:pr-5 sm:border-r w-full sm:w-auto">
+                        <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                            From
+                        </span>
+
+                        <input
+                            type="date"
+                            value={fromDate}
+                            onChange={(e) => setFromDate(e.target.value)}
+                            className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                        />
                         </div>
 
                         {/* TO */}
-                        <div className="flex items-center gap-2 sm:px-5 sm:border-r border-gray-200">
-                            <span className="text-sm font-semibold text-gray-400 uppercase">
-                                To
-                            </span>
+                        <div className="flex items-center gap-2 sm:px-5 sm:border-r border-gray-200 w-full sm:w-auto">
+                        <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                            To
+                        </span>
 
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(e) => setToDate(e.target.value)}
-                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer"
-                            />
+                        <input
+                            type="date"
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
+                            className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                        />
                         </div>
 
-                        {/* BUTTON */}
-                        <div className="sm:pl-5 flext item-center gap-3">
-                            <button
-                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
-                            >
-                                Search
-                            </button>
-                            
-                            <button
-                                onClick={() => {
-                                    setFromDate("");
-                                    setToDate("");
-                                    setCurrentPage(1); // optional (good UX)
-                                }}
-                                className="rounded-xl font-medium tect-xs text-gray-700 hover:bg-gray-100 transition px-5 py-2 cursor-pointer"
-                            >
-                                Clear
-                            </button>
+                        {/* BUTTONS */}
+                        <div className="sm:pl-5 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+
+                        <button
+                            className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
+                        >
+                            Search
+                        </button>
+
+                        <button
+                            onClick={() => {
+                            setFromDate("");
+                            setToDate("");
+                            setCurrentPage(1);
+                            }}
+                            className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
+                        >
+                            Clear
+                        </button>
+
                         </div>
                     </div>
                 </div>

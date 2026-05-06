@@ -46,7 +46,6 @@ function EmployeeProfile() {
       console.log("Employee data response:", res.data);
       const data = res.data?.data ?? res.data;
       setEmployee(data);
-      //setDocuments(data.documents || []);
     } catch (err) {
       console.error("Error fetching employee data:", err.response || err.message);
     }
@@ -79,7 +78,7 @@ function EmployeeProfile() {
     console.log("Fetching profile photo for employee ID:", employee_id);
     try {
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture-view`,
         {
           responseType: "blob",
           headers: {
@@ -88,10 +87,11 @@ function EmployeeProfile() {
         }
       );
       console.log("Profile photo response:", res.data);
-      const url = URL.createObjectURL(new Blob([res.data]));
+      const url = URL.createObjectURL(res.data);
       setProfileUrl(url);
     } catch (err) {
       console.error("Error fetching profile photo:", err);
+      setProfileUrl("");
     }
   };
 
@@ -100,6 +100,10 @@ function EmployeeProfile() {
       fetchProfilePhoto();
     }
   }, [employee_id]);
+
+  if (!employee) {
+    return <div className="p-6">Loading employee details...</div>;
+  }
 
   const handleUpdateEmployee = () => {
     console.log("Updating employee data for ID:", employee_id);
@@ -144,7 +148,11 @@ function EmployeeProfile() {
       const response = await axios.post(
         `${BASE_URL}/documents/employees/${employee_id}/upload-documents`,
         formData,
-        getAuthHeaders()
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        }
       );
       console.log("Upload response:", response.data);
 
@@ -166,30 +174,23 @@ function EmployeeProfile() {
     }
   };
 
-  if (!employee) return <div className="p-6">Loading Employees...</div>;
-
   //VIEW documnets
   const handleView = async (doc) => {
     console.log("Viewing document:", doc);
     try {
-      const gcsPath =
-        typeof doc === "string"
-          ? doc
-          : doc.gcs_path || doc.file_path || doc.download_url || doc.file_name || doc.name;
-      console.log("GCS path for viewing:", gcsPath);
-
+     console.log("VIEW FILE ID:", doc.file_id);
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/view-document`,
+        `${BASE_URL}/documents/files/view`,
         {
-          params: { gcs_path: gcsPath },
-          responseType: "blob",
-          ...getAuthHeaders()
+          params: { file_id: doc.file_id },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       console.log("Document view response:", res.data);
-
-      const url = window.URL.createObjectURL(res.data);
-      window.open(url, "_blank");
+      const viewUrl = res.data.view_url;
+      window.open(viewUrl, "_blank");
       setPopup({
         show: true,
         message: "Document opened in new tab",
@@ -210,27 +211,23 @@ function EmployeeProfile() {
   const handleDownload = async (doc) => {
     console.log("Downloading document:", doc);
     try {
-      const gcsPath =
-        typeof doc === "string"
-          ? doc
-          : doc.gcs_path || doc.file_path || doc.download_url;
-      console.log("GCS path for download:", gcsPath);
-      const fileName = gcsPath.split("/").pop();
-
+      console.log("DOWNLOAD FILE ID:", doc.file_id);
       const res = await axios.get(
-        `${BASE_URL}/documents/employees/${employee_id}/download-document`,
+        `${BASE_URL}/documents/files/download`,
         {
-          params: { gcs_path: gcsPath },
-          responseType: "blob",
-          ...getAuthHeaders()
+          params: { file_id: doc.file_id },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
         }
       );
       console.log("Download response:", res.data);
+      const downloadUrl = res.data.download_url;
 
-      const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
+      link.href = downloadUrl;
+      link.setAttribute("download", doc.original_name);
+
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -253,11 +250,8 @@ function EmployeeProfile() {
   // DELETE documents
   const handleDelete = (doc) => {
     console.log("Deleting document:", doc);
-    const gcsPath =
-      typeof doc === "string"
-        ? doc
-        : doc.gcs_path || doc.file_path || doc.download_url;
-    console.log("GCS path for deletion:", gcsPath);
+    const gcsPath = doc.url;
+    console.log("DELETE PATH:", gcsPath);
     setPopup({
       show: true,
       message: "Are you sure you want to delete this document?",
@@ -267,18 +261,21 @@ function EmployeeProfile() {
           const res = await axios.delete(
             `${BASE_URL}/documents/employees/${employee_id}/documents`,
             {
-              params: { gcs_path: gcsPath },
-              ...getAuthHeaders()
+              params: {
+                file_id: doc.file_id
+              },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+              }
             }
           );
-
-          fetchEmployee();
-          fetchDocuments();
+          console.log("Delete response:", res.data);
           setPopup({
             show: true,
             message: "Document deleted successfully",
             type: "success"
           });
+          fetchDocuments();
         } catch (err) {
           console.error("Full error:", err.response || err);
           setPopup({
@@ -353,15 +350,12 @@ function EmployeeProfile() {
 
     try {
       const formData = new FormData();
-      formData.append("photo", profileFile);
-
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
+      formData.append("file", profileFile);
+      console.log("PROFILE FILE:", profileFile);
       console.log("Uploading profile photo for employee ID:", employee_id);
 
-      const res = await axios.put(
-        `${BASE_URL}/documents/employees/${employee_id}/upload-profile-pic`,
+      const res = await axios.post(
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture`,
         formData,
         {
           headers: {
@@ -395,19 +389,21 @@ function EmployeeProfile() {
   const handleDeleteProfile = async () => {
     try {
       await axios.delete(
-        `${BASE_URL}/documents/employees/${employee_id}/profile-pic`,
+        `${BASE_URL}/documents/employees/${employee_id}/profile-picture`,
         {
           ...getAuthHeaders(),
           params: { gcs_path: profileUrl }
         }
       );
-      setProfileUrl(null);
-      setShowPhotoModal(false);
+      console.log("Profile photo delete response:", res.data);
       setPopup({
         show: true,
         message: "Profile photo deleted successfully",
         type: "success"
       });
+      setProfileUrl(null);
+      setShowPhotoModal(false);
+      fetchProfilePhotoView();
     } catch (err) {
       console.error("Profile delete error:", err.response || err);
       setPopup({
@@ -531,11 +527,7 @@ function EmployeeProfile() {
 
         {documents.length ? (
           documents.map((doc, i) => {
-            const fileName =
-              typeof doc === "string"
-                ? doc.split("/").pop()
-                : doc.gcs_path || doc.file_name || doc.name || "document";
-
+            const fileName = doc.original_name || "document";
             const fileType = fileName.split(".").pop().toUpperCase();
 
             return (
