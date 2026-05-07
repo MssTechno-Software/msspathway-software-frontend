@@ -415,16 +415,16 @@ function EmployeeProfile() {
   };
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    <div className="p-4 sm:p-6 bg-white min-h-screen">
 
       {/* HEADER */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
 
           <div className="relative">
             <img
               src={profileImage}
-              className="w-28 h-28 rounded-full object-cover shadow"
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
             />
             {/* CONDITIONAL ICON */}
             <button
@@ -436,10 +436,10 @@ function EmployeeProfile() {
           </div>
 
           <div>
-            <h1 className="text-5xl font-bold ">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold wrap-break-word">
               {[employee.first_name, employee.last_name].join(" ")}
             </h1>
-            <p className="text-lg font-semibold mt-1">
+            <p className="text-base sm:text-lg font-semibold mt-1">
               {employee.designation || "No Designation"}
             </p>
           </div>
@@ -447,7 +447,7 @@ function EmployeeProfile() {
 
         <button
           onClick={() => setShowEdit(true)}
-          className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
         >
           <FiEdit />
           Update Employee
@@ -455,7 +455,7 @@ function EmployeeProfile() {
       </div>
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-xs text-gray-400">EMPLOYEE ID</p>
           <p className="font-semibold">{employee.employee_id || "No Employee ID"}</p>
@@ -507,7 +507,7 @@ function EmployeeProfile() {
       {/* DOCUMENTS */}
       <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
 
-        <div className="p-6 bg-gray-100 flex justify-between items-center">
+        <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
             <h2 className="text-lg font-semibold">
               Document Repository
@@ -519,7 +519,7 @@ function EmployeeProfile() {
 
           <button
             onClick={() => setShowDocModal(true)}
-            className="flex items-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700"
           >
             <FiUpload /> Upload
           </button>
@@ -533,30 +533,30 @@ function EmployeeProfile() {
             return (
               <div
                 key={i}
-                className="flex items-center justify-between px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-start sm:items-center gap-4 w-full">
 
                   {/* FILE ICON */}
-                  <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg">
+                  <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg shrink-0">
                     📄
                   </div>
 
                   {/* FILE INFO */}
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-800">
                       {fileName}
                     </p>
 
-                    <p className="text-sm text-gray-400 flex items-center gap-2">
-                      {fileType} • {doc.created_at
+                    <p className="text-sm text-gray-400 flex flex-wrap items-center gap-2">
+                      {fileType} • {" "} {doc.created_at
                         ? new Date(doc.created_at).toLocaleDateString()
                         : "Recently added"}
                     </p>
                   </div>
                 </div>
                 {/*right side actions */}
-                <div className="flex items-center gap-4 text-gray-500">
+                <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
                   <FiEye
                     className="cursor-pointer hover:text-green-700"
                     onClick={() => handleView(doc)} />
@@ -577,9 +577,9 @@ function EmployeeProfile() {
 
       {/* UPLOAD MODAL */}
       {showDocModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
 
-          <div className="bg-white w-100 rounded-2xl shadow-xl p-6 relative">
+          <div className="bg-white w-full rounded-2xl shadow-xl p-6 relative">
 
             <h2 className="text-xl font-semibold mb-4">
               Upload Document
@@ -607,7 +607,7 @@ function EmployeeProfile() {
             {/* PREVIEW */}
             {selectedFile && (
               <div className="mt-4">
-                <p className="text-sm font-medium">{selectedFile.name}</p>
+                <p className="text-sm font-medium break-all">{selectedFile.name}</p>
 
                 {previewUrl && (
                   <img
@@ -620,7 +620,7 @@ function EmployeeProfile() {
             )}
 
             {/* ACTIONS */}
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowDocModal(false)}
                 className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
@@ -644,7 +644,7 @@ function EmployeeProfile() {
       {showPhotoModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-          <div className="bg-white p-6 rounded-2xl w-96 shadow-xl relative">
+          <div className="bg-white p-6 rounded-2xl w-full shadow-xl relative">
             <h2 className="text-lg font-semibold mb-4 text-center">
               Upload Profile Photo
             </h2>
@@ -675,7 +675,7 @@ function EmployeeProfile() {
             )}
 
             {/* ACTIONS */}
-            <div className="flex justify-between mt-6">
+            <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
 
               {/* DELETE BUTTON */}
               {profileUrl && (
@@ -687,7 +687,7 @@ function EmployeeProfile() {
                 </button>
               )}
 
-              <div className="flex gap-2 ml-auto">
+              <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
                 <button
                   onClick={() => setShowPhotoModal(false)}
                   className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
@@ -703,7 +703,6 @@ function EmployeeProfile() {
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       )}
@@ -734,7 +733,7 @@ function EmployeeProfile() {
                 data.append("end_date", "");
               }
 
-              // ✅ CALL UPDATE API
+              // CALL UPDATE API
               await axios.put(
                 `${BASE_URL}/admin/users/${employee_id}`,
                 data,
@@ -760,7 +759,7 @@ function EmployeeProfile() {
 
       {popup.show && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full text-center">
             <p className={`text-lg font-semibold mb-4
                 ${popup.type === "success" && "text-green-600"}
                 ${popup.type === "error" && "text-red-600"}

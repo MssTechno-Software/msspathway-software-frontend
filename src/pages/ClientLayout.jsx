@@ -1,128 +1,3 @@
-// import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
-// import { FiFileText, FiKey, FiBarChart2, FiUser, FiGrid, FiArrowLeft } from "react-icons/fi";
-// import { useState, useEffect } from "react";
-
-// function ClientLayout() {
-//   const { client_id } = useParams();
-//   const [clientName, setClientName] = useState("");
-//   const navigate = useNavigate();
-//   const location = useLocation();
-  
-//   const isActive = (path) => location.pathname.includes(path);
-
-//   useEffect(() => {
-//     if (location.state?.clientName) {
-//       localStorage.setItem(`clientName_${client_id}`, location.state.clientName);
-//       setClientName(location.state.clientName);
-//     } else {
-//       const storedName = localStorage.getItem(`clientName_${client_id}`);
-//       if (storedName) setClientName(storedName);
-//     }
-//   }, [location.state, client_id]);
-  
-//   return (
-//     <div className="flex min-h-screen bg-[#F6F4F2]">
-
-//       {/* SIDEBAR */}
-//       <div className="w-62 bg-[#301E0F] text-white flex flex-col justify-between">
-
-//         <div>
-//           <div className="px-6 py-6 border-b border-white/10 flex items-center gap-4">
-//             {/* BACK ICON */}
-//             <FiArrowLeft
-//               size={20}
-//               className="cursor-pointer hover:text-gray-300"
-//               onClick={() => navigate("/dashboard/clients")}
-//             />
-//             <div>
-//               <h1 className="text-2xl font-semibold truncate">
-//                 {clientName}
-//               </h1>
-
-//               <p className="text-md text-gray-300">
-//                 Client Dashboard
-//               </p>
-//             </div>
-//           </div>
-
-//           <div className="mt-4 space-y-1">
-
-//             {/* CLIENT PROFILE (DEFAULT) */}
-//             <div
-//               onClick={() => navigate(`/clients/${client_id}`)}
-//               className={`flex items-center gap-3 px-6 py-3 cursor-pointer 
-//               ${!location.pathname.includes("applications") &&
-//                 !location.pathname.includes("credentials") &&
-//                 !location.pathname.includes("reports") && 
-//                 !location.pathname.includes("overview")
-//                 ? "border-l-4 border-green-800"
-//                 : "hover:border-l-4 border-green-800"
-//               }`}
-//             >
-//               <FiUser />
-//               <span>Client Profile</span>
-//             </div>
-
-//             {/* APPLICATIONS */}
-//             <div
-//               onClick={() => navigate(`/clients/${client_id}/applications`, {
-//                 state: {clientName}
-//               })}
-//               className={`flex items-center gap-3 px-6 py-3 cursor-pointer 
-//               ${isActive("applications") ? "border-l-4 border-green-800" : "hover:border-l-4 border-green-800"}`}
-//             >
-//               <FiFileText />
-//               <span>Applications</span>
-//             </div>
-
-//             {/* CREDENTIALS */}
-//             <div
-//               onClick={() => navigate(`/clients/${client_id}/credentials`, {
-//                 state:{clientName}
-//               })}
-//               className={`flex items-center gap-3 px-6 py-3 cursor-pointer 
-//               ${isActive("credentials") ? "border-l-4 border-green-700" : "hover:border-l-4 border-green-800"}`}
-//             >
-//               <FiKey />
-//               <span>Credentials</span>
-//             </div>
-
-//             {/* REPORTS */}
-//             <div
-//               onClick={() => navigate(`/clients/${client_id}/reports`,{
-//                 state:{clientName}
-//               })}
-//               className={`flex items-center gap-3 px-6 py-3 cursor-pointer 
-//               ${isActive("reports") ? "border-l-4 border-green-700" : "hover:border-l-4 border-green-800"}`}
-//             >
-//               <FiBarChart2 />
-//               <span>Reports</span>
-//             </div>
-
-//             {/*overview*/}
-//             <div
-//               onClick={() => navigate(`/clients/${client_id}/overview`, {
-//                 state:{clientName}
-//               })}
-//               className={`flex items-center gap-3 px-6 py-3 cursor-pointer 
-//               ${isActive("overview") ? "border-l-4 border-green-700" : "hover:border-l-4 border-green-800"}`}
-//             >
-//               <FiGrid size={18} />
-//               <span>Overview</span>
-//             </div>
-
-//           </div>
-//         </div>
-//       </div>
-//       <div className="flex-1 p-6">
-//         <Outlet />
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ClientLayout;
-
 import {
   useParams,
   useNavigate,
@@ -137,8 +12,8 @@ import {
   FiUser,
   FiGrid,
   FiArrowLeft,
-  FiMenu,
-  FiX,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 
 import { useState, useEffect } from "react";
@@ -147,7 +22,7 @@ function ClientLayout() {
   const { client_id } = useParams();
 
   const [clientName, setClientName] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openSidebar, setOpenSidebar] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -174,55 +49,66 @@ function ClientLayout() {
   return (
     <div className="flex min-h-screen">
 
-      {/* 3 LINES MENU BUTTON */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-50 bg-green-800 text-white p-2 rounded-md shadow-lg"
-      >
-        <FiMenu size={20} />
-      </button>
-
-      {/* OVERLAY */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       {/* SIDEBAR */}
       <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-[#301E0F] text-white flex flex-col justify-between z-50 transform transition-transform duration-300
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        className={`
+          relative
+          bg-[#301E0F]
+          text-white
+          flex flex-col justify-between
+          transition-all duration-300
+          ${openSidebar ? "w-64" : "w-20"}
         `}
       >
-        <div>
-          {/* HEADER */}
-          <div className="px-6 py-6 border-b border-white/10 flex items-center justify-between">
 
-            <div className="flex items-center gap-4">
-              {/* BACK ICON */}
+        {/* TOGGLE BUTTON */}
+        <button
+          onClick={() => setOpenSidebar(!openSidebar)}
+          className="
+            absolute
+            -right-4
+            top-1/2
+            -translate-y-1/2
+            bg-green-800
+            text-white
+            shadow-md
+            rounded-full
+            p-2
+            z-50
+          "
+        >
+          {openSidebar ? (
+            <FiChevronLeft size={18} />
+          ) : (
+            <FiChevronRight size={18} />
+          )}
+        </button>
+
+        <div>
+
+          {/* HEADER */}
+          <div className="px-4 py-6 border-b border-white/10">
+
+            <div className="flex items-center gap-3">
+
               <FiArrowLeft
                 size={20}
                 className="cursor-pointer hover:text-gray-300"
                 onClick={() => navigate("/dashboard/clients")}
               />
 
-              <div>
-                <h1 className="text-2xl font-semibold truncate">
-                  {clientName}
-                </h1>
+              {openSidebar && (
+                <div>
+                  <h1 className="text-2xl font-semibold truncate">
+                    {clientName}
+                  </h1>
 
-                <p className="text-md text-gray-300">
-                  Client Dashboard
-                </p>
-              </div>
+                  <p className="text-md text-gray-300">
+                    Client Dashboard
+                  </p>
+                </div>
+              )}
             </div>
-
-            {/* CLOSE BUTTON */}
-            <button onClick={() => setSidebarOpen(false)}>
-              <FiX size={20} />
-            </button>
           </div>
 
           {/* MENU */}
@@ -230,105 +116,113 @@ function ClientLayout() {
 
             {/* CLIENT PROFILE */}
             <div
-              onClick={() => {
-                navigate(`/clients/${client_id}`);
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-              ${
-                !location.pathname.includes("applications") &&
-                !location.pathname.includes("credentials") &&
-                !location.pathname.includes("reports") &&
-                !location.pathname.includes("overview")
-                  ? "border-l-4 border-green-800"
-                  : "hover:border-l-4 border-green-800"
-              }`}
+              onClick={() => navigate(`/clients/${client_id}`)}
+              className={`
+                flex items-center gap-3 px-6 py-3 cursor-pointer
+                ${
+                  !location.pathname.includes("applications") &&
+                  !location.pathname.includes("credentials") &&
+                  !location.pathname.includes("reports") &&
+                  !location.pathname.includes("overview")
+                    ? "border-l-4 border-green-800 bg-white/10"
+                    : "hover:bg-white/10"
+                }
+              `}
             >
-              <FiUser />
-              <span>Client Profile</span>
+              <FiUser size={20} />
+
+              {openSidebar && <span>Client Profile</span>}
             </div>
 
             {/* APPLICATIONS */}
             <div
-              onClick={() => {
+              onClick={() =>
                 navigate(`/clients/${client_id}/applications`, {
                   state: { clientName },
-                });
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-              ${
-                isActive("applications")
-                  ? "border-l-4 border-green-800"
-                  : "hover:border-l-4 border-green-800"
-              }`}
+                })
+              }
+              className={`
+                flex items-center gap-3 px-6 py-3 cursor-pointer
+                ${
+                  isActive("applications")
+                    ? "border-l-4 border-green-800 bg-white/10"
+                    : "hover:bg-white/10"
+                }
+              `}
             >
-              <FiFileText />
-              <span>Applications</span>
+              <FiFileText size={20} />
+
+              {openSidebar && <span>Applications</span>}
             </div>
 
             {/* CREDENTIALS */}
             <div
-              onClick={() => {
+              onClick={() =>
                 navigate(`/clients/${client_id}/credentials`, {
                   state: { clientName },
-                });
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-              ${
-                isActive("credentials")
-                  ? "border-l-4 border-green-700"
-                  : "hover:border-l-4 border-green-800"
-              }`}
+                })
+              }
+              className={`
+                flex items-center gap-3 px-6 py-3 cursor-pointer
+                ${
+                  isActive("credentials")
+                    ? "border-l-4 border-green-800 bg-white/10"
+                    : "hover:bg-white/10"
+                }
+              `}
             >
-              <FiKey />
-              <span>Credentials</span>
+              <FiKey size={20} />
+
+              {openSidebar && <span>Credentials</span>}
             </div>
 
             {/* REPORTS */}
             <div
-              onClick={() => {
+              onClick={() =>
                 navigate(`/clients/${client_id}/reports`, {
                   state: { clientName },
-                });
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-              ${
-                isActive("reports")
-                  ? "border-l-4 border-green-700"
-                  : "hover:border-l-4 border-green-800"
-              }`}
+                })
+              }
+              className={`
+                flex items-center gap-3 px-6 py-3 cursor-pointer
+                ${
+                  isActive("reports")
+                    ? "border-l-4 border-green-800 bg-white/10"
+                    : "hover:bg-white/10"
+                }
+              `}
             >
-              <FiBarChart2 />
-              <span>Reports</span>
+              <FiBarChart2 size={20} />
+
+              {openSidebar && <span>Reports</span>}
             </div>
 
             {/* OVERVIEW */}
             <div
-              onClick={() => {
+              onClick={() =>
                 navigate(`/clients/${client_id}/overview`, {
                   state: { clientName },
-                });
-                setSidebarOpen(false);
-              }}
-              className={`flex items-center gap-3 px-6 py-3 cursor-pointer
-              ${
-                isActive("overview")
-                  ? "border-l-4 border-green-700"
-                  : "hover:border-l-4 border-green-800"
-              }`}
+                })
+              }
+              className={`
+                flex items-center gap-3 px-6 py-3 cursor-pointer
+                ${
+                  isActive("overview")
+                    ? "border-l-4 border-green-800 bg-white/10"
+                    : "hover:bg-white/10"
+                }
+              `}
             >
-              <FiGrid size={18} />
-              <span>Overview</span>
+              <FiGrid size={20} />
+
+              {openSidebar && <span>Overview</span>}
             </div>
           </div>
         </div>
       </div>
 
       {/* PAGE CONTENT */}
-      <div className="flex-1 p-6 pt-20">
+      <div className="flex-1 p-6 overflow-auto">
         <Outlet />
       </div>
     </div>

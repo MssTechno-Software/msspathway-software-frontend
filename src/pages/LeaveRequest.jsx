@@ -223,16 +223,16 @@ function LeaveRequests() {
   );
 
   return (
-    <div className="min-h-screen bg-white px-4 md:px-8 py-8">
+    <div className="min-h-screen bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-8">
           <h1 className="text-xl md:text-3xl font-bold text-black">
             Leave Requests
           </h1>
 
-          <div className="flex flex-col lg:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full xl:w-auto">
             {/* From Date */}
-            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
               <span className="text-xs font-semibold text-gray-500 uppercase">
                 From
               </span>
@@ -240,12 +240,12 @@ function LeaveRequests() {
                 type="date"
                 value={tempStartFilter}
                 onChange={(e) => setTempStartFilter(e.target.value)}
-                className="outline-none text-sm"
+                className="outline-none text-sm w-full sm:w-auto"
               />
             </div>
 
             {/* To Date */}
-            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
               <span className="text-xs font-semibold text-gray-500 uppercase">
                 To
               </span>
@@ -253,14 +253,14 @@ function LeaveRequests() {
                 type="date"
                 value={tempEndFilter}
                 onChange={(e) => setTempEndFilter(e.target.value)}
-                className="outline-none text-sm"
+                className="outline-none text-sm w-full sm:w-auto"
               />
             </div>
 
             {/* Search Button */}
             <button
               onClick={handleSearchFilter}
-              className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 cursor-pointer transition"
+              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 cursor-pointer transition"
             >
               Search
             </button>
@@ -268,7 +268,7 @@ function LeaveRequests() {
             {/* Clear Button */}
             <button
               onClick={handleClearFilter}
-              className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer transition"
+              className="w-full sm:w-auto px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer transition"
             >
               Clear
             </button>
@@ -276,10 +276,10 @@ function LeaveRequests() {
         </div>
 
         {/*Table*/}
-        <div className="overflow-x-auto">
-          <div className="min-w-300 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto w-full">
+          <div className="min-w-275 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
             {/* Header */}
-            <div className="grid grid-cols-8 px-8 py-6 bg-gray-100 text-md tracking-widest text-black font-semibold">
+            <div className="grid grid-cols-8 px-4 md:px-8 py-6 bg-gray-100 text-sm md:text-md tracking-widest text-black font-semibold">
               <div className="col-span-2">Employee</div>
               <div>Leave Type</div>
               <div>Start Date</div>
@@ -298,16 +298,16 @@ function LeaveRequests() {
               paginatedRequests.map((item) => (
                 <div
                   key={item.leave_id}
-                  className="grid grid-cols-8 items-center px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
+                  className="grid grid-cols-8 items-center px-4 md:px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
                 >
                   {/* Employee */}
                   <div className="col-span-2 flex items-center gap-4">
-                    {/* <div className=" flex items-center justify-center text-sm font-bold t">
+                    <div className=" flex items-center justify-center text-sm font-bold t">
                       {item.employee_id}
-                    </div> */}
+                    </div>
 
                     <div>
-                      <h3 className="font-semibold text-lg text-black">
+                      <h3 className="font-semibold text-sm md:text-lg text-black wrap-break-word">
                         {item.employee_name || "Employee"}
                       </h3>
 
@@ -391,7 +391,7 @@ function LeaveRequests() {
             )}
 
             {filteredRequests.length > 0 && (
-              <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex flex-col lg:flex-row justify-between items-center gap-4 px-4 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
                 
                 {/* Showing entries */}
                 <p className="text-sm text-gray-500">
@@ -399,7 +399,7 @@ function LeaveRequests() {
                 </p>
 
                 {/* Pagination */}
-                <div className="flex items-center gap-2 mt-3 md:mt-0">
+                <div className="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-0">
                   {/* Previous */}
                   <button
                     onClick={() =>

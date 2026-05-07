@@ -1,54 +1,75 @@
 import { NavLink, useNavigate } from "react-router-dom";
+
 import {
     FiUsers,
     FiClock,
     FiArrowLeft,
     FiUser,
-    FiMenu,
-    FiX
+    FiChevronLeft,
+    FiChevronRight
 } from "react-icons/fi";
+
 import { FaUserTie } from "react-icons/fa";
+
 import { useState } from "react";
 
-function Sidebar() {
+function Sidebar({ children }) {
     const navigate = useNavigate();
+
     const employee_id = localStorage.getItem("employee_id");
 
-    const [openSidebar, setOpenSidebar] = useState(false);
+    const [openSidebar, setOpenSidebar] = useState(true);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user_id");
         localStorage.removeItem("employee_id");
+
         navigate("/login");
     };
 
     return (
-        <>
-            <button
-                onClick={() => setOpenSidebar(true)}
-                className="fixed top-4 left-4 z-50 bg-green-800 text-white p-2 rounded-md shadow-lg"
-            >
-                <FiMenu size={20} />
-            </button>
-
-            {/* OVERLAY */}
-            {openSidebar && (
-                <div
-                    className="fixed inset-0 bg-black/40 z-40"
-                    onClick={() => setOpenSidebar(false)}
-                />
-            )}
+        <div className="flex min-h-screen">
 
             {/* SIDEBAR */}
             <div
-                className={`fixed top-0 left-0 h-screen w-64 bg-[#301E0F] text-white p-4 z-50 transform transition-transform duration-300
-                ${openSidebar ? "translate-x-0" : "-translate-x-full"}
+                className={`
+                    relative
+                    bg-[#301E0F]
+                    text-white
+                    transition-all duration-300
+                    ${openSidebar ? "w-64" : "w-20"}
                 `}
             >
-                {/* HEADER */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
+
+                {/* TOGGLE BUTTON */}
+                <button
+                    onClick={() => setOpenSidebar(!openSidebar)}
+                    className="
+                        absolute
+                        -right-4
+                        top-1/2
+                        -translate-y-1/2
+                        bg-green-800
+                        text-white
+                        shadow-md
+                        rounded-full
+                        p-2
+                        z-50
+                    "
+                >
+                    {openSidebar ? (
+                        <FiChevronLeft size={18} />
+                    ) : (
+                        <FiChevronRight size={18} />
+                    )}
+                </button>
+
+                <div className="p-4">
+
+                    {/* HEADER */}
+                    <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
+
                         <FiArrowLeft
                             size={20}
                             className="cursor-pointer hover:text-gray-300"
@@ -56,81 +77,122 @@ function Sidebar() {
                             title="Logout"
                         />
 
-                        <h2 className="text-2xl font-semibold">
-                            MSS Techno
-                        </h2>
+                        {openSidebar && (
+                            <div>
+                                <h2 className="text-2xl font-semibold">
+                                    MSS Techno
+                                </h2>
+
+                                <p className="text-sm text-gray-300">
+                                    Dashboard
+                                </p>
+                            </div>
+                        )}
                     </div>
 
-                    {/* CLOSE BUTTON */}
-                    <button onClick={() => setOpenSidebar(false)}>
-                        <FiX size={20} />
-                    </button>
+                    {/* MENU */}
+                    <nav className="space-y-2">
+
+                        {/* CLIENTS */}
+                        <NavLink
+                            to="/dashboard/clients"
+                            className={({ isActive }) =>
+                                `
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                transition-all duration-200
+                                ${
+                                    isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                }
+                                `
+                            }
+                        >
+                            <FiUsers size={20} />
+
+                            {openSidebar && (
+                                <span>Clients</span>
+                            )}
+                        </NavLink>
+
+                        {/* TIMESHEET */}
+                        <NavLink
+                            to="/dashboard/timesheet"
+                            className={({ isActive }) =>
+                                `
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                transition-all duration-200
+                                ${
+                                    isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                }
+                                `
+                            }
+                        >
+                            <FiClock size={20} />
+
+                            {openSidebar && (
+                                <span>Timesheet</span>
+                            )}
+                        </NavLink>
+
+                        {/* EMPLOYEE */}
+                        <NavLink
+                            to="/dashboard/employee"
+                            className={({ isActive }) =>
+                                `
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                transition-all duration-200
+                                ${
+                                    isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                }
+                                `
+                            }
+                        >
+                            <FaUserTie size={20} />
+
+                            {openSidebar && (
+                                <span>Employee</span>
+                            )}
+                        </NavLink>
+
+                        {/* MY PROFILE */}
+                        <NavLink
+                            to={`/dashboard/my-profile/${employee_id}`}
+                            className={({ isActive }) =>
+                                `
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                transition-all duration-200
+                                ${
+                                    isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                }
+                                `
+                            }
+                        >
+                            <FiUser size={20} />
+
+                            {openSidebar && (
+                                <span>My Profile</span>
+                            )}
+                        </NavLink>
+                    </nav>
                 </div>
-
-                {/* MENU */}
-                <nav className="flex flex-col gap-3">
-                    <NavLink
-                        to={`/dashboard/my-profile/${employee_id}`}
-                        onClick={() => setOpenSidebar(false)}
-                        className={({ isActive }) =>
-                            `flex items-center gap-2 px-4 py-2 rounded-xl ${
-                                isActive
-                                    ? "bg-green-800"
-                                    : "hover:bg-green-700"
-                            }`
-                        }
-                    >
-                        <FiUser />
-                        My Profile
-                    </NavLink>
-
-                    <NavLink
-                        to="/dashboard/clients"
-                        onClick={() => setOpenSidebar(false)}
-                        className={({ isActive }) =>
-                            `flex items-center gap-2 px-4 py-2 rounded-xl ${
-                                isActive
-                                    ? "bg-green-800"
-                                    : "hover:bg-green-700"
-                            }`
-                        }
-                    >
-                        <FiUsers />
-                        Clients
-                    </NavLink>
-
-                    <NavLink
-                        to="/dashboard/timesheet"
-                        onClick={() => setOpenSidebar(false)}
-                        className={({ isActive }) =>
-                            `flex items-center gap-2 px-4 py-2 rounded-xl ${
-                                isActive
-                                    ? "bg-green-800"
-                                    : "hover:bg-green-700"
-                            }`
-                        }
-                    >
-                        <FiClock />
-                        Timesheet
-                    </NavLink>
-
-                    <NavLink
-                        to="/dashboard/employee"
-                        onClick={() => setOpenSidebar(false)}
-                        className={({ isActive }) =>
-                            `flex items-center gap-2 px-4 py-2 rounded-xl ${
-                                isActive
-                                    ? "bg-green-800"
-                                    : "hover:bg-green-700"
-                            }`
-                        }
-                    >
-                        <FaUserTie />
-                        Employee
-                    </NavLink>
-                </nav>
             </div>
-        </>
+
+            {/* PAGE CONTENT */}
+            <div className="flex-1 overflow-auto">
+                {children}
+            </div>
+        </div>
     );
 }
 

@@ -19,7 +19,7 @@ function Dashboard() {
             {/* Main Content */}
             <div className="flex-1 p-6">
                 <Routes>
-                    <Route path="/" element={<Navigate to={`my-profile/${localStorage.getItem("employee_id") || ""}`} />} />
+                    <Route path="/" element={<Navigate to="clients" />} />
                     <Route path="clients" element={<Clients />} />
                     <Route path="timesheet" element={<Timesheet />} />
                     <Route path="employee" element={<Employee />} />
