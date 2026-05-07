@@ -306,7 +306,7 @@ function Applications() {
                             placeholder="Search applications..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-11 pr-10 rounded-full bg-gray-100 outline-none placeholder-gray-400"
+                            className="pl-11 pr-10 rounded-full outline-none placeholder-gray-400"
                         />
                         {/*clear search*/}
                         {search &&(

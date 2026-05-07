@@ -221,21 +221,23 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
 
-            <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[90vh] mx-2">
+            <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[95vh] overflow-hidden my-4">
 
                 {/* HEADER */}
-                <div className="flex justify-between items-start p-6 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-4 sm:p-6 border-b border-gray-200">
+
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-800">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 break-word">
                             {editingClient ? "Update Client" : "Add New Client"}
                         </h2>
                     </div>
+
                 </div>
 
                 {/* BODY */}
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 min-h-0">
 
                     {/* Client Name */}
                     <div>
@@ -244,13 +246,14 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                            <FiUser className="text-gray-400 mr-2" />
+                            <FiUser className="text-gray-400 mr-2 shrink-0" />
+
                             <input
                                 name="name"
                                 value={formData.name}
                                 placeholder="e.g. Acme Corporation"
                                 onChange={handleChange}
-                                className="w-full py-3 outline-none text-sm"
+                                className="w-full py-3 outline-none text-sm bg-transparent"
                             />
                         </div>
                     </div>
@@ -262,31 +265,33 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                            <FiPhone className="text-gray-400 mr-2" />
+                            <FiPhone className="text-gray-400 mr-2 shrink-0" />
+
                             <input
                                 name="mobile"
                                 value={formData.mobile}
                                 placeholder="+1 (555) 000-0000"
                                 onChange={handleChange}
-                                className="w-full py-3 outline-none text-sm"
+                                className="w-full py-3 outline-none text-sm bg-transparent"
                             />
                         </div>
                     </div>
 
-                    {/*email*/}
+                    {/* EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
                             Email {!editingClient && <span className="text-red-500">*</span>}
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                            <FiMail className="text-gray-400 mr-2" />
+                            <FiMail className="text-gray-400 mr-2 shrink-0" />
+
                             <input
                                 name="email"
                                 value={formData.email}
                                 placeholder="example@gmail.com"
                                 onChange={handleChange}
-                                className="w-full py-3 outline-none text-sm"
+                                className="w-full py-3 outline-none text-sm bg-transparent"
                             />
                         </div>
                     </div>
@@ -294,31 +299,32 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Tech + Status */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
+                        {/* TECH STACK */}
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
                                 Technology Stack {!editingClient && <span className="text-red-500">*</span>}
                             </label>
 
-                            {/* Dropdown Button */}
                             <div
                                 onClick={() => setShowTechDropdown(!showTechDropdown)}
                                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer"
                             >
-                                <div className="flex items-center gap-2 cursor-pointer">
-                                    <FiCode className="text-gray-400" />
-                                    <span className="text-sm text-gray-700 truncate cursor-pointer">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <FiCode className="text-gray-400 shrink-0" />
+
+                                    <span className="text-sm text-gray-700 truncate cursor-pointer max-w-45 sm:max-w-full">
                                         {formData.tech.length > 0
                                             ? formData.tech.join(", ")
                                             : "Select technologies"}
                                     </span>
                                 </div>
+
                                 <FiChevronDown
-                                    className={`text-gray-500 transition-transform duration-200 
+                                    className={`text-gray-500 transition-transform duration-200 shrink-0
                                     ${showTechDropdown ? "rotate-180" : ""}`}
                                 />
                             </div>
 
-                            {/* Dropdown List */}
                             {showTechDropdown && (
                                 <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-40 overflow-y-auto">
                                     {techOptions.map((tech) => (
@@ -330,15 +336,16 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                                 type="checkbox"
                                                 checked={formData.tech.includes(tech)}
                                                 onChange={() => toggleTech(tech)}
-                                                className="mr-2 accent-green-700"
+                                                className="mr-2 accent-green-700 shrink-0"
                                             />
-                                            {tech}
+                                            <span className="wrap-break-word">{tech}</span>
                                         </label>
                                     ))}
                                 </div>
                             )}
                         </div>
 
+                        {/* STATUS */}
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
                                 Initial Status {!editingClient && <span className="text-red-500">*</span>}
@@ -348,22 +355,27 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                 onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
                             >
-                                <div className="flex items-center gap-2">
-                                    <FiFlag className="text-gray-400" />
-                                    <span className="text-sm text-gray-700">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <FiFlag className="text-gray-400 shrink-0" />
+
+                                    <span className="text-sm text-gray-700 truncate">
                                         {formData.status || "Select Status"}
                                     </span>
                                 </div>
+
                                 <FiChevronDown
-                                    className={`text-gray-500 transition-transform duration-200 
+                                    className={`text-gray-500 transition-transform duration-200 shrink-0
                                     ${showStatusDropdown ? "rotate-180" : ""}`}
                                 />
-
                             </div>
+
                             {showStatusDropdown && (
-                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
                                     {["Active", "Completed", "Pause", "Terminate"].map((item) => (
-                                        <label key={item} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                        <label
+                                            key={item}
+                                            className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                        >
                                             <input
                                                 type="radio"
                                                 name="status"
@@ -372,7 +384,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                                     setFormData({ ...formData, status: item });
                                                     setShowStatusDropdown(false);
                                                 }}
-                                                className="mr-2 accent-green-700"
+                                                className="mr-2 accent-green-700 shrink-0"
                                             />
                                             {item}
                                         </label>
@@ -392,19 +404,27 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             onClick={() => setShowEmployeeDropdown(!showEmployeeDropdown)}
                             className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
                         >
-                            <div className="flex items-center gap-2">
-                                <FiUser className="text-gray-400" />
-                                <span className="text-sm text-gray-700">{formData.employeeId || "Select Employee ID"}</span>
+                            <div className="flex items-center gap-2 min-w-0">
+                                <FiUser className="text-gray-400 shrink-0" />
+
+                                <span className="text-sm text-gray-700 truncate">
+                                    {formData.employeeId || "Select Employee ID"}
+                                </span>
                             </div>
+
                             <FiChevronDown
-                                className={`text-gray-500 transition-transform duration-200 
+                                className={`text-gray-500 transition-transform duration-200 shrink-0
                                 ${showEmployeeDropdown ? "rotate-180" : ""}`}
                             />
                         </div>
+
                         {showEmployeeDropdown && (
-                            <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                            <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
                                 {employeeIds.map((tz) => (
-                                    <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                    <label
+                                        key={tz}
+                                        className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                    >
                                         <input
                                             type="radio"
                                             checked={formData.employeeId === tz}
@@ -412,7 +432,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                                 setFormData({ ...formData, employeeId: tz });
                                                 setShowEmployeeDropdown(false);
                                             }}
-                                            className="mr-2 accent-green-700"
+                                            className="mr-2 accent-green-700 shrink-0"
                                         />
                                         {tz}
                                     </label>
@@ -421,70 +441,77 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         )}
                     </div>
 
+                    {/* ROLE + AADHAAR */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Professional Role */}
+
                         <div>
                             <label className="text-sm font-medium text-gray-700">
                                 Professional Role {!editingClient && <span className="text-red-500">*</span>}
                             </label>
+
                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                                <FiBriefcase className="text-gray-400 mr-2" />
+                                <FiBriefcase className="text-gray-400 mr-2 shrink-0" />
 
                                 <input
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
                                     placeholder="e.g. Java Developer"
-                                    className="w-full py-3 outline-none text-sm"
+                                    className="w-full py-3 outline-none text-sm bg-transparent"
                                 />
                             </div>
                         </div>
 
-                        {/* Aadhaar */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
                                 Aadhaar / ID Number {!editingClient && <span className="text-red-500">*</span>}
                             </label>
-                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                                <FiCreditCard className="text-gray-400 mr-2" />
+
+                            <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                                <FiCreditCard className="text-gray-400 mr-2 shrink-0" />
 
                                 <input
                                     name="aadhaar"
                                     value={formData.aadhaar}
                                     onChange={handleChange}
                                     placeholder="0000-0000-0000"
-                                    className="w-full py-3 outline-none text-sm"
+                                    className="w-full py-3 outline-none text-sm bg-transparent"
                                 />
                             </div>
                         </div>
                     </div>
 
+                    {/* LOCATION */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
                             Location {!editingClient && <span className="text-red-500">*</span>}
                         </label>
+
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                            <FiMapPin className="text-gray-400 mr-2" />
+                            <FiMapPin className="text-gray-400 mr-2 shrink-0" />
+
                             <input
                                 name="location"
                                 value={formData.location}
                                 onChange={handleChange}
                                 placeholder="City, Country"
-                                className="w-full py-3 text-sm outline-none"
+                                className="w-full py-3 text-sm outline-none bg-transparent"
                             />
                         </div>
                     </div>
 
-                    {/* Notes */}
+                    {/* NOTES */}
                     <div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center gap-2">
                             <label className="text-sm font-medium text-gray-700">
                                 Notes / Description
                             </label>
 
                             <p
-                                className={`text-xs mt-1 text-right 
-                                ${formData.notes.length === 500 ? "text-red-500" : "text-gray-500"}`}
+                                className={`text-xs text-right shrink-0
+                                ${formData.notes.length === 500
+                                    ? "text-red-500"
+                                    : "text-gray-500"}`}
                             >
                                 {formData.notes.length}/500
                             </p>
@@ -497,25 +524,25 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             onChange={handleChange}
                             rows="4"
                             maxLength={500}
-                            className="w-full mt-2 border border-gray-200 bg-gray-50 rounded-xl p-3 text-sm outline-none"
+                            className="w-full mt-2 border border-gray-200 bg-gray-50 rounded-xl p-3 text-sm outline-none resize-none"
                         />
                     </div>
 
                 </div>
 
                 {/* FOOTER */}
-                <div className="flex flex-col sm:flex-row justify-end items-center gap-3 sm:gap-6 p-4 sm:p-6 border-t border-gray-200">
+                <div className="sticky bottom-0 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-6 p-4 sm:p-6 border-t border-gray-200 bg-white z-10">
 
                     <button
                         onClick={onClose}
-                        className="text-gray-600 border border-gray-300 hover:text-black cursor-pointer px-6 py-2 rounded-lg transition hover:bg-gray-100"
+                        className="w-full sm:w-auto text-gray-600 border border-gray-300 hover:text-black cursor-pointer px-6 py-2 rounded-lg transition hover:bg-gray-100"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={submit}
-                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
                     >
                         {editingClient ? "Update Client" : "Add Client"}
                     </button>

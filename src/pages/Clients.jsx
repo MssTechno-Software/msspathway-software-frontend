@@ -287,7 +287,7 @@ function Clients() {
 
                     <table className="min-w-175 w-full text-sm">
 
-                        <thead className="bg-gray-100 text-gray-600">
+                        <thead className="bg-gray-100 text-gray-800">
                             <tr>
                                 <th className="p-4 text-left">NAME</th>
                                 <th className="p-4 text-left">MOBILE NUMBER</th>

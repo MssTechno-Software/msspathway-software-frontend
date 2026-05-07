@@ -157,21 +157,21 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
 
-      <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[90vh] mx-2">
+      <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[95vh] overflow-hidden my-4">
 
         {/* HEADER */}
-        <div className="flex justify-between items-start p-6 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-4 sm:p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 wrap-break-word">
               {editingEmployee ? "Update Employee" : "Add New Employee"}
             </h2>
           </div>
         </div>
 
         {/* BODY */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-5">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 min-h-0">
 
           {/*Name*/}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -328,9 +328,9 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 onClick={() => setShowReportingDropdown(!showReportingDropdown)}
                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <FiUser className="text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-700">{form.reporting_to || "Select Reporting Manager"}</span>
+                  <span className="text-sm text-gray-700 truncate max-w-45 sm:max-w-full">{form.reporting_to || "Select Reporting Manager"}</span>
                 </div>
                 <FiChevronDown
                   className={`text-gray-500 transition-transform duration-200 
@@ -338,7 +338,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 />
               </div>
               {showReportingDropdown && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
                   {employeeIds.map((tz) => (
                     <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                       <input
@@ -368,9 +368,9 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 onClick={() => setShowHrDropdown(!showHrDropdown)}
                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <FiUser className="text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-700">{form.hr || "Select Employee ID"}</span>
+                  <span className="text-sm text-gray-700 truncate max-w-45 sm:max-w-full">{form.hr || "Select Employee ID"}</span>
                 </div>
                 <FiChevronDown
                   className={`text-gray-500 transition-transform duration-200 
@@ -378,7 +378,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 />
               </div>
               {showHrDropdown && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
                   {employeeIds.map((tz) => (
                     <label key={tz} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                       <input
@@ -481,14 +481,14 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
         </div>
 
         {/* FOOTER */}
-        <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
-          <button onClick={onClose} className="text-gray-600 cursor-pointer hover:bg-gray-100 px-6 py-2 rounded-lg transition">
+        <div className="sticky bottom-0 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 border-t border-gray-200 bg-white z-10">
+          <button onClick={onClose} className="w-full sm:w-auto text-gray-600 cursor-pointer hover:bg-gray-100 px-6 py-2 rounded-lg transition">
             Cancel
           </button>
 
           <button
             onClick={submit}
-            className="bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
+            className="w-full sm:w-auto bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
           >
             {editingEmployee ? "Update" : "Save"}
           </button>

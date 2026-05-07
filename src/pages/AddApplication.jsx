@@ -61,15 +61,15 @@ function AddApplication({ onClose, onAdd, editingApp }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
 
-            <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl overflow-hidden mx-2">
+            <div className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl shadow-xl max-h-[95vh] flex flex-col my-4 overflow-hidden">
 
                 {/* HEADER */}
-                <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+                <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
 
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 wrap-break-word">
                             {editingApp ? "Update Application" : "Add New Application Entry"}
                         </h2>
                         <p className="text-gray-500 text-sm mt-1">
@@ -79,7 +79,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                 </div>
 
                 {/* BODY */}
-                <div className="p-4 sm:p-6 space-y-5">
+                <div className="p-4 sm:p-6 space-y-5 flex-1 overflow-y-auto min-h-0">
 
                     {/* Row 1 */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -113,7 +113,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                     </div>
 
                     {/* Row 2 */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
@@ -124,8 +124,8 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                                 onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
                                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer"
                             >
-                                <div className="flex items-center gap-2 cursor-pointer">
-                                    <span className="text-sm text-gray-700 truncate cursor-pointer">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="text-sm text-gray-700 truncate cursor-pointer max-w-45 sm:max-w-full">
                                         {form.platform || "Select a platform"}
                                     </span>
                                 </div>
@@ -133,7 +133,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                                     ${showPlatformDropdown ? "rotate-180" : ""}`} />
                             </div>
                             {showPlatformDropdown && (
-                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
                                     {["Naukri", "LinkedIn", "Career Pages","Cold Emails", "Other"].map((item) => (
                                         <label key={item} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                             <input
@@ -201,7 +201,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
                     {/* Notes */}
                     <div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center gap-3">
                             <label className="text-sm font-medium text-gray-700">
                                 Internal Notes (Optional)
                             </label>
@@ -220,25 +220,24 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                             placeholder="Mention referral, specific recruiter, etc."
                             rows="4"
                             maxLength={500}
-                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
+                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none resize-none"
                         />
                     </div>
 
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-gray-50 px-6 py-4 flex justify-end items-center gap-6">
-
+                <div className="sticky bottom-0 bg-white px-4 sm:px-6 py-4 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-6 border-t border-gray-200 z-10">
                     <button
                         onClick={onClose}
-                        className="text-gray-600 hover:text-black border border-gray-300 py-2 px-6 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                        className="w-full sm:w-auto text-gray-600 hover:text-black border border-gray-300 py-2 px-6 rounded-xl hover:bg-gray-100 transition cursor-pointer"
                     >
                         Cancel
                     </button>
 
                     <button
                         onClick={handleSubmit}
-                        className="flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md cursor-pointer"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md cursor-pointer"
                     >
                         {editingApp ? "Update" : "Save"}
                     </button>

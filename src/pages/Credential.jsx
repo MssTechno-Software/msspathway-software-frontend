@@ -226,13 +226,13 @@ function Credentials() {
     );
 
     return (
-        <div className="bg-gray-50 flex min-h-screen">
+        <div className="bg-gray-50 min-h-screen w-full">
 
             {/* MAIN CONTENT */}
-            <div className="flex-1 p-6">
+            <div className="w-full p-4 sm:p-6">
 
                 {/* TITLE */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pb-5">
+                <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4 pb-5">
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">Portal Credentials</h1>
                         <p className="text-gray-500 mt-1">
@@ -240,16 +240,16 @@ function Credentials() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
 
                         {/* SEARCH BAR */}
-                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm">
+                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-auto">
                             <FiSearch className="text-gray-400 mr-2" />
                             <input
                                 placeholder="Search portals..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="outline-none w-full bg-transparent text-sm sm:w-auto"
+                                className="outline-none w-full bg-transparent text-sm min-w-0 sm:min-w-55"
                             />
                             
                             {search && (
@@ -277,118 +277,119 @@ function Credentials() {
 
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-gray-50">
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-gray-50 w-full">
+                    <div className="overflow-x-auto">
 
-                    <table className="w-full text-sm">
+                        <table className="min-w-225 w-full text-sm">
 
-                        {/* HEADER */}
-                        <thead className="bg-gray-100 text-gray-500 text-sm tracking-wider">
-                            <tr>
-                                <th className="p-4 text-left">Portal Name</th>
-                                <th className="p-4 text-left">Email Address</th>
-                                <th className="p-4 text-left">Password</th>
-                                <th className="p-4 text-left">Portal Link</th>
-                                <th className="p-4 text-left">Actions</th>
-                            </tr>
-                        </thead>
-
-                        {/* BODY */}
-                        <tbody>
-
-                            {paginated.length === 0 ? (
+                            {/* HEADER */}
+                            <thead className="bg-gray-100 text-gray-800 text-sm tracking-wider uppercase">
                                 <tr>
-                                    <td colSpan="5" className="text-center py-10 text-gray-400">
-                                        No credentials found
-                                    </td>
+                                    <th className="p-4 text-left">Portal Name</th>
+                                    <th className="p-4 text-left">Email Address</th>
+                                    <th className="p-4 text-left">Password</th>
+                                    <th className="p-4 text-left">Portal Link</th>
+                                    <th className="p-4 text-left">Actions</th>
                                 </tr>
-                            ) : (
-                                paginated.map((item, index) => (
+                            </thead>
 
-                                    <tr
-                                        key={item.id || index}
-                                        className="border-t border-gray-100 hover:bg-gray-50 transition duration-150 cursor-pointer"
-                                    >
+                            {/* BODY */}
+                            <tbody>
 
-                                        {/* PORTAL NAME */}
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-semibold text-gray-800">
-                                                    {item.portal}
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        {/* EMAIL */}
-                                        <td className="p-4 text-gray-600 gap-3">
-                                            {item.email}
-                                        </td>
-
-                                        {/* PASSWORD */}
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-
-                                                <span className="tracking-widest text-gray-700">
-                                                    {visiblePasswords[item.id]
-                                                        ? item.password
-                                                        : "•".repeat(item.password.length)}
-                                                </span>
-
-                                                <button
-                                                    onClick={() => togglePassword(item.id)}
-                                                    className="text-gray-400 hover:text-gray-700 transition cursor-pointer"
-                                                >
-                                                    {visiblePasswords[item.id] ? <FiEyeOff /> : <FiEye />}
-                                                </button>
-
-                                            </div>
-                                        </td>
-
-                                        <td className="p-4">
-                                            <a
-                                                href={item.portalLink}
-                                                target="_blank"
-                                                className="text-green-700 font-medium cursor-pointer hover:underline"
-                                            >
-                                                View ↗
-                                            </a>
-                                        </td>
-
-                                        {/* ACTIONS */}
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-
-                                                <button
-                                                    onClick={() => {
-                                                        console.log("Edit button clicked",item.id);
-                                                        editCredential(item.id)}}
-                                                    className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
-                                                >
-                                                    <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
-                                                </button>
-
-                                                <button
-                                                    onClick={() => deleteCredential(item.id)}
-                                                    className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
-                                                >
-                                                    <FiTrash2 size={18} className="text-gray-500 hover:text-green-600" />
-                                                </button>
-
-                                            </div>
+                                {paginated.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="text-center py-10 text-gray-400">
+                                            No credentials found
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    paginated.map((item, index) => (
+
+                                        <tr
+                                            key={item.id || index}
+                                            className="border-t border-gray-100 hover:bg-gray-50 transition duration-150 cursor-pointer"
+                                        >
+
+                                            {/* PORTAL NAME */}
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-semibold text-gray-800 wrap-break-word">
+                                                        {item.portal}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            {/* EMAIL */}
+                                            <td className="p-4 text-gray-600 gap-3 break-all">
+                                                {item.email}
+                                            </td>
+
+                                            {/* PASSWORD */}
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+
+                                                    <span className="tracking-widest text-gray-700">
+                                                        {visiblePasswords[item.id]
+                                                            ? item.password
+                                                            : "•".repeat(item.password.length)}
+                                                    </span>
+
+                                                    <button
+                                                        onClick={() => togglePassword(item.id)}
+                                                        className="text-gray-400 hover:text-gray-700 transition cursor-pointer"
+                                                    >
+                                                        {visiblePasswords[item.id] ? <FiEyeOff /> : <FiEye />}
+                                                    </button>
+
+                                                </div>
+                                            </td>
+
+                                            <td className="p-4">
+                                                <a
+                                                    href={item.portalLink}
+                                                    target="_blank"
+                                                    className="text-green-700 font-medium cursor-pointer hover:underline"
+                                                >
+                                                    View ↗
+                                                </a>
+                                            </td>
+
+                                            {/* ACTIONS */}
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-2">
+
+                                                    <button
+                                                        onClick={() => {
+                                                            console.log("Edit button clicked",item.id);
+                                                            editCredential(item.id)}}
+                                                        className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
+                                                    >
+                                                        <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => deleteCredential(item.id)}
+                                                        className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
+                                                    >
+                                                        <FiTrash2 size={18} className="text-gray-500 hover:text-green-600" />
+                                                    </button>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                     {/* PAGINATION */}
-                    <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 border-t border-gray-200 bg-gray-50">
 
                         <div className="text-sm text-gray-500">
                             Showing {paginated.length} of {filtered.length} credentials
                         </div>
 
-                        <div className="flex items-center gap-2">
-
+                        <div className="flex flex-wrap justify-center items-center gap-2">
                             <button
                                 disabled={currentPage === 1}
                                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -427,7 +428,7 @@ function Credentials() {
 
             {popup.show && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
-                    <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
 
                         <p className={`mb-4 font-semibold
                 ${popup.type === "success" && "text-green-600"}

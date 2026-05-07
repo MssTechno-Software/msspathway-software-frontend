@@ -95,9 +95,9 @@ export default function AddReport({ onClose, onSave, editData }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-start sm:items-center z-50 p-2 sm:p-4 overflow-y-auto">
 
-            <div className="bg-white w-full rounded-2xl max-w-lg sm:max-w-xl md:max-w-2xl shadow-xl flex flex-col max-h-[90vh] mx-2">
+            <div className="bg-white w-full rounded-2xl max-w-lg sm:max-w-xl md:max-w-2xl shadow-xl flex flex-col max-h-[95vh] mx-2">
 
                 {/* HEADER */}
                 <div className="px-6 py-4 border-b border-gray-200">
