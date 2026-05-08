@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiX, FiLoader } from "react-icons/fi";
 import AddEmployee from "./AddEmployee";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,8 @@ API.interceptors.request.use((config) => {
 
 function Employees() {
   const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -33,11 +35,14 @@ function Employees() {
   /*fetch api*/
   const fetchEmployees = async () => {
     try {
+      setLoading(true);
         const res = await API.get("/admin/users-table");
         console.log("feached employee data:",res.data);
         setEmployees(res.data.data || res.data);
     } catch (err) {
         console.error("Fetch error:", err.response?.data || err.message);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -57,6 +62,7 @@ function Employees() {
     }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("email", form.email);
       formData.append("password", form.password || "");
@@ -116,6 +122,8 @@ function Employees() {
         message: err.response?.data?.detail || "Failed to save employee",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -128,6 +136,7 @@ function Employees() {
       type: "confirm",
       onConfirm: async () =>{
         try {
+          setLoading(true);
           const res = await API.delete(`/admin/users/${employee_id}`);
           console.log("Deleting Employee:", res.data);
           fetchEmployees();
@@ -145,12 +154,16 @@ function Employees() {
             type: "error"
           });
         }
+        finally {
+          setLoading(false);
+        }
       }
     });
   };
 
   const handleEdit = async (employee_id) => {
     try {
+      setLoading(true);
       const res = await API.get(`/admin/users/${employee_id}`);
       setEditingEmployee(res.data.data ||res.data);
       setShowModal(true);
@@ -177,179 +190,227 @@ function Employees() {
   }, [search]);
 
   return (
-    <div className="p-6">
+    <>
+      {(loading || pageLoading) && (
+          <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-      {/* SEARCH */}
-      <div className="w-full sm:w-1/2 mb-4">
-        <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full">
-          <FiSearch className="mr-2 text-gray-400" />
-          <input
-            placeholder="Search employees..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none w-full"
-          />
-          {search && <FiX onClick={() => setSearch("")} />}
-        </div>
-      </div>
+            <div className="p-6 flex flex-col items-center gap-3">
 
-      {/* HEADER */}
-         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Employees</h1>
-              <p className="text-gray-500 text-sm sm:text-base">
-                Manage corporate personnel records
+              <FiLoader className="animate-spin text-4xl text-green-800" />
+
+              <p className="text-gray-800 font-medium">
+                Please wait...
               </p>
+
             </div>
+          </div>
+        )}
+        <div className="p-6">
+        {/* SEARCH */}
+        <div className="w-full sm:w-1/2 mb-4">
+          <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full">
+            <FiSearch className="mr-2 text-gray-400" />
+            <input
+              placeholder="Search employees..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent outline-none w-full"
+            />
+            {search && <FiX onClick={() => setSearch("")} />}
+          </div>
+        </div>
 
-            <button
-              onClick={() => setShowModal(true)}
-              className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
-            >
-              Add Employee
-            </button>
-         </div>
+        {/* HEADER */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold">Employees</h1>
+                <p className="text-gray-500 text-sm sm:text-base">
+                  Manage corporate personnel records
+                </p>
+              </div>
 
-      {/* TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-gray-800">
-            <tr className="border-b border-gray-200">
-              <th className="p-4 text-left">ID</th>
-              <th className="p-4 text-left">Name</th>
-              <th className="p-4 text-left">Mobile</th>
-              <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">REPORTING TO</th>
-              <th className="p-4 text-left">Actions</th>
-            </tr>
-          </thead>
+              <button
+                disabled={loading}
+                onClick={() => setShowModal(true)}
+                className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <FiLoader className="animate-spin" />
+                    Loading...
+                  </span>
+                ) : (
+                  "Add Employee"
+                )}
+              </button>
+          </div>
 
-          <tbody>
-            {currentEmployees.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center py-10 text-gray-400">
-                  No employees available. Click "Add New Employee"
-                </td>
+        {/* TABLE */}
+        <div className="bg-white rounded-xl shadow overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 text-gray-800">
+              <tr className="border-b border-gray-200">
+                <th className="p-4 text-left">ID</th>
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">Mobile</th>
+                <th className="p-4 text-left">Email</th>
+                <th className="p-4 text-left">REPORTING TO</th>
+                <th className="p-4 text-left">Actions</th>
               </tr>
-            ) : (
-              currentEmployees.map((emp) => (
-                <tr key={emp.employee_id ||emp.email}
-                onClick={() => navigate(`/dashboard/employees/${emp.employee_id}`)} 
-                  className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
-                  <td className="p-4">{emp.employee_id}</td>
-                  <td className="p-4">{emp.name}</td>
-                  <td className="p-4">{emp.mobile}</td>
-                  <td className="p-4">{emp.email}</td>
-                  <td className="p-4">{emp.reporting_to}</td>
+            </thead>
 
-
-                  <td className="p-4 flex gap-3">
-                    <FiEdit
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(emp.employee_id);
-                      }}
-                      className="cursor-pointer hover:text-green-600"
-                    />
-                    <FiTrash2
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(emp.employee_id);
-                      }}
-                      className="cursor-pointer  hover:text-green-600"
-                    />
+            <tbody>
+              {currentEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="text-center py-10 text-gray-400">
+                    No employees available. Click "Add New Employee"
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                currentEmployees.map((emp) => (
+                  <tr key={emp.employee_id ||emp.email}
+                    onClick={() => {
+                      setPageLoading(true);
+                      setTimeout(() => {
+                        navigate(`/dashboard/employees/${emp.employee_id}`);
+                      }, 500);
+                    }}
+                    className="hover:bg-gray-50 border-t border-gray-200 cursor-pointer">
+                    <td className="p-4">{emp.employee_id}</td>
+                    <td className="p-4">{emp.name}</td>
+                    <td className="p-4">{emp.mobile}</td>
+                    <td className="p-4">{emp.email}</td>
+                    <td className="p-4">{emp.reporting_to}</td>
 
-        {/* PAGINATION */}
-        <div className="flex justify-between p-4 bg-gray-50">
-          <p className="text-sm text-gray-500">
-            Showing {currentEmployees.length} of {filteredEmployees.length}
-          </p>
 
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(p-1,1))}
-              className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
-            >
-              Prev
-            </button>
-            <button className="bg-green-800 text-white px-3 rounded cursor-pointer hover:bg-green-700">
-              {currentPage}
-            </button>
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(p+1,totalPages))}
-              className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
+                    <td className="p-4 flex gap-3">
+                      <FiEdit
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(emp.employee_id);
+                        }}
+                        className="cursor-pointer hover:text-green-600"
+                      />
+                      <FiTrash2
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(emp.employee_id);
+                        }}
+                        className="cursor-pointer  hover:text-green-600"
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
 
-      {/* MODAL */}
-      {showModal && (
-        <AddEmployee
-          onClose={() => {
-            setShowModal(false);
-            setEditingEmployee(null);
-          }}
-          onSave={handleSave}
-          editingEmployee={editingEmployee}
-        />
-      )}
-
-      {/*popup*/}
-      {popup.show && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
-
-            <p className={`mb-4 font-semibold
-              ${popup.type === "success" && "text-green-600"}
-              ${popup.type === "error" && "text-red-600"}
-              ${popup.type === "confirm" && "text-gray-800"}
-            `}>
-              {popup.message}
+          {/* PAGINATION */}
+          <div className="flex justify-between p-4 bg-gray-50">
+            <p className="text-sm text-gray-500">
+              Showing {currentEmployees.length} of {filteredEmployees.length}
             </p>
 
-            <div className="flex justify-center gap-3">
-              {popup.type === "confirm" ? (
-                <>
-                  <button
-                    onClick={async () => {
-                      await popup.onConfirm();
-                      setPopup({ show: false });
-                    }}
-                    className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-500"
-                  >
-                    Yes
-                  </button>
-
-                  <button
-                    onClick={() => setPopup({ show: false })}
-                    className="bg-gray-300 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setPopup({ show: false })}
-                  className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-700"
-                >
-                  OK
-                </button>
-              )}
+            <div className="flex gap-2">
+              <button
+                disabled={loading || pageLoading} 
+                onClick={() => {
+                  setPageLoading(true);
+                  setTimeout(() => {
+                    setCurrentPage(p => Math.max(p - 1, 1));
+                    setPageLoading(false);
+                  }, 400);
+                }}
+                className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+              >
+                Prev
+              </button>
+              <button className="bg-green-800 text-white px-3 rounded cursor-pointer hover:bg-green-700">
+                {currentPage}
+              </button>
+              <button 
+                onClick={() => {
+                  setPageLoading(true);
+                  setTimeout(() => {
+                    setCurrentPage(p => Math.min(p + 1, totalPages));
+                    setPageLoading(false);
+                  }, 400);
+                }}
+                className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+              >
+                Next
+              </button>
             </div>
-
           </div>
         </div>
-      )}
-    </div>
+
+        {/* MODAL */}
+        {showModal && (
+          <AddEmployee
+            onClose={() => {
+              setShowModal(false);
+              setEditingEmployee(null);
+            }}
+            onSave={handleSave}
+            editingEmployee={editingEmployee}
+          />
+        )}
+
+        {/*popup*/}
+        {popup.show && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+
+              <p className={`mb-4 font-semibold
+                ${popup.type === "success" && "text-green-600"}
+                ${popup.type === "error" && "text-red-600"}
+                ${popup.type === "confirm" && "text-gray-800"}
+              `}>
+                {popup.message}
+              </p>
+
+              <div className="flex justify-center gap-3">
+                {popup.type === "confirm" ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        await popup.onConfirm();
+                        setPopup({ show: false });
+                      }}
+                      className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-500"
+                    >
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <FiLoader className="animate-spin" />
+                          Deleting...
+                        </span>
+                      ) : (
+                        "Yes"
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => setPopup({ show: false })}
+                      className="bg-gray-300 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setPopup({ show: false })}
+                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer hover:bg-green-700"
+                  >
+                    OK
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

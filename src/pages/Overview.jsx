@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FiFilter, FiPhone, FiMail, FiUser, FiAward } from "react-icons/fi";
+import { FiFilter, FiPhone, FiMail, FiUser, FiAward, FiLoader } from "react-icons/fi";
 import axios from "axios";
 
 const API = axios.create({
@@ -23,12 +23,15 @@ export default function Overview() {
   const [toDate, setToDate] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
 
   // FETCH APPLICATIONS
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
+        setLoading(true);
         const res = await API.get(`/applications/applications/${client_id}`);
         const appsObject = res.data?.applications || {};
 
@@ -39,6 +42,8 @@ export default function Overview() {
         setApplications(allApps);
       } catch (err) {
         console.error("Error fetching applications", err);
+      } finally {
+          setLoading(false);
       }
     };
 
@@ -49,11 +54,14 @@ export default function Overview() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
+        setLoading(true);
         const res = await API.get(`/reports/clients/${client_id}/reports`);
         const data = res.data?.company_progression || [];
         setReports(data);
       } catch (err) {
         console.error("Error fetching reports", err);
+      } finally {
+          setLoading(false);
       }
     };
 
@@ -172,170 +180,209 @@ export default function Overview() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 bg-[#f5f6f8] min-h-screen">
+    <>
+      {(loading || pageLoading) && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-      {/* HEADER */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+          <div className="p-6 flex flex-col items-center gap-3">
 
-        <h1 className="text-2xl sm:text-3xl font-bold">
-          Executive Overview
-        </h1>
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-        {/* FILTER */}
-        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+            <p className="text-gray-800 font-medium">
+              Please wait...
+            </p>
 
-          {/* FROM */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
-              From
-            </span>
-
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="text-sm outline-none w-full sm:w-auto"
-            />
           </div>
-
-          {/* TO */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
-              To
-            </span>
-
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="text-sm outline-none w-full sm:w-auto"
-            />
-          </div>
-
-          {/* APPLY */}
-          <button
-            onClick={() => {
-              setAppliedFromDate(fromDate);
-              setAppliedToDate(toDate);
-            }}
-            className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
-          >
-            Search
-          </button>
-
-          {/* CLEAR */}
-          <button
-            onClick={() => {
-              setFromDate("");
-              setToDate("");
-              setAppliedFromDate("");
-              setAppliedToDate("");
-            }}
-            className="w-full sm:w-auto text-gray-600 text-sm px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer"
-          >
-            Clear
-          </button>
-
         </div>
-      </div>
+      )}
+      <div className="p-4 sm:p-6 bg-[#f5f6f8] min-h-screen">
 
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+        {/* HEADER */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
-        {/* LEFT CARD */}
-        <div className="xl:col-span-3 bg-gray-100 p-4 sm:p-6 rounded-3xl shadow-md">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Executive Overview
+          </h1>
 
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold">
-                Applications by Platform
-              </h2>
+          {/* FILTER */}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+
+            {/* FROM */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
+                From
+              </span>
+
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="text-sm outline-none w-full sm:w-auto"
+              />
             </div>
+
+            {/* TO */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span className="text-xs text-gray-500 font-semibold whitespace-nowrap">
+                To
+              </span>
+
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="text-sm outline-none w-full sm:w-auto"
+              />
+            </div>
+
+            {/* APPLY */}
+            <button
+              disabled={loading || pageLoading}
+              onClick={() => {
+                setLoading(true);
+                setTimeout(() => {
+                  setAppliedFromDate(fromDate);
+                  setAppliedToDate(toDate);
+                  setLoading(false);
+                }, 500);
+              }}
+              className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <FiLoader className="animate-spin" />
+                  Loading...
+                </span>
+              ) : (
+                "Search"
+              )}
+            </button>
+
+            {/* CLEAR */}
+            <button
+              disabled={loading || pageLoading}
+              onClick={() => {
+                setLoading(true);
+                setTimeout(() => {
+                  setFromDate("");
+                  setToDate("");
+                  setAppliedFromDate("");
+                  setAppliedToDate("");
+                  setLoading(false);
+                }, 500);
+              }}
+              className="w-full sm:w-auto text-gray-600 text-sm px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <FiLoader className="animate-spin" />
+                  Clearing...
+                </span>
+              ) : (
+                "Clear"
+              )}
+            </button>
           </div>
-
-          {platformCounts.map((item, index) => (
-            <div key={index} className="mb-5">
-
-              <div className="flex justify-between text-sm sm:text-md mb-1 font-bold gap-3">
-                <span className="wrap-break-word">{item.name}</span>
-                <span>{item.value}</span>
-              </div>
-
-              <div className="w-full h-2 bg-[#e2cbb8] rounded-full">
-                <div
-                  className="h-2 bg-[#3b6b4f] rounded-full"
-                  style={{ width: `${(item.value / max) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
         </div>
 
-        {/* RIGHT CARD */}
-        <div
-          className="xl:col-span-2 relative rounded-3xl p-4 sm:p-6 text-white 
-          bg-linear-to-br from-[#3a2418] to-[#2b1a12] 
-          shadow-2xl overflow-hidden"
-        >
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
 
-          {/* DOT BG */}
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [bg-size:16px_16px]"></div>
+          {/* LEFT CARD */}
+          <div className="xl:col-span-3 bg-gray-100 p-4 sm:p-6 rounded-3xl shadow-md">
 
-          <div className="relative z-10">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold">
+                  Applications by Platform
+                </h2>
+              </div>
+            </div>
 
-            <h2 className="text-lg sm:text-xl font-bold text-white">
-              Recruitment Reports
-            </h2>
+            {platformCounts.map((item, index) => (
+              <div key={index} className="mb-5">
 
-            <div className="space-y-4 pt-3">
-
-              {funnel.map((item, i) => (
-                <div
-                  key={i}
-                  className={`p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4
-                  ${
-                    item.highlight
-                      ? "bg-linear-to-r from-green-800 to-green-700"
-                      : "bg-white/5 backdrop-blur-md border border-white/10"
-                  }`}
-                >
-
-                  {/* LEFT */}
-                  <div className="flex items-center gap-3 min-w-0">
-
-                    <div className="bg-white/20 p-3 rounded-xl shrink-0">
-                      {item.icon}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium wrap-break-word">
-                        {item.title}
-                      </p>
-
-                      <p className="text-xs text-gray-300 wrap-break-word">
-                        {item.subtitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* RIGHT */}
-                  <div className="text-left sm:text-right">
-                    <p className="text-lg sm:text-xl font-semibold">
-                      {item.value}
-                    </p>
-
-                    <p className="text-xs text-gray-300">
-                      {item.percent}% {i === 0 ? "Volume" : "Pass Rate"}
-                    </p>
-                  </div>
-
+                <div className="flex justify-between text-sm sm:text-md mb-1 font-bold gap-3">
+                  <span className="wrap-break-word">{item.name}</span>
+                  <span>{item.value}</span>
                 </div>
-              ))}
 
+                <div className="w-full h-2 bg-[#e2cbb8] rounded-full">
+                  <div
+                    className="h-2 bg-[#3b6b4f] rounded-full"
+                    style={{ width: `${(item.value / max) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT CARD */}
+          <div
+            className="xl:col-span-2 relative rounded-3xl p-4 sm:p-6 text-white 
+            bg-linear-to-br from-[#3a2418] to-[#2b1a12] 
+            shadow-2xl overflow-hidden"
+          >
+
+            {/* DOT BG */}
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [bg-size:16px_16px]"></div>
+
+            <div className="relative z-10">
+
+              <h2 className="text-lg sm:text-xl font-bold text-white">
+                Recruitment Reports
+              </h2>
+
+              <div className="space-y-4 pt-3">
+
+                {funnel.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4
+                    ${
+                      item.highlight
+                        ? "bg-linear-to-r from-green-800 to-green-700"
+                        : "bg-white/5 backdrop-blur-md border border-white/10"
+                    }`}
+                  >
+
+                    {/* LEFT */}
+                    <div className="flex items-center gap-3 min-w-0">
+
+                      <div className="bg-white/20 p-3 rounded-xl shrink-0">
+                        {item.icon}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium wrap-break-word">
+                          {item.title}
+                        </p>
+
+                        <p className="text-xs text-gray-300 wrap-break-word">
+                          {item.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="text-left sm:text-right">
+                      <p className="text-lg sm:text-xl font-semibold">
+                        {item.value}
+                      </p>
+
+                      <p className="text-xs text-gray-300">
+                        {item.percent}% {i === 0 ? "Volume" : "Pass Rate"}
+                      </p>
+                    </div>
+
+                  </div>
+                ))}
+
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEye, FiEyeOff, FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiEdit, FiTrash2, FiSearch, FiX, FiLoader } from "react-icons/fi";
 import AddCredential from "./AddCredential";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -24,6 +24,8 @@ function Credentials() {
     const [visiblePasswords, setVisiblePasswords] = useState({});
     const [loadingEdit, setLoadingEdit] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const ITEMS_PER_PAGE = 10;
     const credential_id = editing?.id;
 
@@ -37,6 +39,7 @@ function Credentials() {
     useEffect(() => {
         const fetchCredentials = async () => {
             try {
+                setLoading(true);
                 const res = await API.get(`/credentials/${client_id}`);
                 console.log("editing credentials response:", res.data);
 
@@ -58,6 +61,8 @@ function Credentials() {
             } catch (err) {
                 console.error("Failed to fetch credentials:", err.response?.data || err.message);
                 console.error("ERROR:", err.response?.data || err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -66,6 +71,7 @@ function Credentials() {
 
     const saveCredential = async (data) => {
         try {
+            setLoading(true);
             const payload = {
                 portal_name: data.portal,
                 portal_link: data.portalLink,
@@ -120,6 +126,8 @@ function Credentials() {
                 message: "Failed to save credential. Please try again.",
                 type: "error"
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -131,6 +139,7 @@ function Credentials() {
             type: "confirm",
             onConfirm: async () => {
                 try {
+                    setLoading(true);
                     const response = await API.delete(`/credentials/delete/${credential_id}`);
                     console.log("Delete response:", response.data);
 
@@ -164,6 +173,8 @@ function Credentials() {
                         message: "Failed to delete credential. Please try again.",
                         type: "error"
                     });
+                } finally {
+                    setLoading(false);
                 }
             }
         });
@@ -176,6 +187,7 @@ function Credentials() {
         setLoadingEdit(true);
 
         try {
+            setLoading(true);
             const res = await API.get(`/credentials/credentials/${credential_id}`);
 
             const data = res.data?.data || res.data;
@@ -226,252 +238,269 @@ function Credentials() {
     );
 
     return (
-        <div className="bg-gray-50 min-h-screen w-full">
+        <>
+        {(loading || pageLoading || loadingEdit) && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            {/* MAIN CONTENT */}
-            <div className="w-full p-4 sm:p-6">
+            <div className="p-6 flex flex-col items-center gap-3">
 
-                {/* TITLE */}
-                <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4 pb-5">
-                    <div className="flex flex-col">
-                        <h1 className="text-3xl font-bold">Portal Credentials</h1>
-                        <p className="text-gray-500 mt-1">
-                            Manage and store access details for various client portals.
-                        </p>
-                    </div>
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-                    <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+            <p className="text-gray-800 font-medium">
+                Please wait...
+            </p>
 
-                        {/* SEARCH BAR */}
-                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-auto">
-                            <FiSearch className="text-gray-400 mr-2" />
-                            <input
-                                placeholder="Search portals..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="outline-none w-full bg-transparent text-sm min-w-0 sm:min-w-55"
-                            />
-                            
-                            {search && (
-                                <button
-                                    onClick={() => {
-                                        setSearch("");
-                                        setCurrentPage(1);
-                                    }}
-                                    className="ml-2 text-gray-400 hover:text-gray-700 transition cursor-pointer"
-                                >
-                                    <FiX size={16} />
-                                </button>
-                            )}
-                        </div>
-
-                        {/* ADD BUTTON */}
-                        <button
-                            onClick={() => setShowModal(true)}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 transition"
-                        >
-                            Add New Credential
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-gray-50 w-full">
-                    <div className="overflow-x-auto">
-
-                        <table className="min-w-225 w-full text-sm">
-
-                            {/* HEADER */}
-                            <thead className="bg-gray-100 text-gray-800 text-sm tracking-wider uppercase">
-                                <tr>
-                                    <th className="p-4 text-left">Portal Name</th>
-                                    <th className="p-4 text-left">Email Address</th>
-                                    <th className="p-4 text-left">Password</th>
-                                    <th className="p-4 text-left">Portal Link</th>
-                                    <th className="p-4 text-left">Actions</th>
-                                </tr>
-                            </thead>
-
-                            {/* BODY */}
-                            <tbody>
-
-                                {paginated.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="5" className="text-center py-10 text-gray-400">
-                                            No credentials found
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    paginated.map((item, index) => (
-
-                                        <tr
-                                            key={item.id || index}
-                                            className="border-t border-gray-100 hover:bg-gray-50 transition duration-150 cursor-pointer"
-                                        >
-
-                                            {/* PORTAL NAME */}
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="font-semibold text-gray-800 wrap-break-word">
-                                                        {item.portal}
-                                                    </span>
-                                                </div>
-                                            </td>
-
-                                            {/* EMAIL */}
-                                            <td className="p-4 text-gray-600 gap-3 break-all">
-                                                {item.email}
-                                            </td>
-
-                                            {/* PASSWORD */}
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-3">
-
-                                                    <span className="tracking-widest text-gray-700">
-                                                        {visiblePasswords[item.id]
-                                                            ? item.password
-                                                            : "•".repeat(item.password.length)}
-                                                    </span>
-
-                                                    <button
-                                                        onClick={() => togglePassword(item.id)}
-                                                        className="text-gray-400 hover:text-gray-700 transition cursor-pointer"
-                                                    >
-                                                        {visiblePasswords[item.id] ? <FiEyeOff /> : <FiEye />}
-                                                    </button>
-
-                                                </div>
-                                            </td>
-
-                                            <td className="p-4">
-                                                <a
-                                                    href={item.portalLink}
-                                                    target="_blank"
-                                                    className="text-green-700 font-medium cursor-pointer hover:underline"
-                                                >
-                                                    View ↗
-                                                </a>
-                                            </td>
-
-                                            {/* ACTIONS */}
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-2">
-
-                                                    <button
-                                                        onClick={() => {
-                                                            console.log("Edit button clicked",item.id);
-                                                            editCredential(item.id)}}
-                                                        className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
-                                                    >
-                                                        <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() => deleteCredential(item.id)}
-                                                        className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
-                                                    >
-                                                        <FiTrash2 size={18} className="text-gray-500 hover:text-green-600" />
-                                                    </button>
-
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    {/* PAGINATION */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 border-t border-gray-200 bg-gray-50">
-
-                        <div className="text-sm text-gray-500">
-                            Showing {paginated.length} of {filtered.length} credentials
-                        </div>
-
-                        <div className="flex flex-wrap justify-center items-center gap-2">
-                            <button
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 cursor-pointer"
-                            >
-                                Previous
-                            </button>
-
-                            <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
-                                {currentPage}
-                            </button>
-
-                            <button
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                className="px-3 py-1 rounded bg-gray-100 cursor-pointer disabled:opacity-40"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
+        </div>
+        )}
 
-            {/* MODAL */}
-            {showModal && (
-                <AddCredential
-                    onClose={() => {
-                        setShowModal(false);
-                        setEditing(null);
-                    }}
-                    onSave={saveCredential}
-                    editingData={editing}
-                />
-            )}
+            <div className="bg-gray-50 min-h-screen w-full">
 
-            {popup.show && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
-                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
+                {/* MAIN CONTENT */}
+                <div className="w-full p-4 sm:p-6">
 
-                        <p className={`mb-4 font-semibold
-                ${popup.type === "success" && "text-green-600"}
-                ${popup.type === "error" && "text-red-600"}
-                ${popup.type === "confirm" && "text-gray-800"}
-            `}>
-                            {popup.message}
-                        </p>
+                    {/* TITLE */}
+                    <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4 pb-5">
+                        <div className="flex flex-col">
+                            <h1 className="text-3xl font-bold">Portal Credentials</h1>
+                            <p className="text-gray-500 mt-1">
+                                Manage and store access details for various client portals.
+                            </p>
+                        </div>
 
-                        <div className="flex justify-center gap-3">
-                            {popup.type === "confirm" ? (
-                                <>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+
+                            {/* SEARCH BAR */}
+                            <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-auto">
+                                <FiSearch className="text-gray-400 mr-2" />
+                                <input
+                                    placeholder="Search portals..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="outline-none w-full bg-transparent text-sm min-w-0 sm:min-w-55"
+                                />
+                                
+                                {search && (
                                     <button
                                         onClick={() => {
-                                            popup.onConfirm();
-                                            setPopup({ show: false });
+                                            setSearch("");
+                                            setCurrentPage(1);
                                         }}
-                                        className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
+                                        className="ml-2 text-gray-400 hover:text-gray-700 transition cursor-pointer"
                                     >
-                                        Yes
+                                        <FiX size={16} />
                                     </button>
+                                )}
+                            </div>
 
-                                    <button
-                                        onClick={() => setPopup({ show: false })}
-                                        className="bg-gray-300 px-4 py-2 rounded cursor-pointer"
-                                    >
-                                        Cancel
-                                    </button>
-                                </>
-                            ) : (
+                            {/* ADD BUTTON */}
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 transition"
+                            >
+                                Add New Credential
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-gray-50 w-full">
+                        <div className="overflow-x-auto">
+
+                            <table className="min-w-225 w-full text-sm">
+
+                                {/* HEADER */}
+                                <thead className="bg-gray-100 text-gray-800 text-sm tracking-wider uppercase">
+                                    <tr>
+                                        <th className="p-4 text-left">Portal Name</th>
+                                        <th className="p-4 text-left">Email Address</th>
+                                        <th className="p-4 text-left">Password</th>
+                                        <th className="p-4 text-left">Portal Link</th>
+                                        <th className="p-4 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+
+                                {/* BODY */}
+                                <tbody>
+
+                                    {paginated.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-10 text-gray-400">
+                                                No credentials found
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        paginated.map((item, index) => (
+
+                                            <tr
+                                                key={item.id || index}
+                                                className="border-t border-gray-100 hover:bg-gray-50 transition duration-150 cursor-pointer"
+                                            >
+
+                                                {/* PORTAL NAME */}
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="font-semibold text-gray-800 wrap-break-word">
+                                                            {item.portal}
+                                                        </span>
+                                                    </div>
+                                                </td>
+
+                                                {/* EMAIL */}
+                                                <td className="p-4 text-gray-600 gap-3 break-all">
+                                                    {item.email}
+                                                </td>
+
+                                                {/* PASSWORD */}
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-3">
+
+                                                        <span className="tracking-widest text-gray-700">
+                                                            {visiblePasswords[item.id]
+                                                                ? item.password
+                                                                : "•".repeat(item.password.length)}
+                                                        </span>
+
+                                                        <button
+                                                            onClick={() => togglePassword(item.id)}
+                                                            className="text-gray-400 hover:text-gray-700 transition cursor-pointer"
+                                                        >
+                                                            {visiblePasswords[item.id] ? <FiEyeOff /> : <FiEye />}
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+
+                                                <td className="p-4">
+                                                    <a
+                                                        href={item.portalLink}
+                                                        target="_blank"
+                                                        className="text-green-700 font-medium cursor-pointer hover:underline"
+                                                    >
+                                                        View ↗
+                                                    </a>
+                                                </td>
+
+                                                {/* ACTIONS */}
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-2">
+
+                                                        <button
+                                                            onClick={() => {
+                                                                console.log("Edit button clicked",item.id);
+                                                                editCredential(item.id)}}
+                                                            className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
+                                                        >
+                                                            <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => deleteCredential(item.id)}
+                                                            className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
+                                                        >
+                                                            <FiTrash2 size={18} className="text-gray-500 hover:text-green-600" />
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* PAGINATION */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 border-t border-gray-200 bg-gray-50">
+
+                            <div className="text-sm text-gray-500">
+                                Showing {paginated.length} of {filtered.length} credentials
+                            </div>
+
+                            <div className="flex flex-wrap justify-center items-center gap-2">
                                 <button
-                                    onClick={() => setPopup({ show: false })}
-                                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                    className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 cursor-pointer"
                                 >
-                                    OK
+                                    Previous
                                 </button>
-                            )}
+
+                                <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
+                                    {currentPage}
+                                </button>
+
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                    className="px-3 py-1 rounded bg-gray-100 cursor-pointer disabled:opacity-40"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
 
-        </div>
+                {/* MODAL */}
+                {showModal && (
+                    <AddCredential
+                        onClose={() => {
+                            setShowModal(false);
+                            setEditing(null);
+                        }}
+                        onSave={saveCredential}
+                        editingData={editing}
+                    />
+                )}
+
+                {popup.show && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
+                        <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
+
+                            <p className={`mb-4 font-semibold
+                    ${popup.type === "success" && "text-green-600"}
+                    ${popup.type === "error" && "text-red-600"}
+                    ${popup.type === "confirm" && "text-gray-800"}
+                `}>
+                                {popup.message}
+                            </p>
+
+                            <div className="flex justify-center gap-3">
+                                {popup.type === "confirm" ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                popup.onConfirm();
+                                                setPopup({ show: false });
+                                            }}
+                                            className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
+                                        >
+                                            Yes
+                                        </button>
+
+                                        <button
+                                            onClick={() => setPopup({ show: false })}
+                                            className="bg-gray-300 px-4 py-2 rounded cursor-pointer"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => setPopup({ show: false })}
+                                        className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
+                                    >
+                                        OK
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+            </div>
+        </>
     );
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import { FiLoader } from "react-icons/fi"
 import axios from "axios";
 import LeaveRequestStatus from "../container/LeaveRequestStatus";
 
@@ -19,6 +20,7 @@ API.interceptors.request.use((config) => {
 function LeaveRequests() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -76,6 +78,7 @@ function LeaveRequests() {
   // UPDATE LEAVE STATUS
   const handleApprove = async (request) => {
     try {
+      setLoading(true);
         const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
             {
             status: "approved",
@@ -91,11 +94,14 @@ function LeaveRequests() {
     }catch (error) {
         console.error(error);
         showPopup("Failed to approve leave", "error");
+    } finally {
+        setLoading(false);
     }
 };
 
     const handleReject = async (request) => {
         try {
+          setLoading(true);
             const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
             {
                 status: "rejected",
@@ -111,6 +117,8 @@ function LeaveRequests() {
         } catch (error) {
             console.error(error);
             showPopup("Failed to reject leave", "error");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -119,6 +127,7 @@ function LeaveRequests() {
   const deleteLeaveRequest = async (leaveId) => {
     console.log("Deleting Leave Request ID:", leaveId);
     try {
+      setLoading(true);
       const response = await API.delete(`/timesheet/leave/${leaveId}`);
       console.log("Delete Response:", response.data);
 
@@ -128,6 +137,8 @@ function LeaveRequests() {
     } catch (error) {
       console.error("Error deleting leave request:", error);
       showPopup("Failed to delete leave request", "error");
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -191,17 +202,25 @@ function LeaveRequests() {
   });
 
   const handleSearchFilter = () => {
-    setStartFilter(tempStartFilter);
-    setEndFilter(tempEndFilter);
-    setCurrentPage(1);
+    setLoading(true);
+    setTimeout(() => {
+        setStartFilter(tempStartFilter);
+        setEndFilter(tempEndFilter);
+        setCurrentPage(1);
+        setLoading(false);
+    }, 500);
   };
 
   const handleClearFilter = () => {
-    setTempStartFilter("");
-    setTempEndFilter("");
-    setStartFilter("");
-    setEndFilter("");
-    setCurrentPage(1);
+    setLoading(true);
+    setTimeout(() => {
+      setTempStartFilter("");
+      setTempEndFilter("");
+      setStartFilter("");
+      setEndFilter("");
+      setCurrentPage(1);
+      setLoading(false);
+    }, 500);
   };
 
   // PAGINATION LOGIC
@@ -223,283 +242,309 @@ function LeaveRequests() {
   );
 
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-8">
-          <h1 className="text-xl md:text-3xl font-bold text-black">
-            Leave Requests
-          </h1>
+     <>
+      {(loading || pageLoading) && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full xl:w-auto">
-            {/* From Date */}
-            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
-              <span className="text-xs font-semibold text-gray-500 uppercase">
-                From
-              </span>
-              <input
-                type="date"
-                value={tempStartFilter}
-                onChange={(e) => setTempStartFilter(e.target.value)}
-                className="outline-none text-sm w-full sm:w-auto"
-              />
-            </div>
+          <div className="p-6 flex flex-col items-center gap-3">
 
-            {/* To Date */}
-            <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
-              <span className="text-xs font-semibold text-gray-500 uppercase">
-                To
-              </span>
-              <input
-                type="date"
-                value={tempEndFilter}
-                onChange={(e) => setTempEndFilter(e.target.value)}
-                className="outline-none text-sm w-full sm:w-auto"
-              />
-            </div>
+            <FiLoader className="animate-spin text-4xl text-green-800"/>
 
-            {/* Search Button */}
-            <button
-              onClick={handleSearchFilter}
-              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 cursor-pointer transition"
-            >
-              Search
-            </button>
+            <p className="text-gray-800 font-medium">
+              Please wait...
+            </p>
 
-            {/* Clear Button */}
-            <button
-              onClick={handleClearFilter}
-              className="w-full sm:w-auto px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer transition"
-            >
-              Clear
-            </button>
           </div>
         </div>
+      )}
+      <div className="min-h-screen bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-8">
+            <h1 className="text-xl md:text-3xl font-bold text-black">
+              Leave Requests
+            </h1>
 
-        {/*Table*/}
-        <div className="overflow-x-auto w-full">
-          <div className="min-w-275 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
-            {/* Header */}
-            <div className="grid grid-cols-8 px-4 md:px-8 py-6 bg-gray-100 text-sm md:text-md tracking-widest text-black font-semibold">
-              <div className="col-span-2">Employee</div>
-              <div>Leave Type</div>
-              <div>Start Date</div>
-              <div>End Date</div>
-              <div>Duration</div>
-              <div>Status</div>
-              <div className="text-center">Actions</div>
-            </div>
-
-            {/* Body */}
-            {loading ? (
-              <div className="py-10 text-center text-gray-500">
-                Loading leave requests...
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full xl:w-auto">
+              {/* From Date */}
+              <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
+                <span className="text-xs font-semibold text-gray-500 uppercase">
+                  From
+                </span>
+                <input
+                  type="date"
+                  value={tempStartFilter}
+                  onChange={(e) => setTempStartFilter(e.target.value)}
+                  className="outline-none text-sm w-full sm:w-auto"
+                />
               </div>
-            ) : filteredRequests.length > 0 ? (
-              paginatedRequests.map((item) => (
-                <div
-                  key={item.leave_id}
-                  className="grid grid-cols-8 items-center px-4 md:px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
-                >
-                  {/* Employee */}
-                  <div className="col-span-2 flex items-center gap-4">
-                    <div className=" flex items-center justify-center text-sm font-bold t">
-                      {item.employee_id}
+
+              {/* To Date */}
+              <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white w-full sm:w-auto">
+                <span className="text-xs font-semibold text-gray-500 uppercase">
+                  To
+                </span>
+                <input
+                  type="date"
+                  value={tempEndFilter}
+                  onChange={(e) => setTempEndFilter(e.target.value)}
+                  className="outline-none text-sm w-full sm:w-auto"
+                />
+              </div>
+
+              {/* Search Button */}
+              <button
+                disabled={loading}
+                onClick={handleSearchFilter}
+                className="w-full sm:w-auto px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 cursor-pointer transition"
+              >
+                Search
+              </button>
+
+              {/* Clear Button */}
+              <button
+                disabled={loading}
+                onClick={handleClearFilter}
+                className="w-full sm:w-auto px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer transition"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          {/*Table*/}
+          <div className="overflow-x-auto w-full">
+            <div className="min-w-275 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
+              {/* Header */}
+              <div className="grid grid-cols-8 px-4 md:px-8 py-6 bg-gray-100 text-sm md:text-md tracking-widest text-black font-semibold">
+                <div className="col-span-2">Employee</div>
+                <div>Leave Type</div>
+                <div>Start Date</div>
+                <div>End Date</div>
+                <div>Duration</div>
+                <div>Status</div>
+                <div className="text-center">Actions</div>
+              </div>
+
+              {/* Body */}
+              {loading ? (
+                <div className="py-10 text-center text-gray-500">
+                  Loading leave requests...
+                </div>
+              ) : filteredRequests.length > 0 ? (
+                paginatedRequests.map((item) => (
+                  <div
+                    key={item.leave_id}
+                    className="grid grid-cols-8 items-center px-4 md:px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
+                  >
+                    {/* Employee */}
+                    <div className="col-span-2 flex items-center gap-4">
+                      <div className=" flex items-center justify-center text-sm font-bold t">
+                        {item.employee_id}
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold text-sm md:text-lg text-black wrap-break-word">
+                          {item.employee_name || "Employee"}
+                        </h3>
+
+                        <p className="text-xs uppercase text-gray-400 tracking-wider mt-1">
+                          {item.role || "Employee"}
+                        </p>
+                      </div>
                     </div>
 
+                    {/* Leave Type */}
                     <div>
-                      <h3 className="font-semibold text-sm md:text-lg text-black wrap-break-word">
-                        {item.employee_name || "Employee"}
-                      </h3>
+                      {item.leave_type === "one_day"
+                        ? "One Day"
+                        : "Multiple Days "}
+                    </div>
 
-                      <p className="text-xs uppercase text-gray-400 tracking-wider mt-1">
-                        {item.role || "Employee"}
-                      </p>
+                    {/* Dates */}
+                    <div>{formatDate(item.start_date)}</div>
+                    <div>{formatDate(item.end_date)}</div>
+
+                    {/* Duration */}
+                    <div>
+                      {item.leave_type === "one_day"
+                        ? "1 Day"
+                        : calculateDays(
+                            item.start_date,
+                            item.end_date
+                          )}
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                      <span
+                        className={`px-4 py-2 rounded-full text-xs font-semibold uppercase ${getStatusColor(
+                          item.status
+                        )}`}
+                      >
+                        {item.status || "Pending"}
+                      </span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-center gap-4">
+                      {/* Approve */}
+                      <button
+                        onClick={() => {
+                          setSelectedRequest(item);
+                          setOpenModal(true);
+                        }}
+                        className="hover:scale-110 transition"
+                      >
+                        <Pencil
+                          size={18}
+                          className="text-gray-400 hover:text-green-500"
+                        />
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() =>
+                          showPopup(
+                              "Are you sure you want to delete this leave request?",
+                              "delete",
+                              item.leave_id
+                          )
+                        }
+                        className="hover:scale-110 transition"
+                      >
+                        <Trash2
+                          size={18}
+                          className="text-gray-400 hover:text-red-500"
+                        />
+                      </button>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-20 text-center text-gray-500">
+                  No leave requests found.
+                </div>
+              )}
 
-                  {/* Leave Type */}
-                  <div>
-                    {item.leave_type === "one_day"
-                      ? "One Day"
-                      : "Multiple Days "}
-                  </div>
+              {filteredRequests.length > 0 && (
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-4 px-4 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
+                  
+                  {/* Showing entries */}
+                  <p className="text-sm text-gray-500">
+                    Showing {startIndex} to {endIndex} of {filteredRequests.length} entries
+                  </p>
 
-                  {/* Dates */}
-                  <div>{formatDate(item.start_date)}</div>
-                  <div>{formatDate(item.end_date)}</div>
-
-                  {/* Duration */}
-                  <div>
-                    {item.leave_type === "one_day"
-                      ? "1 Day"
-                      : calculateDays(
-                          item.start_date,
-                          item.end_date
-                        )}
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <span
-                      className={`px-4 py-2 rounded-full text-xs font-semibold uppercase ${getStatusColor(
-                        item.status
-                      )}`}
-                    >
-                      {item.status || "Pending"}
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex justify-center gap-4">
-                    {/* Approve */}
+                  {/* Pagination */}
+                  <div className="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-0">
+                    {/* Previous */}
                     <button
                       onClick={() => {
-                        setSelectedRequest(item);
-                        setOpenModal(true);
+                        setPageLoading(true);
+                        setTimeout(() => {
+                          setCurrentPage((prev) => Math.max(prev - 1, 1));
+                          setPageLoading(false);
+                        }, 400);
                       }}
-                      className="hover:scale-110 transition"
+                      disabled={currentPage === 1 || loading || pageLoading}
+                      className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                     >
-                      <Pencil
-                        size={18}
-                        className="text-gray-400 hover:text-green-500"
-                      />
+                      Previous
                     </button>
 
-                    {/* Delete */}
+                    {/* Page Number */}
+                    <button className="w-10 h-10 rounded-lg bg-[#0F5B33] text-white font-semibold shadow-sm">
+                      {currentPage}
+                    </button>
+
+                    {/* Next */}
                     <button
-                      onClick={() =>
-                        showPopup(
-                            "Are you sure you want to delete this leave request?",
-                            "delete",
-                            item.leave_id
-                        )
-                      }
-                      className="hover:scale-110 transition"
+                      onClick={() => {
+                        setPageLoading(true);
+                        setTimeout(() => {
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages)
+                          );
+                          setPageLoading(false);
+                        }, 400);
+                      }}
+                      disabled={currentPage === totalPages || loading || pageLoading}
+                      className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                     >
-                      <Trash2
-                        size={18}
-                        className="text-gray-400 hover:text-red-500"
-                      />
+                      Next
                     </button>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="py-20 text-center text-gray-500">
-                No leave requests found.
-              </div>
-            )}
-
-            {filteredRequests.length > 0 && (
-              <div className="flex flex-col lg:flex-row justify-between items-center gap-4 px-4 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
-                
-                {/* Showing entries */}
-                <p className="text-sm text-gray-500">
-                  Showing {startIndex} to {endIndex} of {filteredRequests.length} entries
-                </p>
-
-                {/* Pagination */}
-                <div className="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-0">
-                  {/* Previous */}
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-
-                  {/* Page Number */}
-                  <button className="w-10 h-10 rounded-lg bg-[#0F5B33] text-white font-semibold shadow-sm">
-                    {currentPage}
-                  </button>
-
-                  {/* Next */}
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) =>
-                        Math.min(prev + 1, totalPages)
-                      )
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
+
+        <LeaveRequestStatus
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          selectedRequest={selectedRequest}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+
+        {popup.show && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+              <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
+                  <div className="p-8 text-center">
+                      <h2
+                      className={`text-2xl font-bold mb-4 ${
+                          popup.type === "error"
+                          ? "text-red-600"
+                          : popup.type === "delete"
+                          ? "text-[#A84242]"
+                          : "text-[#0F5B33]"
+                      }`}
+                      >
+                      {popup.type === "error"
+                          ? "Error"
+                          : popup.type === "delete"
+                          ? "Confirm Delete"
+                          : "Success"}
+                      </h2>
+
+                      {/* Popup Message */}
+                      <p className="text-gray-600 text-lg">{popup.message}</p>
+
+                      <div className="mt-8 flex justify-center gap-4">
+                      {popup.type === "delete" ? (
+                          <>
+                          <button
+                              onClick={closePopup}
+                              className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100"
+                          >
+                              Cancel
+                          </button>
+
+                          <button
+                              onClick={() => {
+                              deleteLeaveRequest(popup.leaveId);
+                              closePopup();
+                              }}
+                              className="px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700"
+                          >
+                              Delete
+                          </button>
+                          </>
+                          ) : (
+                              <button
+                              onClick={closePopup}
+                              className="px-8 py-3 rounded-xl bg-[#0F5B33] text-white hover:bg-[#0C4A29]"
+                              >
+                              OK
+                              </button>
+                          )}
+                      </div>
+                  </div>
+              </div>
+          </div>
+          )}
       </div>
-
-      <LeaveRequestStatus
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        selectedRequest={selectedRequest}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
-
-      {popup.show && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-            <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
-                <div className="p-8 text-center">
-                    <h2
-                    className={`text-2xl font-bold mb-4 ${
-                        popup.type === "error"
-                        ? "text-red-600"
-                        : popup.type === "delete"
-                        ? "text-[#A84242]"
-                        : "text-[#0F5B33]"
-                    }`}
-                    >
-                    {popup.type === "error"
-                        ? "Error"
-                        : popup.type === "delete"
-                        ? "Confirm Delete"
-                        : "Success"}
-                    </h2>
-
-                    {/* Popup Message */}
-                    <p className="text-gray-600 text-lg">{popup.message}</p>
-
-                    <div className="mt-8 flex justify-center gap-4">
-                    {popup.type === "delete" ? (
-                        <>
-                        <button
-                            onClick={closePopup}
-                            className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            onClick={() => {
-                            deleteLeaveRequest(popup.leaveId);
-                            closePopup();
-                            }}
-                            className="px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700"
-                        >
-                            Delete
-                        </button>
-                        </>
-                        ) : (
-                            <button
-                            onClick={closePopup}
-                            className="px-8 py-3 rounded-xl bg-[#0F5B33] text-white hover:bg-[#0C4A29]"
-                            >
-                            OK
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
-        )}
-    </div>
+    </>
   );
 }
 

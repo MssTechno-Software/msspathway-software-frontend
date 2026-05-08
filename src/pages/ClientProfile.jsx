@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FiDownload, FiEye, FiEdit, FiTrash2, FiUpload, FiX, FiPenTool, FiLink } from "react-icons/fi";
+import { FiDownload, FiEye, FiEdit, FiTrash2, FiUpload, FiX, FiPenTool, FiLink, FiLoader } from "react-icons/fi";
 import AddClient from "./AddClient";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
@@ -22,6 +22,7 @@ function ClientProfile() {
   const [profilePreview, setProfilePreview] = useState("");
   const [profileUrl, setProfileUrl] = useState("");
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
     message: "",
@@ -40,6 +41,7 @@ function ClientProfile() {
   const fetchClient = async () => {
     console.log("Fetching client ID:", client_id);
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/clients/clients/${client_id}`,
         getAuthHeaders()
@@ -50,6 +52,8 @@ function ClientProfile() {
 
     } catch (err) {
       console.error("API ERROR:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,6 +66,7 @@ function ClientProfile() {
   /*fetch documents*/
   const fetchDocuments = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/documents/clients/${client_id}/documents`,
         getAuthHeaders()
@@ -70,6 +75,8 @@ function ClientProfile() {
       setDocuments(res.data.documents || []);
     } catch (err) {
       console.error("Error fetching documents:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +89,7 @@ function ClientProfile() {
   /*fetch link*/
   const fetchLinks = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/clients/clients/${client_id}/source-links`,
         getAuthHeaders()
@@ -92,6 +100,8 @@ function ClientProfile() {
 
     } catch (err) {
       console.error("Error fetching links:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +115,7 @@ function ClientProfile() {
   const fetchProfilePhotoView = async () => {
     console.log("Fetching profile photo for client ID:", client_id);
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/documents/clients/${client_id}/profile-picture-view`,
         {
@@ -121,6 +132,8 @@ function ClientProfile() {
     } catch (err) {
       console.error("Profile photo fetch failed:", err);
       setProfileUrl("");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,6 +151,7 @@ function ClientProfile() {
   const handleUpdate = async (updatedData) => {
     console.log("Updating client with data:", updatedData);
     try {
+      setLoading(true);
       const statusMap = {
         Active: "A",
         Completed: "C",
@@ -192,6 +206,8 @@ function ClientProfile() {
         message: "Update failed",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -206,6 +222,7 @@ function ClientProfile() {
     }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("files", selectedFile);
       formData.append("client_id", client_id);
@@ -245,6 +262,8 @@ function ClientProfile() {
           "Upload failed",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -252,6 +271,7 @@ function ClientProfile() {
   const handleView = async (doc) => {
     console.log("Viewing document:", doc);
     try {
+      setLoading(true);
       console.log("VIEW FILE ID:", doc.file_id); 
       const res = await axios.get(
         `${BASE_URL}/documents/files/view`,
@@ -279,6 +299,8 @@ function ClientProfile() {
         message: "Failed to open document",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -286,6 +308,7 @@ function ClientProfile() {
   const handleDownload = async (doc) => {
     console.log("Downloading document:", doc);
     try {
+      setLoading(true);
       console.log("DOWNLOAD FILE ID:", doc.file_id);
       const res = await axios.get(
         `${BASE_URL}/documents/files/download`,
@@ -320,6 +343,8 @@ function ClientProfile() {
         message: "Failed to download document",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -335,6 +360,7 @@ function ClientProfile() {
       type: "confirm",
       onConfirm: async () => {
         try {
+          setLoading(true);
           const res = await axios.delete(
             `${BASE_URL}/documents/clients/${client_id}/documents`,
             {
@@ -364,6 +390,8 @@ function ClientProfile() {
               "Delete failed",
             type: "error"
           });
+        } finally {
+          setLoading(false);
         }
       }
     });
@@ -405,6 +433,7 @@ function ClientProfile() {
     }
 
     try {
+      setLoading(true);
       const res = await axios.post(
         `${BASE_URL}/clients/clients/${client_id}/add-source-links`,
         {
@@ -438,7 +467,6 @@ function ClientProfile() {
 
     } catch (err) {
       console.error("FULL ERROR:", err.response?.data);
-
       setPopup({
         show: true,
         message:
@@ -446,6 +474,8 @@ function ClientProfile() {
           "Failed to add link",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -457,6 +487,7 @@ function ClientProfile() {
       type: "confirm",
       onConfirm: async () => {
         try {
+          setLoading(true);
           const res = await axios.delete(
             `${BASE_URL}/clients/clients/${client_id}/delete-source-link`,
             {
@@ -476,12 +507,13 @@ function ClientProfile() {
 
         } catch (err) {
           console.error("DELETE ERROR:", err.response?.data);
-
           setPopup({
             show: true,
             message: "Failed to delete link",
             type: "error"
           });
+        } finally {
+          setLoading(false);
         }
       }
     });
@@ -525,6 +557,7 @@ function ClientProfile() {
     }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("file", profileFile);
 
@@ -562,6 +595,8 @@ function ClientProfile() {
         message: "Upload failed",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -569,6 +604,7 @@ function ClientProfile() {
   const handleDeleteProfile = async () => {
     console.log("Deleting profile photo for client ID:", client_id);
     try {
+      setLoading(true);
       console.log("Delete request sent for profile photo:", profileUrl);
       const res = await axios.delete(
         `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
@@ -596,11 +632,28 @@ function ClientProfile() {
         message: "Delete failed",
         type: "error"
       });
+    } finally {
+      setLoading(false);
     }
   };
   
   return (
   <div className="p-4 sm:p-6 bg-white min-h-screen">
+    {/* FULL SCREEN LOADER */}
+    {loading && (
+      <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+
+        <div className="p-6 flex flex-col items-center gap-3">
+
+          <FiLoader className="animate-spin text-4xl text-green-800" />
+
+          <p className="text-gray-800 font-medium">
+            Please wait...
+          </p>
+
+        </div>
+      </div>
+    )}
 
     {/* HEADER */}
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">

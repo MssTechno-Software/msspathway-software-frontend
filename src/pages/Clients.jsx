@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2, FiSearch, FiX } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiLoader } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AddClient from "./AddClient";
@@ -19,6 +19,8 @@ function Clients() {
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [editingClient, setEditingClient] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
 
@@ -47,6 +49,7 @@ function Clients() {
     // FETCH CLIENTS
     const fetchClients = async () => {
         try {
+            setLoading(true);
             const res = await axios.get(`${BASE_URL}/clients/clients`, getAuthHeaders());
             console.log("Fetched clients:", res.data);
             console.log("Client state check:", res.data);
@@ -54,6 +57,8 @@ function Clients() {
             return res; // return response for chaining
         } catch (err) {
             console.error("ERROR:", err.response?.data || err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -65,7 +70,7 @@ function Clients() {
     // ADD OR UPDATE CLIENT
     const addClient = async (client) => {
         try {
-
+            setLoading(true);
             if (!client.name.trim())
                 return setPopup({ show: true, message: "Name is required", type: "error" });
 
@@ -158,6 +163,8 @@ function Clients() {
                 message: "An error occurred while saving the client",
                 type: "error"
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -180,6 +187,7 @@ function Clients() {
             type: "confirm",
             onConfirm: async () => {
                 try {
+                    setLoading(true);
                     const response = await axios.delete(`${BASE_URL}/clients/clients/${client_id}`, getAuthHeaders());
                     console.log("Delete response:", response.data);
                     
@@ -199,6 +207,8 @@ function Clients() {
                         message: "Error while deleting client",
                         type: "error"
                     });
+                } finally {
+                    setLoading(false);
                 }
             }
         });
@@ -237,7 +247,19 @@ function Clients() {
 
     return (
         <div className="p-3 sm:p-4 md:p-6">
+            {/*loader*/}
+            {(loading || pageLoading) && (
+                <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+                    <div className="p-6 flex flex-col items-center gap-3">
+                        
+                        <FiLoader className="animate-spin text-4xl text-green-800" />
 
+                        <p className="text-gray-800 font-medium">
+                            Please wait...
+                        </p>
+                    </div>
+                </div>
+            )}
             {/* SEARCH */}
             <div className="w-full sm:w-1/2">
                 <div className="relative flex items-center bg-gray-100 px-4 py-2 rounded-full shadow-sm">
@@ -317,11 +339,14 @@ function Clients() {
                                         <td
                                             className="p-4 font-semibold cursor-pointer hover:underline truncate max-w-37.5"
                                             title={client.client_name}
-                                            onClick={() =>
-                                                navigate(`/clients/${client.client_id || client.id}`, {
-                                                state: { clientName: client.client_name },
-                                                })
-                                            }
+                                            onClick={() => {
+                                                setPageLoading(true);
+                                                setTimeout(() => {
+                                                    navigate(`/clients/${client.client_id || client.id}`, {
+                                                    state: { clientName: client.client_name },
+                                                    })
+                                                }, 500);
+                                            }}
                                             >
                                             {client.client_name.length > 15
                                                 ? client.client_name.slice(0, 15) + "..."
@@ -410,7 +435,7 @@ function Clients() {
                             {/* PREVIOUS */}
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
+                                disabled={currentPage === 1 || loading}
                                 className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
                             >
                                 Previous
@@ -424,7 +449,7 @@ function Clients() {
                             {/* NEXT */}
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
+                                disabled={currentPage === totalPages || loading}
                                 className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
                             >
                                 Next

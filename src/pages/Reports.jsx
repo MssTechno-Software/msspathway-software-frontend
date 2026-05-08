@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AddReports from "./AddReports";
 import CompanyCard from "../container/CompanyCard";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiLoader } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -49,6 +49,8 @@ export default function Reports() {
     const { client_id } = useParams();
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const [popup, setPopup] = useState({
         show: false,
         message: "",
@@ -61,6 +63,7 @@ export default function Reports() {
     // FETCH REPORTS
     const fetchReports = async () => {
         try {
+            setLoading(true);
             const res = await API.get(`/reports/clients/${client_id}/reports`);
             console.log("Fetched reports:", res.data);
 
@@ -80,6 +83,8 @@ export default function Reports() {
                 setEntries(formatted);
             } catch (err) {
                 console.error("ERROR:", err.response?.data || err.message);
+            } finally {
+                setLoading(false);
             }
     };
 
@@ -104,6 +109,7 @@ export default function Reports() {
 
         console.log("Payload to save:", payload);
         try {
+            setLoading(true);
             if (isUpdating) {
                 // UPDATE
                 console.log("Updating report with ID:", editData.id);
@@ -136,6 +142,8 @@ export default function Reports() {
                 message: "Failed to save report. Please try again.",
                 type: "error"
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -158,6 +166,7 @@ export default function Reports() {
             type: "confirm",
             onConfirm: async () => {
                 try {
+                    setLoading(true);
                     const response = await API.delete(`/reports/reports/${report_id}`);
                     console.log("Delete response:", response.data);
 
@@ -179,6 +188,8 @@ export default function Reports() {
                         message: "Failed to delete report. Please try again.",
                         type: "error"
                     });
+                } finally {
+                    setLoading(false);
                 }
             }    
         });
@@ -186,7 +197,7 @@ export default function Reports() {
 
     const handleEdit = async (company) => {
         try {
-            // latest stage report
+            setLoading(true);
             const latest = [...company.stages]
                 .filter((stage) => stage.id)
                 .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
@@ -228,6 +239,8 @@ export default function Reports() {
                 message: "Failed to load report details.",
                 type: "error",
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -301,277 +314,293 @@ export default function Reports() {
     );
 
     return (
-        <div className="bg-gray-50 min-h-screen p-4 sm:p-6">
+        <>
+        {(loading || pageLoading) && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            {/* TOP HEADER */}
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-3xl font-bold mb-1">Reports</h2>
-                    <p className="text-gray-500">
-                        Comprehensive overview of pipeline progression across all active companies.
-                    </p>
+            <div className="p-6 flex flex-col items-center gap-3">
 
-                </div>
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                
-                    {/* SEARCH BAR */}
-                    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-64">
-                        <FiSearch className="text-gray-400 mr-2" />
-                        <input
-                            placeholder="Search companies..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="outline-none"
-                        />
-                    </div>
-                
-                    {/* ADD BUTTON */}
-                    <button
-                        onClick={() => {
-                            setEditData(null);
-                            setShowModal(true);
-                        }}
-                        className="w-full sm:w-auto flex justify-center items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
-                    >
-                        Add Report
-                    </button>
-                
-                </div>
+            <p className="text-gray-800 font-medium">
+                Please wait...
+            </p>
+
             </div>
+        </div>
+        )}
+            <div className="bg-gray-50 min-h-screen p-4 sm:p-6">
 
-            {/* PIPELINE OVERVIEW */}
-            <div className="mb-6">
-                {/* HEADER + FILTER IN SAME ROW */}
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 w-full">
-
-                    {/* LEFT TITLE */}
-                    <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="text-green-700">📊</span> Pipeline Overview
-                    </h3>
-
-                    {/* RIGHT FILTER */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 lg:w-auto">
-
-                        {/* FROM */}
-                        <div className="flex items-center gap-2 sm:pr-5 sm:border-r w-full sm:w-auto">
-                        <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
-                            From
-                        </span>
-
-                        <input
-                            type="date"
-                            value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
-                            className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
-                        />
-                        </div>
-
-                        {/* TO */}
-                        <div className="flex items-center gap-2 sm:px-5 sm:border-r border-gray-200 w-full sm:w-auto">
-                        <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
-                            To
-                        </span>
-
-                        <input
-                            type="date"
-                            value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
-                            className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
-                        />
-                        </div>
-
-                        {/* BUTTONS */}
-                        <div className="sm:pl-5 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-
-                        <button
-                            className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
-                        >
-                            Search
-                        </button>
-
-                        <button
-                            onClick={() => {
-                            setFromDate("");
-                            setToDate("");
-                            setCurrentPage(1);
-                            }}
-                            className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
-                        >
-                            Clear
-                        </button>
-
-                        </div>
-                    </div>
-                </div>
-
-                {/* STATS CARDS */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                    {Object.entries(counts).map(([key, val]) => (
-                        <div
-                            key={key}
-                            className="bg-white p-5 rounded-xl shadow-sm border border-gray-200"
-                        >
-                            <p className="text-gray-500 text-sm">{key}</p>
-                            <h2 className="text-2xl font-bold">{val}</h2>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* COMPANY STATUS HEADER */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-                <h3 className="text-lg font-semibold">Company Status Progression</h3>
-
-                <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
-                    <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span> Cleared
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Pending
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 bg-red-500 rounded-full"></span> Rejected
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full"></span> Skipped
-                    </span>
-                </div>
-            </div>
-
-            {/* COMPANY CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {paginated.map((company, idx) => (
-                    <CompanyCard
-                        key={idx}
-                        data={company}
-                        onDelete={() => {
-                            const latestStage = [...company.stages]
-                            .filter(stage => stage.id !== null && stage.id !== undefined)
-                            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-                            if (!latestStage) {
-                            setPopup({
-                                show: true,
-                                message: "No valid report found to delete.",
-                                type: "error"
-                            });
-                            return;
-                            }
-
-                            handleDelete(latestStage.id);
-                        }}
-
-                        onEdit={() => handleEdit(company)}
-                    />
-
-                ))}
-            </div>
-
-            {/* PAGINATION */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
-                <p className="text-gray-500 text-sm">
-                    {filtered.length === 0
-                        ? "No data available"
-                        : `Showing ${paginated.length} of ${filtered.length} reports`}
-                </p>
-
-                <div className="flex flex-wrap gap-2 items-center justify-center sm:justify-end text-xs sm:text-sm">
-                    {/* PREVIOUS BUTTON */}
-                    <button
-                        onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-1 rounded ${currentPage === 1
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                    >
-                        Previous
-                    </button>
-
-                    {/* PAGE NUMBERS */}
-                    {filtered.length > 0 && 
-                        Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                            <button
-                                key={page}
-                                onClick={() => setCurrentPage(page)}
-                                className={`px-3 py-1 rounded ${currentPage === page
-                                        ? "bg-green-800 text-white"
-                                        : "text-gray-700 hover:bg-gray-100"
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                    ))}
-
-                    {/* NEXT BUTTON */} 
-                    <button
-                        onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-1 rounded ${currentPage === totalPages
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                    >
-                        Next
-                    </button>
-                </div>
-            </div>
-
-            {/* MODAL */}
-            {showModal && (
-                <AddReports
-                    onClose={() => setShowModal(false)}
-                    onSave={handleSave}
-                    editData={editData}
-                />
-            )}
-
-            {popup.show && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
-                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
-
-                        <p className={`mb-4 font-semibold
-                ${popup.type === "success" && "text-green-600"}
-                ${popup.type === "error" && "text-red-600"}
-                ${popup.type === "confirm" && "text-gray-800"}
-            `}>
-                            {popup.message}
+                {/* TOP HEADER */}
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div className="flex flex-col gap-4">
+                        <h2 className="text-3xl font-bold mb-1">Reports</h2>
+                        <p className="text-gray-500">
+                            Comprehensive overview of pipeline progression across all active companies.
                         </p>
 
-                        <div className="flex justify-center gap-3">
-                            {popup.type === "confirm" ? (
-                                <>
-                                    <button
-                                        onClick={() => {
-                                            popup.onConfirm();
-                                            setPopup({ show: false });
-                                        }}
-                                        className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
-                                    >
-                                        Yes
-                                    </button>
+                    </div>
 
-                                    <button
-                                        onClick={() => setPopup({ show: false })}
-                                        className="bg-gray-300 px-4 py-2 rounded border border-gray-200 cursor-pointer"
-                                    >
-                                        Cancel
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => setPopup({ show: false })}
-                                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
-                                >
-                                    OK
-                                </button>
-                            )}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                    
+                        {/* SEARCH BAR */}
+                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-64">
+                            <FiSearch className="text-gray-400 mr-2" />
+                            <input
+                                placeholder="Search companies..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="outline-none"
+                            />
                         </div>
+                    
+                        {/* ADD BUTTON */}
+                        <button
+                            onClick={() => {
+                                setEditData(null);
+                                setShowModal(true);
+                            }}
+                            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow cursor-pointer"
+                        >
+                            Add Report
+                        </button>
+                    
                     </div>
                 </div>
-            )}
 
-        </div>
+                {/* PIPELINE OVERVIEW */}
+                <div className="mb-6">
+                    {/* HEADER + FILTER IN SAME ROW */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 w-full">
+
+                        {/* LEFT TITLE */}
+                        <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                            <span className="text-green-700">📊</span> Pipeline Overview
+                        </h3>
+
+                        {/* RIGHT FILTER */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 lg:w-auto">
+
+                            {/* FROM */}
+                            <div className="flex items-center gap-2 sm:pr-5 sm:border-r w-full sm:w-auto">
+                            <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                                From
+                            </span>
+
+                            <input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                            />
+                            </div>
+
+                            {/* TO */}
+                            <div className="flex items-center gap-2 sm:px-5 sm:border-r border-gray-200 w-full sm:w-auto">
+                            <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                                To
+                            </span>
+
+                            <input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                            />
+                            </div>
+
+                            {/* BUTTONS */}
+                            <div className="sm:pl-5 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+
+                            <button
+                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
+                            >
+                                Search
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                setFromDate("");
+                                setToDate("");
+                                setCurrentPage(1);
+                                }}
+                                className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
+                            >
+                                Clear
+                            </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* STATS CARDS */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                        {Object.entries(counts).map(([key, val]) => (
+                            <div
+                                key={key}
+                                className="bg-white p-5 rounded-xl shadow-sm border border-gray-200"
+                            >
+                                <p className="text-gray-500 text-sm">{key}</p>
+                                <h2 className="text-2xl font-bold">{val}</h2>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* COMPANY STATUS HEADER */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                    <h3 className="text-lg font-semibold">Company Status Progression</h3>
+
+                    <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
+                        <span className="flex items-center gap-1">
+                            <span className="w-2 h-2 bg-green-500 rounded-full"></span> Cleared
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <span className="w-2 h-2 bg-yellow-500 rounded-full"></span> Pending
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <span className="w-2 h-2 bg-red-500 rounded-full"></span> Rejected
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <span className="w-2 h-2 bg-gray-400 rounded-full"></span> Skipped
+                        </span>
+                    </div>
+                </div>
+
+                {/* COMPANY CARDS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {paginated.map((company, idx) => (
+                        <CompanyCard
+                            key={idx}
+                            data={company}
+                            onDelete={() => {
+                                const latestStage = [...company.stages]
+                                .filter(stage => stage.id !== null && stage.id !== undefined)
+                                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+                                if (!latestStage) {
+                                setPopup({
+                                    show: true,
+                                    message: "No valid report found to delete.",
+                                    type: "error"
+                                });
+                                return;
+                                }
+
+                                handleDelete(latestStage.id);
+                            }}
+
+                            onEdit={() => handleEdit(company)}
+                        />
+
+                    ))}
+                </div>
+
+                {/* PAGINATION */}
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+                    <p className="text-gray-500 text-sm">
+                        {filtered.length === 0
+                            ? "No data available"
+                            : `Showing ${paginated.length} of ${filtered.length} reports`}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 items-center justify-center sm:justify-end text-xs sm:text-sm">
+                        {/* PREVIOUS BUTTON */}
+                        <button
+                            onClick={() => setCurrentPage(p => p - 1)}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-1 rounded ${currentPage === 1
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                        >
+                            Previous
+                        </button>
+
+                        {/* PAGE NUMBERS */}
+                        {filtered.length > 0 && 
+                            Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-3 py-1 rounded ${currentPage === page
+                                            ? "bg-green-800 text-white"
+                                            : "text-gray-700 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                        ))}
+
+                        {/* NEXT BUTTON */} 
+                        <button
+                            onClick={() => setCurrentPage(p => p + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-1 rounded ${currentPage === totalPages
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+
+                {/* MODAL */}
+                {showModal && (
+                    <AddReports
+                        onClose={() => setShowModal(false)}
+                        onSave={handleSave}
+                        editData={editData}
+                    />
+                )}
+
+                {popup.show && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-2">
+                        <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
+
+                            <p className={`mb-4 font-semibold
+                    ${popup.type === "success" && "text-green-600"}
+                    ${popup.type === "error" && "text-red-600"}
+                    ${popup.type === "confirm" && "text-gray-800"}
+                `}>
+                                {popup.message}
+                            </p>
+
+                            <div className="flex justify-center gap-3">
+                                {popup.type === "confirm" ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                popup.onConfirm();
+                                                setPopup({ show: false });
+                                            }}
+                                            className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
+                                        >
+                                            Yes
+                                        </button>
+
+                                        <button
+                                            onClick={() => setPopup({ show: false })}
+                                            className="bg-gray-300 px-4 py-2 rounded border border-gray-200 cursor-pointer"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        onClick={() => setPopup({ show: false })}
+                                        className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
+                                    >
+                                        OK
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+            </div>
+        </>
     );
 }

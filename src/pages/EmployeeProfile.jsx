@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { use, useEffect, useState } from "react";
 import axios from "axios";
-import { FiDownload, FiEye, FiUpload, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiDownload, FiEye, FiUpload, FiEdit, FiTrash2, FiLoader } from "react-icons/fi";
 import AddEmployee from "./AddEmployee";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
@@ -18,6 +18,8 @@ function EmployeeProfile() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [profileUrl, setProfileUrl] = useState(null);
   const [profileFile, setProfileFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [popup, setPopup] = useState({
     show: false,
     message: "",
@@ -38,6 +40,7 @@ function EmployeeProfile() {
   const fetchEmployee = async () => {
     console.log("Fetching employee data for ID:", employee_id);
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/admin/users/${employee_id}`,
         getAuthHeaders()
@@ -48,6 +51,8 @@ function EmployeeProfile() {
       setEmployee(data);
     } catch (err) {
       console.error("Error fetching employee data:", err.response || err.message);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -58,6 +63,7 @@ function EmployeeProfile() {
   // FETCH DOCUMENTS
   const fetchDocuments = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/documents/employees/${employee_id}/documents`,
         getAuthHeaders()
@@ -66,6 +72,8 @@ function EmployeeProfile() {
       setDocuments(res.data.documents || []);
     } catch (err) {
       console.error("Error fetching documents:", err.response || err.message);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -77,6 +85,7 @@ function EmployeeProfile() {
   const fetchProfilePhoto = async () => {
     console.log("Fetching profile photo for employee ID:", employee_id);
     try {
+      setLoading(true);
       const res = await axios.get(
         `${BASE_URL}/documents/employees/${employee_id}/profile-picture-view`,
         {
@@ -92,6 +101,8 @@ function EmployeeProfile() {
     } catch (err) {
       console.error("Error fetching profile photo:", err);
       setProfileUrl("");
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -137,6 +148,7 @@ function EmployeeProfile() {
       });
     }
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("files", selectedFile);
       formData.append("employee_id", employee_id);
@@ -171,6 +183,8 @@ function EmployeeProfile() {
         message: "Failed to upload document",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -178,6 +192,7 @@ function EmployeeProfile() {
   const handleView = async (doc) => {
     console.log("Viewing document:", doc);
     try {
+     setLoading(true);
      console.log("VIEW FILE ID:", doc.file_id);
       const res = await axios.get(
         `${BASE_URL}/documents/files/view`,
@@ -204,6 +219,8 @@ function EmployeeProfile() {
         message: "Failed to open document",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -211,6 +228,7 @@ function EmployeeProfile() {
   const handleDownload = async (doc) => {
     console.log("Downloading document:", doc);
     try {
+      setLoading(true);
       console.log("DOWNLOAD FILE ID:", doc.file_id);
       const res = await axios.get(
         `${BASE_URL}/documents/files/download`,
@@ -244,6 +262,8 @@ function EmployeeProfile() {
         message: "Failed to download document",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -258,6 +278,7 @@ function EmployeeProfile() {
       type: "confirm",
       onConfirm: async () => {
         try {
+          setLoading(true);
           const res = await axios.delete(
             `${BASE_URL}/documents/employees/${employee_id}/documents`,
             {
@@ -283,6 +304,8 @@ function EmployeeProfile() {
             message: "Failed to delete document",
             type: "error"
           });
+        } finally {
+            setLoading(false);
         }
       }
     });
@@ -349,6 +372,7 @@ function EmployeeProfile() {
     }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("file", profileFile);
       console.log("PROFILE FILE:", profileFile);
@@ -382,13 +406,16 @@ function EmployeeProfile() {
         message: "Failed to upload profile photo",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
   /* DELETE PROFILE PHOTO */
   const handleDeleteProfile = async () => {
     try {
-      await axios.delete(
+      setLoading(true);
+      const res = await axios.delete(
         `${BASE_URL}/documents/employees/${employee_id}/profile-picture`,
         {
           ...getAuthHeaders(),
@@ -411,396 +438,414 @@ function EmployeeProfile() {
         message: "Failed to delete profile photo",
         type: "error"
       });
+    } finally {
+        setLoading(false);
     }
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-white min-h-screen">
+    <>
+      {(loading || pageLoading) && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-      {/* HEADER */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+          <div className="p-6 flex flex-col items-center gap-3">
 
-          <div className="relative">
-            <img
-              src={profileImage}
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
-            />
-            {/* CONDITIONAL ICON */}
-            <button
-              onClick={() => setShowPhotoModal(true)}
-              className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
-            >
-              {profileUrl ? <FiEdit /> : <FiUpload />}
-            </button>
-          </div>
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold wrap-break-word">
-              {[employee.first_name, employee.last_name].join(" ")}
-            </h1>
-            <p className="text-base sm:text-lg font-semibold mt-1">
-              {employee.designation || "No Designation"}
+            <p className="text-gray-800 font-medium">
+              Please wait...
             </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setShowEdit(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
-        >
-          <FiEdit />
-          Update Employee
-        </button>
-      </div>
-
-      {/* CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">EMPLOYEE ID</p>
-          <p className="font-semibold">{employee.employee_id || "No Employee ID"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">EMAIL</p>
-          <p className="font-semibold">{employee.email || "No Email"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">MOBILE</p>
-          <p className="font-semibold">{employee.mobile || "No Mobile"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">AADHAAR NUMBER </p>
-          <p className="font-semibold">{employee.aadhaar_number || "No Aadhaar Number"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">ROLE</p>
-          <p className="font-semibold">{employee.role || "No Role"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">LOCATION</p>
-          <p className="font-semibold">{employee.location || "No Location"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">REPORTING TO EMPLOYEE</p>
-          <p className="font-semibold">{employee.reporting_to
-            ? `${employee.reporting_to} - ${employee.reporting_to_name}`
-            : "No Reporting Manager"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">START DATE</p>
-          <p className="font-semibold">{employee.start_date || "No Start Date"}</p>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-xs text-gray-400">END DATE</p>
-          <p className="font-semibold">{employee.end_date ? employee.end_date : "Currently Working"}</p>
-        </div>
-      </div>
-
-      {/* DOCUMENTS */}
-      <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
-
-        <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">
-              Document Repository
-            </h2>
-            <p className="text-sm text-gray-400">
-              Employee documents
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowDocModal(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700"
-          >
-            <FiUpload /> Upload
-          </button>
-        </div>
-
-        {documents.length ? (
-          documents.map((doc, i) => {
-            const fileName = doc.original_name || "document";
-            const fileType = fileName.split(".").pop().toUpperCase();
-
-            return (
-              <div
-                key={i}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
-              >
-                <div className="flex items-start sm:items-center gap-4 w-full">
-
-                  {/* FILE ICON */}
-                  <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg shrink-0">
-                    📄
-                  </div>
-
-                  {/* FILE INFO */}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {fileName}
-                    </p>
-
-                    <p className="text-sm text-gray-400 flex flex-wrap items-center gap-2">
-                      {fileType} • {" "} {doc.created_at
-                        ? new Date(doc.created_at).toLocaleDateString()
-                        : "Recently added"}
-                    </p>
-                  </div>
-                </div>
-                {/*right side actions */}
-                <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
-                  <FiEye
-                    className="cursor-pointer hover:text-green-700"
-                    onClick={() => handleView(doc)} />
-                  <FiDownload
-                    className="cursor-pointer hover:text-green-700"
-                    onClick={() => handleDownload(doc)} />
-                  <FiTrash2
-                    className="cursor-pointer hover:text-green-700"
-                    onClick={() => handleDelete(doc)} />
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <p className="p-6 text-gray-400">No documents available</p>
-        )}
-      </div>
-
-      {/* UPLOAD MODAL */}
-      {showDocModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
-
-          <div className="bg-white w-full rounded-2xl shadow-xl p-6 relative">
-
-            <h2 className="text-xl font-semibold mb-4">
-              Upload Document
-            </h2>
-
-            {/* DROP AREA */}
-            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="hidden"
-                id="fileUpload"
-              />
-
-              <label htmlFor="fileUpload" className="cursor-pointer">
-                <p className="text-gray-500">
-                  Click to upload or drag file
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  PDF, DOC, JPG, PNG, JPEG supported
-                </p>
-              </label>
-            </div>
-
-            {/* PREVIEW */}
-            {selectedFile && (
-              <div className="mt-4">
-                <p className="text-sm font-medium break-all">{selectedFile.name}</p>
-
-                {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt="preview"
-                    className="w-20 h-20 mt-2 rounded object-cover"
-                  />
-                )}
-              </div>
-            )}
-
-            {/* ACTIONS */}
-            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-              <button
-                onClick={() => setShowDocModal(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleUpload}
-                className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
-              >
-                Upload
-              </button>
-            </div>
 
           </div>
         </div>
       )}
+      <div className="p-4 sm:p-6 bg-white min-h-screen">
 
-      {/* PROFILE PHOTO MODAL */}
-      {showPhotoModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        {/* HEADER */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
 
-          <div className="bg-white p-6 rounded-2xl w-full shadow-xl relative">
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Upload Profile Photo
-            </h2>
-
-            {/* CLICK AREA */}
-            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
-              <input
-                type="file"
-                id="profileUpload"
-                className="hidden"
-                onChange={handleProfileChange}
+            <div className="relative">
+              <img
+                src={profileImage}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
               />
-
-              <label htmlFor="profileUpload" className="cursor-pointer">
-                <p className="text-gray-500">Click here to add photo</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  JPG, PNG, JPEG, DOC supported
-                </p>
-              </label>
+              {/* CONDITIONAL ICON */}
+              <button
+                onClick={() => setShowPhotoModal(true)}
+                className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
+              >
+                {profileUrl ? <FiEdit /> : <FiUpload />}
+              </button>
             </div>
 
-            {/* PREVIEW */}
-            {profilePreview && (
-              <img
-                src={profilePreview}
-                className="w-24 h-24 rounded-full mx-auto mt-4 object-cover"
-              />
-            )}
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold wrap-break-word">
+                {[employee.first_name, employee.last_name].join(" ")}
+              </h1>
+              <p className="text-base sm:text-lg font-semibold mt-1">
+                {employee.designation || "No Designation"}
+              </p>
+            </div>
+          </div>
 
-            {/* ACTIONS */}
-            <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
+          <button
+            onClick={() => setShowEdit(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
+          >
+            <FiEdit />
+            Update Employee
+          </button>
+        </div>
 
-              {/* DELETE BUTTON */}
-              {profileUrl && (
-                <button
-                  onClick={handleDeleteProfile}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer"
+        {/* CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">EMPLOYEE ID</p>
+            <p className="font-semibold">{employee.employee_id || "No Employee ID"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">EMAIL</p>
+            <p className="font-semibold">{employee.email || "No Email"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">MOBILE</p>
+            <p className="font-semibold">{employee.mobile || "No Mobile"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">AADHAAR NUMBER </p>
+            <p className="font-semibold">{employee.aadhaar_number || "No Aadhaar Number"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">ROLE</p>
+            <p className="font-semibold">{employee.role || "No Role"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">LOCATION</p>
+            <p className="font-semibold">{employee.location || "No Location"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">REPORTING TO EMPLOYEE</p>
+            <p className="font-semibold">{employee.reporting_to
+              ? `${employee.reporting_to} - ${employee.reporting_to_name}`
+              : "No Reporting Manager"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">START DATE</p>
+            <p className="font-semibold">{employee.start_date || "No Start Date"}</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm">
+            <p className="text-xs text-gray-400">END DATE</p>
+            <p className="font-semibold">{employee.end_date ? employee.end_date : "Currently Working"}</p>
+          </div>
+        </div>
+
+        {/* DOCUMENTS */}
+        <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
+
+          <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">
+                Document Repository
+              </h2>
+              <p className="text-sm text-gray-400">
+                Employee documents
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowDocModal(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700"
+            >
+              <FiUpload /> Upload
+            </button>
+          </div>
+
+          {documents.length ? (
+            documents.map((doc, i) => {
+              const fileName = doc.original_name || "document";
+              const fileType = fileName.split(".").pop().toUpperCase();
+
+              return (
+                <div
+                  key={i}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
                 >
-                  Delete
-                </button>
+                  <div className="flex items-start sm:items-center gap-4 w-full">
+
+                    {/* FILE ICON */}
+                    <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg shrink-0">
+                      📄
+                    </div>
+
+                    {/* FILE INFO */}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {fileName}
+                      </p>
+
+                      <p className="text-sm text-gray-400 flex flex-wrap items-center gap-2">
+                        {fileType} • {" "} {doc.created_at
+                          ? new Date(doc.created_at).toLocaleDateString()
+                          : "Recently added"}
+                      </p>
+                    </div>
+                  </div>
+                  {/*right side actions */}
+                  <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
+                    <FiEye
+                      className="cursor-pointer hover:text-green-700"
+                      onClick={() => handleView(doc)} />
+                    <FiDownload
+                      className="cursor-pointer hover:text-green-700"
+                      onClick={() => handleDownload(doc)} />
+                    <FiTrash2
+                      className="cursor-pointer hover:text-green-700"
+                      onClick={() => handleDelete(doc)} />
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="p-6 text-gray-400">No documents available</p>
+          )}
+        </div>
+
+        {/* UPLOAD MODAL */}
+        {showDocModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
+
+            <div className="bg-white w-full rounded-2xl shadow-xl p-6 relative">
+
+              <h2 className="text-xl font-semibold mb-4">
+                Upload Document
+              </h2>
+
+              {/* DROP AREA */}
+              <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="fileUpload"
+                />
+
+                <label htmlFor="fileUpload" className="cursor-pointer">
+                  <p className="text-gray-500">
+                    Click to upload or drag file
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    PDF, DOC, JPG, PNG, JPEG supported
+                  </p>
+                </label>
+              </div>
+
+              {/* PREVIEW */}
+              {selectedFile && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium break-all">{selectedFile.name}</p>
+
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="preview"
+                      className="w-20 h-20 mt-2 rounded object-cover"
+                    />
+                  )}
+                </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
+              {/* ACTIONS */}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
                 <button
-                  onClick={() => setShowPhotoModal(false)}
+                  onClick={() => setShowDocModal(false)}
                   className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
                 >
                   Cancel
                 </button>
 
                 <button
-                  onClick={handleUploadProfile}
+                  onClick={handleUpload}
                   className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
                 >
                   Upload
                 </button>
               </div>
+
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showEdit && (
-        <AddEmployee
-          editingEmployee={employee}
-          onClose={() => setShowEdit(false)}
-          onSave={async (formData) => {
-            try {
-              const data = new FormData();
+        {/* PROFILE PHOTO MODAL */}
+        {showPhotoModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-              data.append("first_name", formData.first_name);
-              data.append("last_name", formData.last_name);
-              data.append("email", formData.email);
-              data.append("mobile", formData.mobile);
-              data.append("designation", formData.designation);
-              data.append("aadhaar_number", formData.aadhaar_no);
-              data.append("role", formData.role.toLowerCase());
-              data.append("location", formData.location);
-              data.append("reporting_to", formData.reporting_to);
-              data.append("HR", formData.hr);
-              data.append("start_date", formData.startDate);
+            <div className="bg-white p-6 rounded-2xl w-full shadow-xl relative">
+              <h2 className="text-lg font-semibold mb-4 text-center">
+                Upload Profile Photo
+              </h2>
 
-              if (formData.endDate) {
-                data.append("end_date", formData.endDate);
-              } else {
-                data.append("end_date", "");
-              }
+              {/* CLICK AREA */}
+              <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+                <input
+                  type="file"
+                  id="profileUpload"
+                  className="hidden"
+                  onChange={handleProfileChange}
+                />
 
-              // CALL UPDATE API
-              await axios.put(
-                `${BASE_URL}/admin/users/${employee_id}`,
-                data,
-                getAuthHeaders()
-              );
-              await fetchEmployee();
+                <label htmlFor="profileUpload" className="cursor-pointer">
+                  <p className="text-gray-500">Click here to add photo</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    JPG, PNG, JPEG, DOC supported
+                  </p>
+                </label>
+              </div>
 
-              setPopup({
-                show: true,
-                message: "Employee updated successfully",
-                type: "success"
-              });
+              {/* PREVIEW */}
+              {profilePreview && (
+                <img
+                  src={profilePreview}
+                  className="w-24 h-24 rounded-full mx-auto mt-4 object-cover"
+                />
+              )}
 
-              setShowEdit(false);
+              {/* ACTIONS */}
+              <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
 
-            } catch (err) {
-              console.error(err);
-            }
-          }}
-          setPopup={setPopup}
-        />
-      )}
-
-      {popup.show && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full text-center">
-            <p className={`text-lg font-semibold mb-4
-                ${popup.type === "success" && "text-green-600"}
-                ${popup.type === "error" && "text-red-600"}
-                ${popup.type === "confirm" && "text-gray-800"}
-            `}>
-              {popup.message}
-            </p>
-            {/* BUTTONS */}
-            <div className="flex justify-center gap-3">
-              {popup.type === "confirm" ? (
-                <>
+                {/* DELETE BUTTON */}
+                {profileUrl && (
                   <button
-                    onClick={async () => {
-                      await popup.onConfirm();
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                    onClick={handleDeleteProfile}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer"
                   >
-                    Yes
+                    Delete
                   </button>
+                )}
 
+                <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
                   <button
-                    onClick={() => setPopup({ show: false })}
-                    className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
+                    onClick={() => setShowPhotoModal(false)}
+                    className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
                   >
                     Cancel
                   </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setPopup({ show: false })}
-                  className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700 cursor-pointer"
-                >
-                  OK
-                </button>
-              )}
+
+                  <button
+                    onClick={handleUploadProfile}
+                    className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
+                  >
+                    Upload
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-    </div>
+        {showEdit && (
+          <AddEmployee
+            editingEmployee={employee}
+            onClose={() => setShowEdit(false)}
+            onSave={async (formData) => {
+              try {
+                const data = new FormData();
+
+                data.append("first_name", formData.first_name);
+                data.append("last_name", formData.last_name);
+                data.append("email", formData.email);
+                data.append("mobile", formData.mobile);
+                data.append("designation", formData.designation);
+                data.append("aadhaar_number", formData.aadhaar_no);
+                data.append("role", formData.role.toLowerCase());
+                data.append("location", formData.location);
+                data.append("reporting_to", formData.reporting_to);
+                data.append("HR", formData.hr);
+                data.append("start_date", formData.startDate);
+
+                if (formData.endDate) {
+                  data.append("end_date", formData.endDate);
+                } else {
+                  data.append("end_date", "");
+                }
+
+                // CALL UPDATE API
+                await axios.put(
+                  `${BASE_URL}/admin/users/${employee_id}`,
+                  data,
+                  getAuthHeaders()
+                );
+                await fetchEmployee();
+
+                setPopup({
+                  show: true,
+                  message: "Employee updated successfully",
+                  type: "success"
+                });
+
+                setShowEdit(false);
+
+              } catch (err) {
+                console.error(err);
+              }
+            }}
+            setPopup={setPopup}
+          />
+        )}
+
+        {popup.show && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full text-center">
+              <p className={`text-lg font-semibold mb-4
+                  ${popup.type === "success" && "text-green-600"}
+                  ${popup.type === "error" && "text-red-600"}
+                  ${popup.type === "confirm" && "text-gray-800"}
+              `}>
+                {popup.message}
+              </p>
+              {/* BUTTONS */}
+              <div className="flex justify-center gap-3">
+                {popup.type === "confirm" ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        await popup.onConfirm();
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                    >
+                      Yes
+                    </button>
+
+                    <button
+                      onClick={() => setPopup({ show: false })}
+                      className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setPopup({ show: false })}
+                    className="px-4 py-2 bg-green-800 text-white rounded-2xl hover:bg-green-700 cursor-pointer"
+                  >
+                    OK
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </> 
   );
 }
 
