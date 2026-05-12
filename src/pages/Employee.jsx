@@ -237,18 +237,10 @@ function Employees() {
               </div>
 
               <button
-                disabled={loading}
                 onClick={() => setShowModal(true)}
                 className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <FiLoader className="animate-spin" />
-                    Loading...
-                  </span>
-                ) : (
-                  "Add Employee"
-                )}
+                Add Employee
               </button>
           </div>
 

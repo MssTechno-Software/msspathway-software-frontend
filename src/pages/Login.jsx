@@ -133,7 +133,7 @@ function Login() {
 
   return (
      <>
-      {(loading || pageLoading) && (
+      {/* {(loading || pageLoading) && (
         <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
           <div className="p-6 flex flex-col items-center gap-3">
@@ -146,7 +146,7 @@ function Login() {
 
           </div>
         </div>
-      )}
+      )} */}
       <div className="min-h-screen font-sans flex items-center justify-center relative overflow-hidden px-4">
         <img src="./watermark.png" alt="Watermark" className="absolute w-200 opacity-40" />
         <img src="./textMSS.png" alt="Text Logo" className="absolute w-200" />

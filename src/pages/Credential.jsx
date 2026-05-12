@@ -99,7 +99,7 @@ function Credentials() {
             const responseData = Array.isArray(res.data?.credentials)
                 ? res.data.credentials
                 : [];
-            
+
             const updated = responseData.map((item, index) => ({
                 id: item.id || index,
                 portal: item.portal_name,
@@ -107,17 +107,20 @@ function Credentials() {
                 email: item.username,
                 password: item.password,
                 notes: item.notes,
-                date : item.created_at || item.date
+                date: item.created_at || item.date
             }));
-
-            setPopup({
-                show: true,
-                message: editing ? "Credential updated successfully." : "Credential added successfully.",
-                type: "success"
-            });
 
             setCredentials(updated);
             setEditing(null);
+            setPopup({
+                show: true,
+                message: editing
+                ? "Credential updated successfully."
+                : "Credential added successfully.",
+                type: "success"
+            });
+
+            return;
 
         } catch (err) {
             console.error("ERROR:", err.response?.data || err.message);
@@ -183,9 +186,6 @@ function Credentials() {
     // EDIT
     const editCredential = async (credential_id) => {
         console.log("Editing Credential ID:", credential_id);
-
-        setLoadingEdit(true);
-
         try {
             setLoading(true);
             const res = await API.get(`/credentials/credentials/${credential_id}`);
@@ -211,7 +211,7 @@ function Credentials() {
                 type: "error"
             });
         } finally {
-            setLoadingEdit(false);
+            setLoading(false);
         }
     };
 
@@ -239,20 +239,20 @@ function Credentials() {
 
     return (
         <>
-        {(loading || pageLoading || loadingEdit) && (
-        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+            {(loading || pageLoading || loadingEdit) && (
+                <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            <div className="p-6 flex flex-col items-center gap-3">
+                    <div className="p-6 flex flex-col items-center gap-3">
 
-            <FiLoader className="animate-spin text-4xl text-green-800" />
+                        <FiLoader className="animate-spin text-4xl text-green-800" />
 
-            <p className="text-gray-800 font-medium">
-                Please wait...
-            </p>
+                        <p className="text-gray-800 font-medium">
+                            Please wait...
+                        </p>
 
-            </div>
-        </div>
-        )}
+                    </div>
+                </div>
+            )}
 
             <div className="bg-gray-50 min-h-screen w-full">
 
@@ -279,7 +279,7 @@ function Credentials() {
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="outline-none w-full bg-transparent text-sm min-w-0 sm:min-w-55"
                                 />
-                                
+
                                 {search && (
                                     <button
                                         onClick={() => {
@@ -388,8 +388,9 @@ function Credentials() {
 
                                                         <button
                                                             onClick={() => {
-                                                                console.log("Edit button clicked",item.id);
-                                                                editCredential(item.id)}}
+                                                                console.log("Edit button clicked", item.id);
+                                                                editCredential(item.id)
+                                                            }}
                                                             className="p-2 rounded-lg hover:bg-green-50 transition cursor-pointer"
                                                         >
                                                             <FiEdit size={18} className="text-gray-500 hover:text-green-600" />
@@ -470,9 +471,21 @@ function Credentials() {
                                 {popup.type === "confirm" ? (
                                     <>
                                         <button
-                                            onClick={() => {
-                                                popup.onConfirm();
-                                                setPopup({ show: false });
+                                            onClick={async () => {
+                                                const confirmFn = popup.onConfirm;
+
+                                                // Close confirm popup first
+                                                setPopup({
+                                                    show: false,
+                                                    message: "",
+                                                    type: "",
+                                                    onConfirm: null
+                                                });
+
+                                                // Then run delete
+                                                if (confirmFn) {
+                                                    await confirmFn();
+                                                }
                                             }}
                                             className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
                                         >
