@@ -169,6 +169,13 @@ function Employees() {
       setShowModal(true);
     } catch (err) {
         console.error("Edit fetch error:", err.response?.data || err.message);
+        setPopup({
+            show: true,
+            message: "Failed to fetch employee details",
+            type: "error"
+        });
+    } finally {
+        setLoading(false);
     }
   };
 
