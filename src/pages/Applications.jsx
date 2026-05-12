@@ -94,73 +94,84 @@ function Applications() {
 
     //add and update applications
     const addApplication = async (app) => {
-        setLoading(true);
-        if (!app.platform || !app.company || !app.role || !app.date || !app.link) {
+        try {
+            setLoading(true);
+            if (!app.platform || !app.company || !app.role || !app.date || !app.link) {
+                setPopup({
+                    show: true,
+                    message: "Please fill in all required fields",
+                    type: "error"
+                });
+                return;
+            }
+
+            const payload = {
+                platform: app.platform,
+                company_name: app.company,
+                role: app.role,
+                date_applied: new Date(app.date).toISOString().split("T")[0],
+                application_link: app.link,
+                notes: app.notes || ""
+            };
+
+            console.log("Application with payload:", payload);
+            console.log("Client ID:", client_id);
+
+            if (editingApp) {
+                // UPDATE
+                const application_id = editingApp.id;
+                const response = await API.put(`/applications/update/${application_id}`, payload);
+
+                console.log("updated applications:", response.data);
+                setPopup({
+                    show: true,
+                    message: "Application updated successfully",
+                    type: "success"
+                });
+
+            } else {
+                // CREATE
+                const response = await API.post(`/applications/create_application/${client_id}`, payload);
+                console.log("Added Apllication:", response.data);
+                setPopup({
+                    show: true,
+                    message: "Application added successfully",
+                    type: "success"
+                });
+            }
+
+            //refresh
+            const res = await API.get(`/applications/applications/${client_id}`);
+            console.log("Feached applications after save:", res.data)
+            const appsObject = res.data?.applications || {};
+
+            const allApplications = Object.entries(appsObject).flatMap(([platform, apps]) =>
+                apps.map(app => ({ ...app, platform }))
+            );
+
+            const formatted = allApplications.map((app) => ({
+                id: app.id,
+                platform: app.platform,
+                company: app.company_name,
+                role: app.role,
+                date: app.date,
+                link: app.application_link,
+                notes: app.notes
+            }));
+
+            setApplications(formatted);
+            setShowModal(false);
+            setEditingApp(null);
+        }   catch (err) {
+            console.error(err.response?.data || err.message);
             setPopup({
                 show: true,
-                message: "Please fill in all required fields",
+                message: "Failed to save application",
                 type: "error"
             });
-            return;
+        } finally {
+            setLoading(false);
         }
-
-        const payload = {
-            platform: app.platform,
-            company_name: app.company,
-            role: app.role,
-            date_applied: new Date(app.date).toISOString().split("T")[0],
-            application_link: app.link,
-            notes: app.notes || ""
-        };
-
-        console.log("Application with payload:", payload);
-        console.log("Client ID:", client_id);
-
-        if (editingApp) {
-            // UPDATE
-            const application_id = editingApp.id;
-            const response = await API.put(`/applications/update/${application_id}`, payload);
-
-            console.log("updated applications:", response.data);
-            setPopup({
-                show: true,
-                message: "Application updated successfully",
-                type: "success"
-            });
-
-        } else {
-            // CREATE
-            const response = await API.post(`/applications/create_application/${client_id}`, payload);
-            console.log("Added Apllication:", response.data);
-            setPopup({
-                show: true,
-                message: "Application added successfully",
-                type: "success"
-            });
-        }
-
-        //refresh
-        const res = await API.get(`/applications/applications/${client_id}`);
-        console.log("Feached applications after save:", res.data)
-        const appsObject = res.data?.applications || {};
-
-        const allApplications = Object.entries(appsObject).flatMap(([platform, apps]) =>
-            apps.map(app => ({ ...app, platform }))
-        );
-
-        const formatted = allApplications.map((app) => ({
-            id: app.id,
-            platform: app.platform,
-            company: app.company_name,
-            role: app.role,
-            date: app.date,
-            link: app.application_link,
-            notes: app.notes
-        }));
-
-        setApplications(formatted);
-        setShowModal(false);
-        setEditingApp(null);
     };
 
     //Delete Client

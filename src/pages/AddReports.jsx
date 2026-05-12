@@ -62,9 +62,6 @@ export default function AddReport({ onClose, onSave, editData }) {
         let newErrors = {};
         if (!isEdit) {
             if (!form.company.trim()) newErrors.company = "Company is required";
-            if (!form.recruiterName.trim()) newErrors.recruiterName = "Recruiter name is required";
-            if (!form.recruiterContact.trim()) newErrors.recruiterContact = "Recruiter contact is required";
-            if (!form.recruiterEmail.trim()) newErrors.recruiterEmail = "Recruiter email is required";
             if (!form.stage) newErrors.stage = "Stage is required";
             if (!form.status) newErrors.status = "Status is required";
             if (!form.date) newErrors.date = "Date is required";
@@ -128,7 +125,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                         {/* RECRUITER NAME */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Recruiter Name {!isEdit && <span className="text-red-500">*</span>}
+                                Recruiter Name
                             </label>
                             <input
                                 placeholder="Enter recruiter name"
@@ -142,7 +139,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                         {/* RECRUITER CONTACT */}
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Recruiter Contact {!isEdit && <span className="text-red-500">*</span>}
+                                Recruiter Contact
                             </label>
                             <input
                                 placeholder="Enter recruiter contact"
@@ -157,7 +154,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                     {/* RECRUITER EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Recruiter Email {!isEdit && <span className="text-red-500">*</span>}
+                            Recruiter Email
                         </label>
                         <input
                             placeholder="Enter recruiter email"
