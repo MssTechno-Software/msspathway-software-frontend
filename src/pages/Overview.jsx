@@ -68,26 +68,83 @@ export default function Overview() {
     fetchReports();
   }, [client_id]);
 
+  // const filteredApplications = applications.filter((app) => {
+  //   if (!appliedFromDate && !appliedToDate) return true;
+
+  //   const appDate = new Date(app.date);
+
+  //   const from = appliedFromDate ? new Date(appliedFromDate) : null;
+  //   const to = appliedToDate ? new Date(appliedToDate) : null;
+
+  //   return (!from || appDate >= from) && (!to || appDate <= to);
+  // });
+
+  // const filteredReports = reports.filter((r) => {
+  //   if (!appliedFromDate && !appliedToDate) return true;
+
+  //   const date = new Date(r.updated_at || r.date);
+
+  //   const from = appliedFromDate ? new Date(appliedFromDate) : null;
+  //   const to = appliedToDate ? new Date(appliedToDate) : null;
+
+  //   return (!from || date >= from) && (!to || date <= to);
+  // });
+
   const filteredApplications = applications.filter((app) => {
     if (!appliedFromDate && !appliedToDate) return true;
 
     const appDate = new Date(app.date);
 
-    const from = appliedFromDate ? new Date(appliedFromDate) : null;
-    const to = appliedToDate ? new Date(appliedToDate) : null;
+    // normalize app date
+    appDate.setHours(0, 0, 0, 0);
 
-    return (!from || appDate >= from) && (!to || appDate <= to);
+    const from = appliedFromDate
+      ? new Date(appliedFromDate)
+      : null;
+
+    const to = appliedToDate
+      ? new Date(appliedToDate)
+      : null;
+
+    if (from) {
+      from.setHours(0, 0, 0, 0);
+    }
+
+    if (to) {
+      to.setHours(23, 59, 59, 999);
+    }
+
+    return (!from || appDate >= from) &&
+      (!to || appDate <= to);
   });
+
 
   const filteredReports = reports.filter((r) => {
     if (!appliedFromDate && !appliedToDate) return true;
 
     const date = new Date(r.updated_at || r.date);
 
-    const from = appliedFromDate ? new Date(appliedFromDate) : null;
-    const to = appliedToDate ? new Date(appliedToDate) : null;
+    // normalize report date
+    date.setHours(0, 0, 0, 0);
 
-    return (!from || date >= from) && (!to || date <= to);
+    const from = appliedFromDate
+      ? new Date(appliedFromDate)
+      : null;
+
+    const to = appliedToDate
+      ? new Date(appliedToDate)
+      : null;
+
+    if (from) {
+      from.setHours(0, 0, 0, 0);
+    }
+
+    if (to) {
+      to.setHours(23, 59, 59, 999);
+    }
+
+    return (!from || date >= from) &&
+      (!to || date <= to);
   });
 
   //APPLICATION PLATFORM COUNTS

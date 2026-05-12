@@ -266,26 +266,51 @@ function Applications() {
     
     // FILTER
     const filteredApps = applications.filter((app) => {
+        // TAB FILTER
         const matchesTab =
             activeTab === "All" ||
             app.platform?.toLowerCase() === activeTab.toLowerCase();
 
+        // SEARCH FILTER
         const matchesSearch =
             app.company?.toLowerCase().includes(search.toLowerCase()) ||
             app.role?.toLowerCase().includes(search.toLowerCase()) ||
             app.platform?.toLowerCase().includes(search.toLowerCase());
 
+        // DATE FILTER
         const appDate = new Date(app.date);
+        appDate.setHours(0, 0, 0, 0);
 
-        const matchesFrom = appliedFromDate
-            ? appDate >= new Date(appliedFromDate)
-            : true;
+        let matchesDate = true;
 
-        const matchesTo = appliedToDate
-            ? appDate <= new Date(new Date(appliedToDate).setHours(23, 59, 59, 999))
-            : true;
+        // BOTH FROM & TO
+        if (appliedFromDate && appliedToDate) {
+            const from = new Date(appliedFromDate);
+            from.setHours(0, 0, 0, 0);
 
-        return matchesTab && matchesSearch && matchesFrom && matchesTo;
+            const to = new Date(appliedToDate);
+            to.setHours(23, 59, 59, 999);
+
+            matchesDate = appDate >= from && appDate <= to;
+        }
+
+        // ONLY FROM
+        else if (appliedFromDate) {
+            const from = new Date(appliedFromDate);
+            from.setHours(0, 0, 0, 0);
+
+            matchesDate = appDate >= from;
+        }
+
+        // ONLY TO
+        else if (appliedToDate) {
+            const to = new Date(appliedToDate);
+            to.setHours(23, 59, 59, 999);
+
+            matchesDate = appDate <= to;
+        }
+
+        return matchesTab && matchesSearch && matchesDate;
     });
 
     const currentPage = pageMap[activeTab] || 1;
@@ -343,10 +368,18 @@ function Applications() {
                     </div>
 
                     <button
+                        disabled={loading || pageLoading}
                         onClick={() => setShowModal(true)}
                         className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700 cursor-pointer"
                     >
-                        Add Application
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <FiLoader className="animate-spin" />
+                                Loading...
+                            </span>
+                            ) : (
+                            "Add Application"
+                        )}
                     </button>
                 </div>
             </div>
@@ -428,8 +461,12 @@ function Applications() {
                 {/* Search Button */}
                 <button
                     onClick={() => {
-                    setAppliedFromDate(fromDate);
-                    setAppliedToDate(toDate);
+                        setLoading(true);
+                        setTimeout(() => {
+                            setAppliedFromDate(fromDate);
+                            setAppliedToDate(toDate);
+                            setLoading(false);
+                        }, 500);
                     }}
                     className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition cursor-pointer"
                 >
@@ -439,17 +476,20 @@ function Applications() {
                 {/* Clear Button */}
                 <button
                     onClick={() => {
-                    setFromDate("");
-                    setToDate("");
-                    setAppliedFromDate("");
-                    setAppliedToDate("");
+                        setLoading(true);
+                        setTimeout(() => {
+                            setFromDate("");
+                            setToDate("");
+                            setAppliedFromDate("");
+                            setAppliedToDate("");
+                            setLoading(false);
+                        }, 500);
                     }}
                     className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer"
                 >
                     Clear
                 </button>
             </div>
-
 
                 {/* TABS */}
                 <div className="flex gap-6 border-b mb-4 overflow-x-auto">
@@ -544,12 +584,16 @@ function Applications() {
                             {/* PREVIOUS */}
                             <button
                                 disabled={currentPage === 1}
-                                onClick={() =>
-                                    setPageMap({
+                                onClick={() => {
+                                    setPageLoading(true);
+                                    setTimeout(() => {
+                                        setPageMap({
                                         ...pageMap,
                                         [activeTab]: Math.max(currentPage - 1, 1),
-                                    })
-                                }
+                                        });
+                                        setPageLoading(false);
+                                    }, 400);
+                                }}
                                 className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
                             >
                                 Previous
@@ -562,12 +606,17 @@ function Applications() {
                             {/* NEXT */}
                             <button
                                 disabled={currentPage === totalPages}
-                                onClick={() =>
-                                    setPageMap({
-                                    ...pageMap,
-                                    [activeTab]: Math.min(currentPage + 1, totalPages),
-                                    })
-                                }
+                                onClick={() => {
+                                    setPageLoading(true);
+                                    setTimeout(() => {
+                                        setPageMap({
+                                        ...pageMap,
+                                        [activeTab]: Math.min(currentPage + 1, totalPages),
+                                        });
+                                        setPageLoading(false);
+
+                                    }, 400);
+                                }}
                                 className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
                             >
                                 Next
@@ -610,7 +659,14 @@ function Applications() {
                                         }}
                                         className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
                                     >
-                                        Yes
+                                        {loading ? (
+                                            <span className="flex items-center gap-2">
+                                                <FiLoader className="animate-spin" />
+                                                Deleting...
+                                            </span>
+                                            ) : (
+                                            "Yes"
+                                        )}
                                     </button>
 
                                     <button

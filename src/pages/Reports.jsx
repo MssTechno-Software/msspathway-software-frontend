@@ -294,19 +294,54 @@ export default function Reports() {
         }, {})
     );
 
-    const filtered = grouped.filter(company => {
-        const matchesSearch = company.company?.toLowerCase().includes(search.toLowerCase());
+    const filtered = grouped.filter((company) => {
+        const matchesSearch =
+            company.company?.toLowerCase().includes(search.toLowerCase());
 
         const latestDate = company.stages[company.stages.length - 1]?.date;
 
-        const matchesDate =
-            (!fromDate || latestDate >= fromDate) &&
-            (!toDate || latestDate <= toDate);
+        // If no date exists
+        if (!latestDate) {
+            return matchesSearch;
+        }
+
+        // Convert app date
+        const appDate = new Date(latestDate);
+        appDate.setHours(0, 0, 0, 0);
+
+        let matchesDate = true;
+
+        // BOTH FROM & TO
+        if (fromDate && toDate) {
+            const from = new Date(fromDate);
+            from.setHours(0, 0, 0, 0);
+
+            const to = new Date(toDate);
+            to.setHours(23, 59, 59, 999);
+
+            matchesDate = appDate >= from && appDate <= to;
+        }
+
+        // ONLY FROM
+        else if (fromDate) {
+            const from = new Date(fromDate);
+            from.setHours(0, 0, 0, 0);
+
+            matchesDate = appDate >= from;
+        }
+
+        // ONLY TO
+        else if (toDate) {
+            const to = new Date(toDate);
+            to.setHours(23, 59, 59, 999);
+
+            matchesDate = appDate <= to;
+        }
 
         return matchesSearch && matchesDate;
     });
 
-    // ✅ Pagination
+    // Pagination
     const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
     const paginated = filtered.slice(
         (currentPage - 1) * itemsPerPage,

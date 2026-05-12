@@ -24,7 +24,7 @@ function LeaveRequests() {
     const [openModal, setOpenModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     const [startFilter, setStartFilter] = useState("");
     const [endFilter, setEndFilter] = useState("");
@@ -59,10 +59,8 @@ function LeaveRequests() {
   const fetchLeaveRequests = async () => {
     try {
       setLoading(true);
-
       const response = await API.get("/timesheet/admin/leave-requests");
       console.log("Leave Requests:", response.data);
-
       setRequests(
         Array.isArray(response.data)
           ? response.data
@@ -79,49 +77,60 @@ function LeaveRequests() {
   const handleApprove = async (request) => {
     try {
       setLoading(true);
-        const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
-            {
-            status: "approved",
-            }
-        );
-
-        console.log("Approve Response:", response.data);
-
-        showPopup("Leave approved successfully", "success");
-
-        setOpenModal(false);
-        fetchLeaveRequests();
-    }catch (error) {
-        console.error(error);
-        showPopup("Failed to approve leave", "error");
-    } finally {
-        setLoading(false);
-    }
-};
-
-    const handleReject = async (request) => {
-        try {
-          setLoading(true);
-            const response = await API.put(`/timesheet/admin/leave-status/${request.leave_id}`,
-            {
-                status: "rejected",
-            }
-            );
-
-            console.log("Reject Response:", response.data);
-
-            showPopup("Leave rejected successfully", "success");
-
-            setOpenModal(false);
-            fetchLeaveRequests();
-        } catch (error) {
-            console.error(error);
-            showPopup("Failed to reject leave", "error");
-        } finally {
-            setLoading(false);
+      console.log("REQUEST:", request);
+      const leave_id = request?.leave_id;
+      const response = await API.put(`/timesheet/leave-status/${leave_id}`,
+        {
+          status: "approved",
         }
-    };
+      );
+      console.log("Approve Response:", response.data);
+      showPopup("Leave approved successfully", "success");
+      setOpenModal(false);
+      fetchLeaveRequests();
+    } catch (error) {
+        console.error(error);
+        const errorMessage =
+          error?.response?.data?.detail?.[0]?.msg ||
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.message ||
+          "Failed to approve leave";
+        showPopup(errorMessage, "error");
+      } finally {
+          setLoading(false);
+      }
+  };
 
+  const handleReject = async (request) => {
+    try {
+      setLoading(true);
+      console.log("REQUEST:", request);
+      const leave_id = request?.leave_id;
+      const response = await API.put(`/timesheet/leave-status/${leave_id}`,
+        {
+          status: "rejected",
+        }
+      );
+      console.log("Reject Response:", response.data);
+      showPopup("Leave rejected successfully", "success");
+      setOpenModal(false);
+      fetchLeaveRequests();
+    } catch (error) {
+        console.error(error);
+        const errorMessage =
+          error?.response?.data?.detail?.[0]?.msg ||
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.message ||
+          "Failed to reject leave";
+        showPopup(errorMessage, "error");
+      } finally {
+          setLoading(false);
+      }
+    };
 
   // DELETE LEAVE REQUEST
   const deleteLeaveRequest = async (leaveId) => {
@@ -144,11 +153,8 @@ function LeaveRequests() {
 
   useEffect(() => {
     fetchLeaveRequests();
-
     const handleRefresh = () => fetchLeaveRequests();
-
     window.addEventListener("leaveRequestUpdated", handleRefresh);
-
     return () => {
       window.removeEventListener(
         "leaveRequestUpdated",
@@ -195,8 +201,25 @@ function LeaveRequests() {
   const filteredRequests = requests.filter((item) => {
     const requestDate = new Date(item.start_date);
 
-    if (startFilter && requestDate < new Date(startFilter)) return false;
-    if (endFilter && requestDate > new Date(endFilter)) return false;
+    // FROM DATE
+    if (startFilter) {
+        const from = new Date(startFilter);
+        from.setHours(0, 0, 0, 0);
+
+        if (requestDate < from) {
+            return false;
+        }
+    }
+
+    // TO DATE
+    if (endFilter) {
+        const to = new Date(endFilter);
+        to.setHours(23, 59, 59, 999);
+
+        if (requestDate > to) {
+            return false;
+        }
+    }
 
     return true;
   });
@@ -315,7 +338,7 @@ function LeaveRequests() {
           <div className="overflow-x-auto w-full">
             <div className="min-w-275 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
               {/* Header */}
-              <div className="grid grid-cols-8 px-4 md:px-8 py-6 bg-gray-100 text-sm md:text-md tracking-widest text-black font-semibold">
+              <div className="grid grid-cols-8 px-4 md:px-8 py-6 bg-gray-100 text-sm md:text-md tracking-widest text-black font-semibold uppercase">
                 <div className="col-span-2">Employee</div>
                 <div>Leave Type</div>
                 <div>Start Date</div>
@@ -334,22 +357,18 @@ function LeaveRequests() {
                 paginatedRequests.map((item) => (
                   <div
                     key={item.leave_id}
-                    className="grid grid-cols-8 items-center px-4 md:px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
+                    className="grid grid-cols-8 items-center text-sm px-4 md:px-8 py-4 border-t border-gray-200 hover:bg-[#faf8f6] transition"
                   >
                     {/* Employee */}
                     <div className="col-span-2 flex items-center gap-4">
-                      <div className=" flex items-center justify-center text-sm font-bold t">
-                        {item.employee_id}
-                      </div>
-
                       <div>
-                        <h3 className="font-semibold text-sm md:text-lg text-black wrap-break-word">
-                          {item.employee_name || "Employee"}
-                        </h3>
+                        <div className="break-word">
+                          {item.employee_name || "-"}
+                        </div>
 
-                        <p className="text-xs uppercase text-gray-400 tracking-wider mt-1">
-                          {item.role || "Employee"}
-                        </p>
+                        <div className="mt-1">
+                          Employee ID: {item.employee_id || "-"}
+                        </div>
                       </div>
                     </div>
 
