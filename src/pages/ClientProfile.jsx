@@ -732,6 +732,13 @@ function ClientProfile() {
           {client.technology || "No Technology Stacks"}
         </p>
       </div>
+
+      <div className="bg-white p-4 rounded-xl shadow-sm">
+        <p className="text-xs text-gray-400">ASSIGNED TO</p>
+        <p className="font-semibold">
+          {client.employee_id ? `${client.employee_id} - ${client.employee_name}`: "No Assigned Employee"}
+        </p>
+      </div>
     </div>
 
     {/* DOCUMENTS */}

@@ -94,6 +94,34 @@ function Sidebar({ children }) {
                     {/* MENU */}
                     <nav className="space-y-2">
 
+                        {/* MY PROFILE */}
+                        <NavLink
+                            //to={`/dashboard/my-profile/${employee_id}`}
+                            to={
+                                role === "employee"
+                                    ? `/employee-dashboard/my-profile/${employee_id}`
+                                    : `/dashboard/my-profile/${employee_id}`
+                            }
+                            className={({ isActive }) =>
+                                `
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                transition-all duration-200
+                                ${
+                                    isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                }
+                                `
+                            }
+                        >
+                            <FiUser size={20} />
+
+                            {openSidebar && (
+                                <span>My Profile</span>
+                            )}
+                        </NavLink>
+
                         {/* CLIENTS */}
                         <NavLink
                             //to="/dashboard/clients"
@@ -174,34 +202,6 @@ function Sidebar({ children }) {
                                 )}
                             </NavLink>
                         )}
-
-                        {/* MY PROFILE */}
-                        <NavLink
-                            //to={`/dashboard/my-profile/${employee_id}`}
-                            to={
-                                role === "employee"
-                                    ? `/employee-dashboard/my-profile/${employee_id}`
-                                    : `/dashboard/my-profile/${employee_id}`
-                            }
-                            className={({ isActive }) =>
-                                `
-                                flex items-center gap-3
-                                px-4 py-3 rounded-xl
-                                transition-all duration-200
-                                ${
-                                    isActive
-                                        ? "bg-green-800"
-                                        : "hover:bg-green-700"
-                                }
-                                `
-                            }
-                        >
-                            <FiUser size={20} />
-
-                            {openSidebar && (
-                                <span>My Profile</span>
-                            )}
-                        </NavLink>
                     </nav>
                 </div>
             </div>

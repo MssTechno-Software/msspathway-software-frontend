@@ -803,7 +803,7 @@ function EmployeeProfile() {
 
         {popup.show && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full text-center">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
               <p className={`text-lg font-semibold mb-4
                   ${popup.type === "success" && "text-green-600"}
                   ${popup.type === "error" && "text-red-600"}

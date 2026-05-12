@@ -8,6 +8,7 @@ const weekDays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 function Calender({ selectedDate, onDateSelect }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
   const [hoursMap, setHoursMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
@@ -312,9 +313,15 @@ function Calender({ selectedDate, onDateSelect }) {
           className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer">
             Apply for Leave
         </button>
-
+        
         <button
-          onClick={() => navigate("/dashboard/leave-requests")}
+          onClick={() =>
+            navigate(
+              role === "employee"
+                ? "/employee-dashboard/leave-requests"
+                : "/dashboard/leave-requests"
+            )
+          }
           className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer"
         >
           Leave Requests

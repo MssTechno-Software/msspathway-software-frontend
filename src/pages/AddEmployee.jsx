@@ -447,18 +447,32 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             {showRoleDropdown && (
               <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
-                {["Employee", "Admin", "User"].map((r) => (
-                  <div
+
+                {["Employee", "Admin"].map((r) => (
+                  <label
                     key={r}
-                    onClick={() => {
-                      setForm({ ...form, role: r });
-                      setShowRoleDropdown(false);
-                    }}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    className="flex items-center gap-3 px-3 py-3 hover:bg-gray-100 cursor-pointer"
                   >
-                    {r}
-                  </div>
+
+                    <input
+                      type="radio"
+                      name="role"
+                      value={r}
+                      checked={form.role === r}
+                      onChange={() => {
+                        setForm({ ...form, role: r });
+                        setShowRoleDropdown(false);
+                      }}
+                      className="w-4 h-4 text-green-700 cursor-pointer"
+                    />
+
+                    <span className="text-sm text-gray-700">
+                      {r}
+                    </span>
+
+                  </label>
                 ))}
+
               </div>
             )}
           </div>

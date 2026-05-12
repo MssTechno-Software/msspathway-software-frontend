@@ -14,7 +14,7 @@ const statusMap = {
 
 function Clients() {
     const navigate = useNavigate();
-
+    const role = localStorage.getItem("role");
     const [clients, setClients] = useState([]);
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -293,14 +293,14 @@ function Clients() {
                         Manage and monitor your enterprise client base across all regions.
                     </p>
                 </div>
-
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer"
-                >
-                    Add New Client
-                </button>
-
+                {role !== "employee" && (
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 text-white px-5 py-2 rounded-lg shadow hover:bg-green-700 cursor-pointer"
+                    >
+                        Add New Client
+                    </button>
+                )}
             </div>
 
             {/* TABLE */}
