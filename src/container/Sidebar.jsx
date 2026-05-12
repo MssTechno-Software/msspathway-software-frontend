@@ -15,7 +15,7 @@ import { useState } from "react";
 
 function Sidebar({ children }) {
     const navigate = useNavigate();
-
+    const role = localStorage.getItem("role");
     const employee_id = localStorage.getItem("employee_id");
 
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -24,6 +24,7 @@ function Sidebar({ children }) {
         localStorage.removeItem("token");
         localStorage.removeItem("user_id");
         localStorage.removeItem("employee_id");
+        localStorage.removeItem("role");
 
         navigate("/login");
     };
@@ -95,7 +96,12 @@ function Sidebar({ children }) {
 
                         {/* CLIENTS */}
                         <NavLink
-                            to="/dashboard/clients"
+                            //to="/dashboard/clients"
+                            to={
+                                role === "employee"
+                                    ? "/employee-dashboard/clients"
+                                    : "/dashboard/clients"
+                            }
                             className={({ isActive }) =>
                                 `
                                 flex items-center gap-3
@@ -118,7 +124,12 @@ function Sidebar({ children }) {
 
                         {/* TIMESHEET */}
                         <NavLink
-                            to="/dashboard/timesheet"
+                            //to="/dashboard/timesheet"
+                            to={
+                                role === "employee"
+                                    ? "/employee-dashboard/timesheet"
+                                    : "/dashboard/timesheet"
+                            }
                             className={({ isActive }) =>
                                 `
                                 flex items-center gap-3
@@ -140,31 +151,38 @@ function Sidebar({ children }) {
                         </NavLink>
 
                         {/* EMPLOYEE */}
-                        <NavLink
-                            to="/dashboard/employee"
-                            className={({ isActive }) =>
-                                `
-                                flex items-center gap-3
-                                px-4 py-3 rounded-xl
-                                transition-all duration-200
-                                ${
-                                    isActive
-                                        ? "bg-green-800"
-                                        : "hover:bg-green-700"
+                        {role !== "employee" && (
+                            <NavLink
+                                to="/dashboard/employee"
+                                className={({ isActive }) =>
+                                    `
+                                    flex items-center gap-3
+                                    px-4 py-3 rounded-xl
+                                    transition-all duration-200
+                                    ${
+                                        isActive
+                                            ? "bg-green-800"
+                                            : "hover:bg-green-700"
+                                    }
+                                    `
                                 }
-                                `
-                            }
-                        >
-                            <FaUserTie size={20} />
+                            >
+                                <FaUserTie size={20} />
 
-                            {openSidebar && (
-                                <span>Employee</span>
-                            )}
-                        </NavLink>
+                                {openSidebar && (
+                                    <span>Employee</span>
+                                )}
+                            </NavLink>
+                        )}
 
                         {/* MY PROFILE */}
                         <NavLink
-                            to={`/dashboard/my-profile/${employee_id}`}
+                            //to={`/dashboard/my-profile/${employee_id}`}
+                            to={
+                                role === "employee"
+                                    ? `/employee-dashboard/my-profile/${employee_id}`
+                                    : `/dashboard/my-profile/${employee_id}`
+                            }
                             className={({ isActive }) =>
                                 `
                                 flex items-center gap-3

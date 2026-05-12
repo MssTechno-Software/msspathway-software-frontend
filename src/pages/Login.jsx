@@ -101,12 +101,28 @@ function Login() {
         console.error("employee_id NOT FOUND in response");
       }
 
+      // Store role
+      const role =
+        response.data.role ||
+        response.data.user?.role ||
+        response.data.data?.role;
+
+      console.log("Role:", role);
+
+      if (role) {
+        localStorage.setItem("role", role);
+      }
+
       // Navigate after storing
       setPageLoading(true);
       setTimeout(() => {
-        navigate("/dashboard");
+        // navigate("/dashboard");
+        if (role === "employee") {
+          navigate("/employee-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       }, 500);
-
     } catch (error) {
       console.error("Login Error:", error);
       setInvalidPopup(true);

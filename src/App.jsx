@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Clients from "./pages/Clients";
 import ClientLayout from "./pages/ClientLayout";
 import ClientProfile from "./pages/ClientProfile";
@@ -15,6 +16,7 @@ function App() {
       <Route path="/" element={<Navigate to='/Login' replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard/*" element={<Dashboard />} />
+      <Route path="/employee-dashboard/*" element={<EmployeeDashboard />} />
       <Route path="/clients" element={<Clients />} />
 
       {/* NEW STRUCTURE */}

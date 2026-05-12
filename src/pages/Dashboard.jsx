@@ -10,6 +10,12 @@ import EmployeeProfile from "./EmployeeProfile";
 import MyProfilePage from "./MyProfilePage";
 
 function Dashboard() {
+    const role = localStorage.getItem("role");
+    // Block employee users
+    if (role === "employee") {
+        return <Navigate to="/employee-dashboard" />;
+    }
+
     return (
         <div className="flex min-h-screen">
 
