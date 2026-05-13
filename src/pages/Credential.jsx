@@ -71,7 +71,6 @@ function Credentials() {
 
     const saveCredential = async (data) => {
         try {
-            setLoading(true);
             const payload = {
                 portal_name: data.portal,
                 portal_link: data.portalLink,
@@ -113,7 +112,6 @@ function Credentials() {
             setCredentials(updated);
             setEditing(null);
             setShowModal(false);
-            setLoading(false);
             setPopup({
                 show: true,
                 message: editing
