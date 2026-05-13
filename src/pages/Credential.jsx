@@ -71,7 +71,7 @@ function Credentials() {
 
     const saveCredential = async (data) => {
         try {
-            setLoading(true);
+            //setLoading(true);
             const payload = {
                 portal_name: data.portal,
                 portal_link: data.portalLink,
@@ -92,6 +92,14 @@ function Credentials() {
                 console.log("Create response:", response.data);
             }
 
+            //setLoading(false);
+            setPopup({
+                show: true,
+                message: editing
+                ? "Credential updated successfully."
+                : "Credential added successfully.",
+                type: "success"
+            });
             // REFRESH
             const res = await API.get(`/credentials/${client_id}`);
             console.log("Fetched credentials after save:", res.data);
@@ -112,15 +120,7 @@ function Credentials() {
 
             setCredentials(updated);
             setEditing(null);
-            setPopup({
-                show: true,
-                message: editing
-                ? "Credential updated successfully."
-                : "Credential added successfully.",
-                type: "success"
-            });
-
-            return;
+            setShowModal(false);
 
         } catch (err) {
             console.error("ERROR:", err.response?.data || err.message);
@@ -129,8 +129,6 @@ function Credentials() {
                 message: "Failed to save credential. Please try again.",
                 type: "error"
             });
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -160,7 +158,6 @@ function Credentials() {
                         password: item.password,
                         notes: item.notes
                     }));
-
                     setCredentials(updated);
                     setPopup({
                         show: true,
@@ -187,7 +184,6 @@ function Credentials() {
     const editCredential = async (credential_id) => {
         console.log("Editing Credential ID:", credential_id);
         try {
-            setLoading(true);
             const res = await API.get(`/credentials/credentials/${credential_id}`);
 
             const data = res.data?.data || res.data;
@@ -210,8 +206,6 @@ function Credentials() {
                 message: "Failed to edit credentials.",
                 type: "error"
             });
-        } finally {
-            setLoading(false);
         }
     };
 

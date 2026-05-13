@@ -121,13 +121,12 @@ export default function Reports() {
                 const response = await API.post(`/reports/clients/${client_id}/reports`, payload);
                 console.log("Created report response:", response.data);
             }
-
+            setLoading(false);
             setPopup({
                 show: true,
                 message: isUpdating ? "Report updated successfully." : "Report added successfully.",
                 type: "success"
             });
-
             // REFRESH
             await fetchReports();
             console.log("Reports refreshed after save.");
@@ -142,8 +141,6 @@ export default function Reports() {
                 message: "Failed to save report. Please try again.",
                 type: "error"
             });
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -197,7 +194,6 @@ export default function Reports() {
 
     const handleEdit = async (company) => {
         try {
-            setLoading(true);
             const latest = [...company.stages]
                 .filter((stage) => stage.id)
                 .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
@@ -239,8 +235,6 @@ export default function Reports() {
                 message: "Failed to load report details.",
                 type: "error",
             });
-        } finally {
-            setLoading(false);
         }
     };
 

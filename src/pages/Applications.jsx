@@ -102,6 +102,7 @@ function Applications() {
                     message: "Please fill in all required fields",
                     type: "error"
                 });
+                setLoading(false);
                 return;
             }
 
@@ -123,6 +124,7 @@ function Applications() {
                 const response = await API.put(`/applications/update/${application_id}`, payload);
 
                 console.log("updated applications:", response.data);
+                setLoading(false);
                 setPopup({
                     show: true,
                     message: "Application updated successfully",
@@ -133,6 +135,7 @@ function Applications() {
                 // CREATE
                 const response = await API.post(`/applications/create_application/${client_id}`, payload);
                 console.log("Added Apllication:", response.data);
+                setLoading(false);
                 setPopup({
                     show: true,
                     message: "Application added successfully",
@@ -164,13 +167,12 @@ function Applications() {
             setEditingApp(null);
         }   catch (err) {
             console.error(err.response?.data || err.message);
+            setLoading(false);
             setPopup({
                 show: true,
                 message: "Failed to save application",
                 type: "error"
             });
-        } finally {
-            setLoading(false);
         }
     };
 
