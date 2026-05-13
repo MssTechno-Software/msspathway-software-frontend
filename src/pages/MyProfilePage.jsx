@@ -467,7 +467,7 @@ function MyProfilePage() {
         {showPhotoModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-            <div className="bg-white p-6 rounded-2xl w-full shadow-xl relative">
+            <div className="bg-white p-6 rounded-2xl w-96 shadow-xl relative">
               <h2 className="text-lg font-semibold mb-4 text-center">
                 Upload Profile Photo
               </h2>

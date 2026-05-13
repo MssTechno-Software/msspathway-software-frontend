@@ -895,7 +895,7 @@ function ClientProfile() {
     {showDocModal && (
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
 
-        <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative">
+        <div className="bg-white w-96 max-w-md rounded-2xl shadow-xl p-6 relative">
 
           <h2 className="text-xl font-semibold mb-4">
             Upload Document

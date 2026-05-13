@@ -623,7 +623,7 @@ function EmployeeProfile() {
         {showDocModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
 
-            <div className="bg-white w-full rounded-2xl shadow-xl p-6 relative">
+            <div className="bg-white w-96 rounded-2xl shadow-xl p-6 relative">
 
               <h2 className="text-xl font-semibold mb-4">
                 Upload Document
@@ -688,7 +688,7 @@ function EmployeeProfile() {
         {showPhotoModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-            <div className="bg-white p-6 rounded-2xl w-full shadow-xl relative">
+            <div className="bg-white p-6 rounded-2xl w-96 shadow-xl relative">
               <h2 className="text-lg font-semibold mb-4 text-center">
                 Upload Profile Photo
               </h2>
