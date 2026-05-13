@@ -54,7 +54,7 @@ export default function Reports() {
     const [popup, setPopup] = useState({
         show: false,
         message: "",
-        type: "", 
+        type: "",
         onConfirm: null
     });
 
@@ -68,7 +68,7 @@ export default function Reports() {
             console.log("Fetched reports:", res.data);
 
             const data = res.data?.company_progression || [];
-                
+
             const formatted = data.map((item) => ({
                 company: item.company,
                 stages: [
@@ -80,16 +80,15 @@ export default function Reports() {
                     },
                 ],
             }));
-                setEntries(formatted);
-            } catch (err) {
-                console.error("ERROR:", err.response?.data || err.message);
-            } finally {
-                setLoading(false);
-            }
+            setEntries(formatted);
+        } catch (err) {
+            console.error("ERROR:", err.response?.data || err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-
         if (client_id) fetchReports();
     }, [client_id]);
 
@@ -121,14 +120,13 @@ export default function Reports() {
                 const response = await API.post(`/reports/clients/${client_id}/reports`, payload);
                 console.log("Created report response:", response.data);
             }
-            setLoading(false);
             setPopup({
                 show: true,
                 message: isUpdating ? "Report updated successfully." : "Report added successfully.",
                 type: "success"
             });
             // REFRESH
-            await fetchReports();
+            fetchReports();
             console.log("Reports refreshed after save.");
 
             setEditData(null);
@@ -141,6 +139,8 @@ export default function Reports() {
                 message: "Failed to save report. Please try again.",
                 type: "error"
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -170,14 +170,14 @@ export default function Reports() {
                     // Refresh
                     await fetchReports();
                     console.log("Reports refreshed after deletion.");
-                   
+
                     setPopup({
                         show: true,
                         message: "Report deleted successfully.",
                         type: "success"
                     });
 
-                } 
+                }
                 catch (err) {
                     console.error("ERROR:", err.response?.data || err.message);
                     setPopup({
@@ -188,7 +188,7 @@ export default function Reports() {
                 } finally {
                     setLoading(false);
                 }
-            }    
+            }
         });
     };
 
@@ -229,7 +229,6 @@ export default function Reports() {
 
         } catch (err) {
             console.error("EDIT FETCH ERROR:", err.response?.data || err.message);
-
             setPopup({
                 show: true,
                 message: "Failed to load report details.",
@@ -344,20 +343,20 @@ export default function Reports() {
 
     return (
         <>
-        {(loading || pageLoading) && (
-        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+            {(loading || pageLoading) && (
+                <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            <div className="p-6 flex flex-col items-center gap-3">
+                    <div className="p-6 flex flex-col items-center gap-3">
 
-            <FiLoader className="animate-spin text-4xl text-green-800" />
+                        <FiLoader className="animate-spin text-4xl text-green-800" />
 
-            <p className="text-gray-800 font-medium">
-                Please wait...
-            </p>
+                        <p className="text-gray-800 font-medium">
+                            Please wait...
+                        </p>
 
-            </div>
-        </div>
-        )}
+                    </div>
+                </div>
+            )}
             <div className="bg-gray-50 min-h-screen p-4 sm:p-6">
 
                 {/* TOP HEADER */}
@@ -371,7 +370,7 @@ export default function Reports() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                    
+
                         {/* SEARCH BAR */}
                         <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm w-full sm:w-64">
                             <FiSearch className="text-gray-400 mr-2" />
@@ -382,7 +381,7 @@ export default function Reports() {
                                 className="outline-none"
                             />
                         </div>
-                    
+
                         {/* ADD BUTTON */}
                         <button
                             onClick={() => {
@@ -393,7 +392,7 @@ export default function Reports() {
                         >
                             Add Report
                         </button>
-                    
+
                     </div>
                 </div>
 
@@ -412,51 +411,51 @@ export default function Reports() {
 
                             {/* FROM */}
                             <div className="flex items-center gap-2 sm:pr-5 sm:border-r w-full sm:w-auto">
-                            <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
-                                From
-                            </span>
+                                <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                                    From
+                                </span>
 
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(e) => setFromDate(e.target.value)}
-                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
-                            />
+                                <input
+                                    type="date"
+                                    value={fromDate}
+                                    onChange={(e) => setFromDate(e.target.value)}
+                                    className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                                />
                             </div>
 
                             {/* TO */}
                             <div className="flex items-center gap-2 sm:px-5 sm:border-r border-gray-200 w-full sm:w-auto">
-                            <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
-                                To
-                            </span>
+                                <span className="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">
+                                    To
+                                </span>
 
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(e) => setToDate(e.target.value)}
-                                className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
-                            />
+                                <input
+                                    type="date"
+                                    value={toDate}
+                                    onChange={(e) => setToDate(e.target.value)}
+                                    className="text-sm text-gray-600 outline-none bg-transparent cursor-pointer w-full sm:w-auto"
+                                />
                             </div>
 
                             {/* BUTTONS */}
                             <div className="sm:pl-5 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
 
-                            <button
-                                className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
-                            >
-                                Search
-                            </button>
+                                <button
+                                    className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
+                                >
+                                    Search
+                                </button>
 
-                            <button
-                                onClick={() => {
-                                setFromDate("");
-                                setToDate("");
-                                setCurrentPage(1);
-                                }}
-                                className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
-                            >
-                                Clear
-                            </button>
+                                <button
+                                    onClick={() => {
+                                        setFromDate("");
+                                        setToDate("");
+                                        setCurrentPage(1);
+                                    }}
+                                    className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
+                                >
+                                    Clear
+                                </button>
 
                             </div>
                         </div>
@@ -504,16 +503,16 @@ export default function Reports() {
                             data={company}
                             onDelete={() => {
                                 const latestStage = [...company.stages]
-                                .filter(stage => stage.id !== null && stage.id !== undefined)
-                                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                                    .filter(stage => stage.id !== null && stage.id !== undefined)
+                                    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
                                 if (!latestStage) {
-                                setPopup({
-                                    show: true,
-                                    message: "No valid report found to delete.",
-                                    type: "error"
-                                });
-                                return;
+                                    setPopup({
+                                        show: true,
+                                        message: "No valid report found to delete.",
+                                        type: "error"
+                                    });
+                                    return;
                                 }
 
                                 handleDelete(latestStage.id);
@@ -539,35 +538,35 @@ export default function Reports() {
                             onClick={() => setCurrentPage(p => p - 1)}
                             disabled={currentPage === 1}
                             className={`px-3 py-1 rounded ${currentPage === 1
-                                    ? "text-gray-300 cursor-not-allowed"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                ? "text-gray-300 cursor-not-allowed"
+                                : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
                             Previous
                         </button>
 
                         {/* PAGE NUMBERS */}
-                        {filtered.length > 0 && 
+                        {filtered.length > 0 &&
                             Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                 <button
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
                                     className={`px-3 py-1 rounded ${currentPage === page
-                                            ? "bg-green-800 text-white"
-                                            : "text-gray-700 hover:bg-gray-100"
+                                        ? "bg-green-800 text-white"
+                                        : "text-gray-700 hover:bg-gray-100"
                                         }`}
                                 >
                                     {page}
                                 </button>
-                        ))}
+                            ))}
 
-                        {/* NEXT BUTTON */} 
+                        {/* NEXT BUTTON */}
                         <button
                             onClick={() => setCurrentPage(p => p + 1)}
                             disabled={currentPage === totalPages}
                             className={`px-3 py-1 rounded ${currentPage === totalPages
-                                    ? "text-gray-300 cursor-not-allowed"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                ? "text-gray-300 cursor-not-allowed"
+                                : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
                             Next

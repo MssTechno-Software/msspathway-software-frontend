@@ -6,10 +6,10 @@ import AddClient from "./AddClient";
 
 const BASE_URL = "https://timesheet-api-790373899641.asia-south1.run.app";
 const statusMap = {
-  Active: "A",
-  Completed: "C",
-  Pause: "P",
-  Terminate: "T"
+    Active: "A",
+    Completed: "C",
+    Pause: "P",
+    Terminate: "T"
 };
 
 function Clients() {
@@ -113,21 +113,21 @@ function Clients() {
 
             // DEBUG (optional but useful)
             for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
+                console.log(pair[0], pair[1]);
             }
 
             if (editingClient) {
-                
+
                 // UPDATE
                 const client_id = editingClient.client_id || editingClient.id;
                 console.log("Updating client with ID:", client_id);
                 const response = await axios.put(`${BASE_URL}/clients/update-client/${client_id}`, formData, {
                     ...getAuthHeaders(),
-                    headers:{
+                    headers: {
                         ...getAuthHeaders().headers,
                         "Content-Type": "multipart/form-data"
                     }
-                    });
+                });
                 console.log("Update response:", response.data);
 
             } else {
@@ -170,7 +170,7 @@ function Clients() {
 
     // DELETE CLIENT
     const deleteClient = async (client_id) => {
-        if(!client_id) {
+        if (!client_id) {
             console.error("Invalid client ID for deletion", client_id);
             setPopup({
                 show: true,
@@ -190,7 +190,7 @@ function Clients() {
                     setLoading(true);
                     const response = await axios.delete(`${BASE_URL}/clients/clients/${client_id}`, getAuthHeaders());
                     console.log("Delete response:", response.data);
-                    
+
                     //refresh
                     const res = await fetchClients();
                     console.log("Fetched data after deletion", res.data);
@@ -238,7 +238,7 @@ function Clients() {
         client.mobile?.includes(search) ||
         client.technology?.toLowerCase().includes(search.toLowerCase())
     );
-    
+
 
     const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
     const indexOfLastRow = currentPage * rowsPerPage;
@@ -251,7 +251,7 @@ function Clients() {
             {(loading || pageLoading) && (
                 <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
                     <div className="p-6 flex flex-col items-center gap-3">
-                        
+
                         <FiLoader className="animate-spin text-4xl text-green-800" />
 
                         <p className="text-gray-800 font-medium">
@@ -263,7 +263,7 @@ function Clients() {
             {/* SEARCH */}
             <div className="w-full sm:w-1/2">
                 <div className="relative flex items-center bg-gray-100 px-4 py-2 rounded-full shadow-sm">
-                    
+
                     <FiSearch className="text-gray-400 mr-2" />
 
                     <input
@@ -275,10 +275,10 @@ function Clients() {
                     />
 
                     {search && (
-                    <FiX
-                        onClick={() => setSearch("")}
-                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                    />
+                        <FiX
+                            onClick={() => setSearch("")}
+                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                        />
                     )}
 
                 </div>
@@ -343,11 +343,11 @@ function Clients() {
                                                 setPageLoading(true);
                                                 setTimeout(() => {
                                                     navigate(`/clients/${client.client_id || client.id}`, {
-                                                    state: { clientName: client.client_name },
+                                                        state: { clientName: client.client_name },
                                                     })
                                                 }, 500);
                                             }}
-                                            >
+                                        >
                                             {client.client_name.length > 15
                                                 ? client.client_name.slice(0, 15) + "..."
                                                 : client.client_name}
@@ -360,22 +360,22 @@ function Clients() {
                                         <td
                                             className="p-4 space-x-2 max-w-50 truncate"
                                             title={client.technology}
-                                            >
+                                        >
                                             {client.technology
                                                 ?.split(",")
                                                 .slice(0, 4)
                                                 .map((t, i) => (
-                                                <span
-                                                    key={`${client.client_id || client.id}-${t}-${i}`}
-                                                    className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs mr-1 inline-block"
-                                                >
-                                                    {t}
-                                                </span>
+                                                    <span
+                                                        key={`${client.client_id || client.id}-${t}-${i}`}
+                                                        className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs mr-1 inline-block"
+                                                    >
+                                                        {t}
+                                                    </span>
                                                 ))}
 
                                             {client.technology?.split(",").length > 4 && (
                                                 <span className="text-xs text-gray-500">
-                                                +{client.technology.split(",").length - 4} more
+                                                    +{client.technology.split(",").length - 4} more
                                                 </span>
                                             )}
                                         </td>
@@ -420,7 +420,7 @@ function Clients() {
                             )}
                         </tbody>
                     </table>
-                    
+
                     {/* PAGINATION */}
                     <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50">
 

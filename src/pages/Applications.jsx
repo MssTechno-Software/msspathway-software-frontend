@@ -5,15 +5,15 @@ import axios from "axios";
 import AddApplication from "./AddApplication";
 
 const API = axios.create({
-  baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
+    baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
 });
 
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+    const token = localStorage.getItem("token");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 function Applications() {
@@ -35,10 +35,10 @@ function Applications() {
     const [loading, setLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
     const [popup, setPopup] = useState(
-        { 
-            show: false, 
-            message: "", 
-            type: "" 
+        {
+            show: false,
+            message: "",
+            type: ""
         }
     );
 
@@ -54,7 +54,7 @@ function Applications() {
     // FETCH
     useEffect(() => {
         const fetchApplications = async () => {
-            try{
+            try {
                 setLoading(true);
                 const res = await API.get(`/applications/applications/${client_id}`);
                 console.log("Fetched applications:", res.data);
@@ -165,7 +165,7 @@ function Applications() {
             setApplications(formatted);
             setShowModal(false);
             setEditingApp(null);
-        }   catch (err) {
+        } catch (err) {
             console.error(err.response?.data || err.message);
             setLoading(false);
             setPopup({
@@ -270,13 +270,19 @@ function Applications() {
         setPreviousCounts(prev);
     }, [client_id]);
 
-    const getPercentage = (current, previous) => {
-        if (previous === 0) {
-            return current > 0 ? 100 : 0;
-        }
-        return Math.round(((current - previous) / previous) * 100);
+    // const getPercentage = (current, previous) => {
+    //     if (previous === 0) {
+    //         return current > 0 ? 100 : 0;
+    //     }
+    //     return Math.round(((current - previous) / previous) * 100);
+    // };
+
+    const getPercentage = (count, total) => {
+        if (total === 0) return 0;
+
+        return Math.round((count / total) * 100);
     };
-    
+
     // FILTER
     const filteredApps = applications.filter((app) => {
         // TAB FILTER
@@ -335,181 +341,187 @@ function Applications() {
         currentPage * ITEMS_PER_PAGE
     );
 
-  return (
-    <>
-        {(loading || pageLoading) && (
-        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+    return (
+        <>
+            {(loading || pageLoading) && (
+                <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            <div className="p-6 flex flex-col items-center gap-3">
+                    <div className="p-6 flex flex-col items-center gap-3">
 
-            <FiLoader className="animate-spin text-4xl text-green-800" />
+                        <FiLoader className="animate-spin text-4xl text-green-800" />
 
-            <p className="text-gray-800 font-medium">
-                Please wait...
-            </p>
+                        <p className="text-gray-800 font-medium">
+                            Please wait...
+                        </p>
 
-            </div>
-        </div>
-        )}
-
-        <div className="bg-gray-50 w-full px-4 sm:px-6 lg:px-8 py-4">
-            {/* HEADER */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-                <h1 className="text-3xl font-bold">
-                    Applications
-                </h1>
-
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    {/* SEARCH */}
-                    <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm">
-                        <div className="relative w-full sm:w-64">
-                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                placeholder="Search applications..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-11 pr-10 rounded-full outline-none placeholder-gray-400"
-                            />
-                            {/*clear search*/}
-                            {search &&(
-                                <FiX
-                                    onClick={() => setSearch("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                                />
-                            )}
-                        </div>
                     </div>
-
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700 cursor-pointer"
-                    >
-                        Add Application
-                    </button>
                 </div>
-            </div>
+            )}
 
-            {/* CARDS */}
-            <div className="grid grid-cols-1 shadow-xs sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 bg-gray-100 p-6 rounded-2xl">
+            <div className="bg-gray-50 w-full px-4 sm:px-6 lg:px-8 py-4">
+                {/* HEADER */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                    <h1 className="text-3xl font-bold">
+                        Applications
+                    </h1>
 
-                {platforms.map((item) => {
-                    const current = currentCounts[item] || 0;
-                    const previous = previousCounts[item] || 0;
-                    const percent = getPercentage(current, previous);
-                    const isPositive = percent >= 0;
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        {/* SEARCH */}
+                        <div className="flex items-center bg-gray-100 px-3 py-2 rounded-full shadow-sm">
+                            <div className="relative w-full sm:w-64">
+                                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    placeholder="Search applications..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-11 pr-10 rounded-full outline-none placeholder-gray-400"
+                                />
+                                {/*clear search*/}
+                                {search && (
+                                    <FiX
+                                        onClick={() => setSearch("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                    />
+                                )}
+                            </div>
+                        </div>
 
-                    return (
-                        <div key={item} className="bg-white p-5 rounded-2xl hover:shadow-md transition-all">
-                            <div className="flex justify-between items-center">
-                                <p className="text-gray-500 text-sm">{item}</p>
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700 cursor-pointer"
+                        >
+                            Add Application
+                        </button>
+                    </div>
+                </div>
 
-                                <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+                {/* CARDS */}
+                <div className="grid grid-cols-1 shadow-xs sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 bg-gray-100 p-6 rounded-2xl">
+
+                    {platforms.map((item) => {
+                        const current = currentCounts[item] || 0;
+                        // const previous = previousCounts[item] || 0;
+                        // const percent = getPercentage(current, previous);
+                        // const isPositive = percent >= 0;
+                        const totalApplications = applications.length;
+                        const percent = getPercentage(current, totalApplications);
+                        return (
+                            <div key={item} className="bg-white p-5 rounded-2xl hover:shadow-md transition-all">
+                                <div className="flex justify-between items-center">
+                                    <p className="text-gray-500 text-sm">{item}</p>
+
+                                    {/* <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
                                     isPositive
                                     ? "bg-green-100 text-green-600"
                                     : "bg-red-100 text-red-500"
                                     }`}
                                 >
                                     {isPositive ? `+${percent}%` : `${percent}%`}
-                                </span>
-                            </div>
+                                </span> */}
 
-                            <h2 className="text-3xl font-bold mt-3">
-                                        {current}
-                            </h2>
+                                    <span className="text-sm font-semibold px-2 py-1 rounded-full bg-green-100 text-green-600">
+                                        {percent}%
+                                    </span>
+                                </div>
 
-                            <div className="mt-3">
-                                <div className="h-10 flex items-end gap-1">
-                                    {[4, 6, 5, 8, 7].map((h, i) => (
-                                        <div
-                                            key={i}
-                                            className={`w-2 rounded ${isPositive ? "bg-green-300" : "bg-red-300"
-                                            }`}
-                                            style={{ height: `${h * 4}px` }}
-                                        />
-                                    ))}
+                                <h2 className="text-3xl font-bold mt-3">
+                                    {current}
+                                </h2>
+
+                                <div className="mt-3">
+                                    <div className="h-10 flex items-end gap-1">
+                                        {[4, 6, 5, 8, 7].map((h, i) => (
+                                            <div
+                                                key={i}
+                                                // className={`w-2 rounded ${isPositive ? "bg-green-300" : "bg-red-300"
+                                                // }`}
+                                                className="w-2 rounded bg-green-300"
+                                                style={{ height: `${h * 4}px` }}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/*Filter*/}
-            <div className="flex flex-col lg:flex-row lg:justify-end lg:items-center gap-3 w-full mt-2">
-
-                {/* From Date */}
-                <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
-                    <span className="text-xs font-semibold text-gray-500 uppercase">
-                        From
-                    </span>
-                    <input
-                        type="date"
-                        value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
-                        className="outline-none text-sm"
-                    />
+                        );
+                    })}
                 </div>
 
-                {/* To Date */}
-                <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
-                    <span className="text-xs font-semibold text-gray-500 uppercase">
-                        To
-                    </span>
-                    <input
-                        type="date"
-                        value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
-                        className="outline-none text-sm"
-                    />
-                </div>        
+                {/*Filter*/}
+                <div className="flex flex-col lg:flex-row lg:justify-end lg:items-center gap-3 w-full mt-2">
 
-                {/* Search Button */}
-                <button
-                    onClick={() => {
-                        setLoading(true);
-                        setTimeout(() => {
-                            setAppliedFromDate(fromDate);
-                            setAppliedToDate(toDate);
-                            setLoading(false);
-                        }, 500);
-                    }}
-                    className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition cursor-pointer"
-                >
-                    Search
-                </button>
+                    {/* From Date */}
+                    <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+                        <span className="text-xs font-semibold text-gray-500 uppercase">
+                            From
+                        </span>
+                        <input
+                            type="date"
+                            value={fromDate}
+                            onChange={(e) => setFromDate(e.target.value)}
+                            className="outline-none text-sm"
+                        />
+                    </div>
 
-                {/* Clear Button */}
-                <button
-                    onClick={() => {
-                        setLoading(true);
-                        setTimeout(() => {
-                            setFromDate("");
-                            setToDate("");
-                            setAppliedFromDate("");
-                            setAppliedToDate("");
-                            setLoading(false);
-                        }, 500);
-                    }}
-                    className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer"
-                >
-                    Clear
-                </button>
-            </div>
+                    {/* To Date */}
+                    <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
+                        <span className="text-xs font-semibold text-gray-500 uppercase">
+                            To
+                        </span>
+                        <input
+                            type="date"
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
+                            className="outline-none text-sm"
+                        />
+                    </div>
+
+                    {/* Search Button */}
+                    <button
+                        onClick={() => {
+                            setLoading(true);
+                            setTimeout(() => {
+                                setAppliedFromDate(fromDate);
+                                setAppliedToDate(toDate);
+                                setLoading(false);
+                            }, 500);
+                        }}
+                        className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition cursor-pointer"
+                    >
+                        Search
+                    </button>
+
+                    {/* Clear Button */}
+                    <button
+                        onClick={() => {
+                            setLoading(true);
+                            setTimeout(() => {
+                                setFromDate("");
+                                setToDate("");
+                                setAppliedFromDate("");
+                                setAppliedToDate("");
+                                setLoading(false);
+                            }, 500);
+                        }}
+                        className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+                    >
+                        Clear
+                    </button>
+                </div>
 
                 {/* TABS */}
                 <div className="flex gap-6 border-b mb-4 overflow-x-auto">
 
                     {["All", "Naukri", "LinkedIn", "Career Pages", "Cold Emails", "Other"].map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`pb-2 ${activeTab === tab
-                        ? "border-b-2 border-green-600 text-green-600"
-                        : "text-gray-500"
-                        }`}
-                    >
-                        {tab}
-                    </button>
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`pb-2 ${activeTab === tab
+                                ? "border-b-2 border-green-600 text-green-600"
+                                : "text-gray-500"
+                                }`}
+                        >
+                            {tab}
+                        </button>
                     ))}
                 </div>
 
@@ -557,8 +569,8 @@ function Applications() {
                                                     size={18}
                                                     className="cursor-pointer hover:text-green-600"
                                                     onClick={() => {
-                                                    handleEdit(app.id);   
-                                                    //setShowModal(true);
+                                                        handleEdit(app.id);
+                                                        //setShowModal(true);
                                                     }}
                                                 />
 
@@ -586,117 +598,117 @@ function Applications() {
                             {/* RIGHT */}
                             <div className="flex items-center gap-2">
 
-                            {/* PREVIOUS */}
-                            <button
-                                disabled={currentPage === 1}
-                                onClick={() => {
-                                    setPageLoading(true);
-                                    setTimeout(() => {
-                                        setPageMap({
-                                        ...pageMap,
-                                        [activeTab]: Math.max(currentPage - 1, 1),
-                                        });
-                                        setPageLoading(false);
-                                    }, 400);
-                                }}
-                                className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
-                            >
-                                Previous
-                            </button>
+                                {/* PREVIOUS */}
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => {
+                                        setPageLoading(true);
+                                        setTimeout(() => {
+                                            setPageMap({
+                                                ...pageMap,
+                                                [activeTab]: Math.max(currentPage - 1, 1),
+                                            });
+                                            setPageLoading(false);
+                                        }, 400);
+                                    }}
+                                    className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
+                                >
+                                    Previous
+                                </button>
 
-                            {/* PAGE */}
-                            <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
-                                {currentPage}
-                            </button>
-                            {/* NEXT */}
-                            <button
-                                disabled={currentPage === totalPages}
-                                onClick={() => {
-                                    setPageLoading(true);
-                                    setTimeout(() => {
-                                        setPageMap({
-                                        ...pageMap,
-                                        [activeTab]: Math.min(currentPage + 1, totalPages),
-                                        });
-                                        setPageLoading(false);
+                                {/* PAGE */}
+                                <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
+                                    {currentPage}
+                                </button>
+                                {/* NEXT */}
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => {
+                                        setPageLoading(true);
+                                        setTimeout(() => {
+                                            setPageMap({
+                                                ...pageMap,
+                                                [activeTab]: Math.min(currentPage + 1, totalPages),
+                                            });
+                                            setPageLoading(false);
 
-                                    }, 400);
-                                }}
-                                className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
-                            >
-                                Next
-                            </button>
+                                        }, 400);
+                                    }}
+                                    className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* MODAL */}
-            {showModal && (
-                <AddApplication
-                    onClose={() => {
-                        setShowModal(false);
-                        setEditingApp(null);
-                    }}
-                    onAdd={addApplication}
-                    editingApp={editingApp}
-                />
-            )}
+                {/* MODAL */}
+                {showModal && (
+                    <AddApplication
+                        onClose={() => {
+                            setShowModal(false);
+                            setEditingApp(null);
+                        }}
+                        onAdd={addApplication}
+                        editingApp={editingApp}
+                    />
+                )}
 
-            {popup.show && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white p-6 rounded-xl w-80 text-center shadow-lg">
+                {popup.show && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                        <div className="bg-white p-6 rounded-xl w-80 text-center shadow-lg">
 
-                        <p className={`mb-4 font-semibold
+                            <p className={`mb-4 font-semibold
                             ${popup.type === "success" && "text-green-600"}
                             ${popup.type === "error" && "text-red-600"}
                             ${popup.type === "confirm" && "text-gray-800"}
                         `}>
-                            {popup.message}
-                        </p>
+                                {popup.message}
+                            </p>
 
-                        <div className="flex justify-center gap-3">
-                            {popup.type === "confirm" ? (
-                                <>
-                                    <button
-                                        onClick={async () => {
-                                            await popup.onConfirm();
-                                        }}
-                                        className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
-                                    >
-                                        {loading ? (
-                                            <span className="flex items-center gap-2">
-                                                <FiLoader className="animate-spin" />
-                                                Deleting...
-                                            </span>
+                            <div className="flex justify-center gap-3">
+                                {popup.type === "confirm" ? (
+                                    <>
+                                        <button
+                                            onClick={async () => {
+                                                await popup.onConfirm();
+                                            }}
+                                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                                        >
+                                            {loading ? (
+                                                <span className="flex items-center gap-2">
+                                                    <FiLoader className="animate-spin" />
+                                                    Deleting...
+                                                </span>
                                             ) : (
-                                            "Yes"
-                                        )}
-                                    </button>
+                                                "Yes"
+                                            )}
+                                        </button>
 
+                                        <button
+                                            onClick={() => setPopup({ show: false })}
+                                            className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </>
+                                ) : (
                                     <button
                                         onClick={() => setPopup({ show: false })}
-                                        className="px-4 py-2 bg-gray-300 rounded cursor-pointer"
+                                        className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
                                     >
-                                        Cancel
+                                        OK
                                     </button>
-                                </>
-                            ) : ( 
-                                <button
-                                    onClick={() => setPopup({ show: false })}
-                                    className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
-                                >
-                                    OK
-                                </button>
-                            )}
+                                )}
 
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
-    </>
-  );
+                )}
+            </div>
+        </>
+    );
 }
 
 export default Applications;

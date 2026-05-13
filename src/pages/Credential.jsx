@@ -71,7 +71,7 @@ function Credentials() {
 
     const saveCredential = async (data) => {
         try {
-            //setLoading(true);
+            setLoading(true);
             const payload = {
                 portal_name: data.portal,
                 portal_link: data.portalLink,
@@ -92,14 +92,6 @@ function Credentials() {
                 console.log("Create response:", response.data);
             }
 
-            //setLoading(false);
-            setPopup({
-                show: true,
-                message: editing
-                ? "Credential updated successfully."
-                : "Credential added successfully.",
-                type: "success"
-            });
             // REFRESH
             const res = await API.get(`/credentials/${client_id}`);
             console.log("Fetched credentials after save:", res.data);
@@ -121,9 +113,17 @@ function Credentials() {
             setCredentials(updated);
             setEditing(null);
             setShowModal(false);
-
+            setLoading(false);
+            setPopup({
+                show: true,
+                message: editing
+                    ? "Credential updated successfully."
+                    : "Credential added successfully.",
+                type: "success"
+            });
         } catch (err) {
             console.error("ERROR:", err.response?.data || err.message);
+            setLoading(false);
             setPopup({
                 show: true,
                 message: "Failed to save credential. Please try again.",

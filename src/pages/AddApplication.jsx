@@ -49,8 +49,22 @@ function AddApplication({ onClose, onAdd, editingApp }) {
             if (!form.link.trim()) newErrors.link = "Link is required";
         }
 
-        if (form.link.trim() && !/^https?:\/\/.+/.test(form.link)) {
-            newErrors.link = "Enter valid URL";
+        // if (form.link.trim() && !/^https?:\/\/.+/.test(form.link)) {
+        //     newErrors.link = "Enter valid URL";
+        // }
+        if (form.link.trim()) {
+            try {
+                let value = form.link.trim();
+
+                // Add https:// if no protocol exists
+                if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(value)) {
+                    value = "https://" + value;
+                }
+
+                new URL(value);
+            } catch (err) {
+                newErrors.link = "Enter a valid link";
+            }
         }
         setErrors(newErrors);
 
@@ -134,7 +148,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                             </div>
                             {showPlatformDropdown && (
                                 <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-52 overflow-y-auto">
-                                    {["Naukri", "LinkedIn", "Career Pages","Cold Emails", "Other"].map((item) => (
+                                    {["Naukri", "LinkedIn", "Career Pages", "Cold Emails", "Other"].map((item) => (
                                         <label key={item} className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                             <input
                                                 type="radio"

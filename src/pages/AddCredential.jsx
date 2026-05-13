@@ -79,29 +79,26 @@ function AddCredential({ onClose, onSave, editingData }) {
             newError.email = "Email address is invalid";
         }
 
-        if (form.password.trim() && form.password.length < 8) {
-            newError.password = "Password must be at least 8 characters";
+        if (form.password.trim() && form.password.length < 6) {
+            newError.password = "Password must be at least 6 characters";
         }
-
-        
-
         setError(newError);
         return newError;
     };
 
     const handleSubmit = () => {
         const error = validate();
-        
+
         if (Object.keys(error).length > 0) {
             const message = Object.values(error).join("\n");
             setPopup({
                 show: true,
-                message:Object.values(error).join("\n"),
+                message: Object.values(error).join("\n"),
                 type: "error"
             });
             return;
         }
-        
+
         onSave(form);
         setPopup({
             show: true,

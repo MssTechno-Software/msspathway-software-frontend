@@ -6,7 +6,8 @@ import {
     FiArrowLeft,
     FiUser,
     FiChevronLeft,
-    FiChevronRight
+    FiChevronRight,
+    FiLogOut
 } from "react-icons/fi";
 
 import { FaUserTie } from "react-icons/fa";
@@ -19,6 +20,10 @@ function Sidebar({ children }) {
     const employee_id = localStorage.getItem("employee_id");
 
     const [openSidebar, setOpenSidebar] = useState(true);
+
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -66,17 +71,22 @@ function Sidebar({ children }) {
                     )}
                 </button>
 
-                <div className="p-4">
+                <div className="p-4 h-full flex flex-col">
 
                     {/* HEADER */}
                     <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
-
-                        <FiArrowLeft
-                            size={20}
-                            className="cursor-pointer hover:text-gray-300"
-                            onClick={handleLogout}
-                            title="Logout"
-                        />
+                        {/* BACK BUTTON */}
+                        <button
+                            onClick={handleBack}
+                            className="
+                                flex items-center justify-center
+                                w-10 h-10
+                                cursor-pointer hover:text-gray-300
+                                transition-all duration-200
+                            "
+                        >
+                            <FiArrowLeft size={20} />
+                        </button>
 
                         {openSidebar && (
                             <div>
@@ -92,7 +102,7 @@ function Sidebar({ children }) {
                     </div>
 
                     {/* MENU */}
-                    <nav className="space-y-2">
+                    <nav className="space-y-2 flex-1">
 
                         {/* MY PROFILE */}
                         <NavLink
@@ -107,10 +117,9 @@ function Sidebar({ children }) {
                                 flex items-center gap-3
                                 px-4 py-3 rounded-xl
                                 transition-all duration-200
-                                ${
-                                    isActive
-                                        ? "bg-green-800"
-                                        : "hover:bg-green-700"
+                                ${isActive
+                                    ? "bg-green-800"
+                                    : "hover:bg-green-700"
                                 }
                                 `
                             }
@@ -135,10 +144,9 @@ function Sidebar({ children }) {
                                 flex items-center gap-3
                                 px-4 py-3 rounded-xl
                                 transition-all duration-200
-                                ${
-                                    isActive
-                                        ? "bg-green-800"
-                                        : "hover:bg-green-700"
+                                ${isActive
+                                    ? "bg-green-800"
+                                    : "hover:bg-green-700"
                                 }
                                 `
                             }
@@ -163,10 +171,9 @@ function Sidebar({ children }) {
                                 flex items-center gap-3
                                 px-4 py-3 rounded-xl
                                 transition-all duration-200
-                                ${
-                                    isActive
-                                        ? "bg-green-800"
-                                        : "hover:bg-green-700"
+                                ${isActive
+                                    ? "bg-green-800"
+                                    : "hover:bg-green-700"
                                 }
                                 `
                             }
@@ -187,10 +194,9 @@ function Sidebar({ children }) {
                                     flex items-center gap-3
                                     px-4 py-3 rounded-xl
                                     transition-all duration-200
-                                    ${
-                                        isActive
-                                            ? "bg-green-800"
-                                            : "hover:bg-green-700"
+                                    ${isActive
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
                                     }
                                     `
                                 }
@@ -203,6 +209,26 @@ function Sidebar({ children }) {
                             </NavLink>
                         )}
                     </nav>
+
+                    {/* LOGOUT BUTTON */}
+                    <button
+                        onClick={handleLogout}
+                        className="
+                            mt-6
+                            flex items-center justify-center gap-3
+                            w-full
+                            px-4 py-3
+                            rounded-xl
+                            bg-green-800 hover:bg-green-700
+                            transition-all duration-200
+                        "
+                    >
+                        <FiLogOut size={20} />
+
+                        {openSidebar && (
+                            <span>Logout</span>
+                        )}
+                    </button>
                 </div>
             </div>
 

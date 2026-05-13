@@ -46,6 +46,10 @@ function ClientLayout() {
     }
   }, [location.state, client_id]);
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="flex min-h-screen">
 
@@ -91,11 +95,18 @@ function ClientLayout() {
 
             <div className="flex items-center gap-3">
 
-              <FiArrowLeft
-                size={20}
-                className="cursor-pointer hover:text-gray-300"
-                onClick={() => navigate("/dashboard/clients")}
-              />
+              {/* BACK BUTTON */}
+              <button
+                onClick={handleBack}
+                className="
+                  flex items-center justify-center
+                  w-10 h-10
+                  cursor-pointer hover:text-gray-300
+                  transition-all duration-200
+                "
+              >
+                <FiArrowLeft size={20} />
+              </button>
 
               {openSidebar && (
                 <div>
@@ -119,13 +130,12 @@ function ClientLayout() {
               onClick={() => navigate(`/clients/${client_id}`)}
               className={`
                 flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  !location.pathname.includes("applications") &&
+                ${!location.pathname.includes("applications") &&
                   !location.pathname.includes("credentials") &&
                   !location.pathname.includes("reports") &&
                   !location.pathname.includes("overview")
-                    ? "border-l-4 border-green-800 bg-white/10"
-                    : "hover:bg-white/10"
+                  ? "border-l-4 border-green-800 bg-white/10"
+                  : "hover:bg-white/10"
                 }
               `}
             >
@@ -143,10 +153,9 @@ function ClientLayout() {
               }
               className={`
                 flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  isActive("applications")
-                    ? "border-l-4 border-green-800 bg-white/10"
-                    : "hover:bg-white/10"
+                ${isActive("applications")
+                  ? "border-l-4 border-green-800 bg-white/10"
+                  : "hover:bg-white/10"
                 }
               `}
             >
@@ -164,10 +173,9 @@ function ClientLayout() {
               }
               className={`
                 flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  isActive("credentials")
-                    ? "border-l-4 border-green-800 bg-white/10"
-                    : "hover:bg-white/10"
+                ${isActive("credentials")
+                  ? "border-l-4 border-green-800 bg-white/10"
+                  : "hover:bg-white/10"
                 }
               `}
             >
@@ -185,10 +193,9 @@ function ClientLayout() {
               }
               className={`
                 flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  isActive("reports")
-                    ? "border-l-4 border-green-800 bg-white/10"
-                    : "hover:bg-white/10"
+                ${isActive("reports")
+                  ? "border-l-4 border-green-800 bg-white/10"
+                  : "hover:bg-white/10"
                 }
               `}
             >
@@ -206,10 +213,9 @@ function ClientLayout() {
               }
               className={`
                 flex items-center gap-3 px-6 py-3 cursor-pointer
-                ${
-                  isActive("overview")
-                    ? "border-l-4 border-green-800 bg-white/10"
-                    : "hover:bg-white/10"
+                ${isActive("overview")
+                  ? "border-l-4 border-green-800 bg-white/10"
+                  : "hover:bg-white/10"
                 }
               `}
             >
