@@ -18,43 +18,43 @@ API.interceptors.request.use((config) => {
 });
 
 function LeaveRequests() {
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [pageLoading, setPageLoading] = useState(false);
-    const [openModal, setOpenModal] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-    const [startFilter, setStartFilter] = useState("");
-    const [endFilter, setEndFilter] = useState("");
-    const [tempStartFilter, setTempStartFilter] = useState("");
-    const [tempEndFilter, setTempEndFilter] = useState("");
-    const [popup, setPopup] = useState({
-        show: false,
-        type: "success",
-        message: "",
-        leaveId: null,
-    });
+  const [startFilter, setStartFilter] = useState("");
+  const [endFilter, setEndFilter] = useState("");
+  const [tempStartFilter, setTempStartFilter] = useState("");
+  const [tempEndFilter, setTempEndFilter] = useState("");
+  const [popup, setPopup] = useState({
+    show: false,
+    type: "success",
+    message: "",
+    leaveId: null,
+  });
 
-    const showPopup = (message, type = "success", leaveId = null) => {
-        setPopup({
-            show: true,
-            type,
-            message,
-            leaveId,
-        });
-    };
-
-    const closePopup = () => {
+  const showPopup = (message, type = "success", leaveId = null) => {
     setPopup({
-        show: false,
-        type: "success",
-        message: "",
-        leaveId: null,
+      show: true,
+      type,
+      message,
+      leaveId,
     });
-    };
- 
+  };
+
+  const closePopup = () => {
+    setPopup({
+      show: false,
+      type: "success",
+      message: "",
+      leaveId: null,
+    });
+  };
+
   // FETCH LEAVE REQUESTS
   const fetchLeaveRequests = async () => {
     try {
@@ -89,18 +89,18 @@ function LeaveRequests() {
       setOpenModal(false);
       fetchLeaveRequests();
     } catch (error) {
-        console.error(error);
-        const errorMessage =
-          error?.response?.data?.detail?.[0]?.msg ||
-          error?.response?.data?.detail ||
-          error?.response?.data?.message ||
-          error?.response?.data?.error ||
-          error?.message ||
-          "Failed to approve leave";
-        showPopup(errorMessage, "error");
-      } finally {
-          setLoading(false);
-      }
+      console.error(error);
+      const errorMessage =
+        error?.response?.data?.detail?.[0]?.msg ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to approve leave";
+      showPopup(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReject = async (request) => {
@@ -118,19 +118,19 @@ function LeaveRequests() {
       setOpenModal(false);
       fetchLeaveRequests();
     } catch (error) {
-        console.error(error);
-        const errorMessage =
-          error?.response?.data?.detail?.[0]?.msg ||
-          error?.response?.data?.detail ||
-          error?.response?.data?.message ||
-          error?.response?.data?.error ||
-          error?.message ||
-          "Failed to reject leave";
-        showPopup(errorMessage, "error");
-      } finally {
-          setLoading(false);
-      }
-    };
+      console.error(error);
+      const errorMessage =
+        error?.response?.data?.detail?.[0]?.msg ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to reject leave";
+      showPopup(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // DELETE LEAVE REQUEST
   const deleteLeaveRequest = async (leaveId) => {
@@ -147,7 +147,7 @@ function LeaveRequests() {
       console.error("Error deleting leave request:", error);
       showPopup("Failed to delete leave request", "error");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -203,47 +203,39 @@ function LeaveRequests() {
 
     // FROM DATE
     if (startFilter) {
-        const from = new Date(startFilter);
-        from.setHours(0, 0, 0, 0);
+      const from = new Date(startFilter);
+      from.setHours(0, 0, 0, 0);
 
-        if (requestDate < from) {
-            return false;
-        }
+      if (requestDate < from) {
+        return false;
+      }
     }
 
     // TO DATE
     if (endFilter) {
-        const to = new Date(endFilter);
-        to.setHours(23, 59, 59, 999);
+      const to = new Date(endFilter);
+      to.setHours(23, 59, 59, 999);
 
-        if (requestDate > to) {
-            return false;
-        }
+      if (requestDate > to) {
+        return false;
+      }
     }
 
     return true;
   });
 
   const handleSearchFilter = () => {
-    setLoading(true);
-    setTimeout(() => {
-        setStartFilter(tempStartFilter);
-        setEndFilter(tempEndFilter);
-        setCurrentPage(1);
-        setLoading(false);
-    }, 500);
+    setStartFilter(tempStartFilter);
+    setEndFilter(tempEndFilter);
+    setCurrentPage(1);
   };
 
   const handleClearFilter = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setTempStartFilter("");
-      setTempEndFilter("");
-      setStartFilter("");
-      setEndFilter("");
-      setCurrentPage(1);
-      setLoading(false);
-    }, 500);
+    setTempStartFilter("");
+    setTempEndFilter("");
+    setStartFilter("");
+    setEndFilter("");
+    setCurrentPage(1);
   };
 
   // PAGINATION LOGIC
@@ -265,13 +257,13 @@ function LeaveRequests() {
   );
 
   return (
-     <>
+    <>
       {(loading || pageLoading) && (
         <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
           <div className="p-6 flex flex-col items-center gap-3">
 
-            <FiLoader className="animate-spin text-4xl text-green-800"/>
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
             <p className="text-gray-800 font-medium">
               Please wait...
@@ -388,9 +380,9 @@ function LeaveRequests() {
                       {item.leave_type === "one_day"
                         ? "1 Day"
                         : calculateDays(
-                            item.start_date,
-                            item.end_date
-                          )}
+                          item.start_date,
+                          item.end_date
+                        )}
                     </div>
 
                     {/* Status */}
@@ -424,9 +416,9 @@ function LeaveRequests() {
                       <button
                         onClick={() =>
                           showPopup(
-                              "Are you sure you want to delete this leave request?",
-                              "delete",
-                              item.leave_id
+                            "Are you sure you want to delete this leave request?",
+                            "delete",
+                            item.leave_id
                           )
                         }
                         className="hover:scale-110 transition"
@@ -447,7 +439,7 @@ function LeaveRequests() {
 
               {filteredRequests.length > 0 && (
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-4 px-4 md:px-8 py-4 border-t border-gray-200 bg-gray-50">
-                  
+
                   {/* Showing entries */}
                   <p className="text-sm text-gray-500">
                     Showing {startIndex} to {endIndex} of {filteredRequests.length} entries
@@ -457,14 +449,10 @@ function LeaveRequests() {
                   <div className="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-0">
                     {/* Previous */}
                     <button
-                      onClick={() => {
-                        setPageLoading(true);
-                        setTimeout(() => {
-                          setCurrentPage((prev) => Math.max(prev - 1, 1));
-                          setPageLoading(false);
-                        }, 400);
-                      }}
-                      disabled={currentPage === 1 || loading || pageLoading}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
                       className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                     >
                       Previous
@@ -477,16 +465,12 @@ function LeaveRequests() {
 
                     {/* Next */}
                     <button
-                      onClick={() => {
-                        setPageLoading(true);
-                        setTimeout(() => {
-                          setCurrentPage((prev) =>
-                            Math.min(prev + 1, totalPages)
-                          );
-                          setPageLoading(false);
-                        }, 400);
-                      }}
-                      disabled={currentPage === totalPages || loading || pageLoading}
+                      onClick={() =>
+                        setCurrentPage((prev) =>
+                          Math.min(prev + 1, totalPages)
+                        )
+                      }
+                      disabled={currentPage === totalPages}
                       className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
                     >
                       Next
@@ -508,60 +492,59 @@ function LeaveRequests() {
 
         {popup.show && (
           <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-              <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
-                  <div className="p-8 text-center">
-                      <h2
-                      className={`text-2xl font-bold mb-4 ${
-                          popup.type === "error"
-                          ? "text-red-600"
-                          : popup.type === "delete"
-                          ? "text-[#A84242]"
-                          : "text-[#0F5B33]"
-                      }`}
+            <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
+              <div className="p-8 text-center">
+                <h2
+                  className={`text-xl font-bold mb-4 ${popup.type === "error"
+                    ? "text-red-600"
+                    : popup.type === "delete"
+                      ? "text-[#A84242]"
+                      : "text-[#0F5B33]"
+                    }`}
+                >
+                  {popup.type === "error"
+                    ? "Error"
+                    : popup.type === "delete"
+                      ? "Confirm Delete"
+                      : "Success"}
+                </h2>
+
+                {/* Popup Message */}
+                <p className="text-gray-600 text-md">{popup.message}</p>
+
+                <div className="mt-8 flex justify-center gap-4">
+                  {popup.type === "delete" ? (
+                    <>
+                      <button
+                        onClick={closePopup}
+                        className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100"
                       >
-                      {popup.type === "error"
-                          ? "Error"
-                          : popup.type === "delete"
-                          ? "Confirm Delete"
-                          : "Success"}
-                      </h2>
+                        Cancel
+                      </button>
 
-                      {/* Popup Message */}
-                      <p className="text-gray-600 text-lg">{popup.message}</p>
-
-                      <div className="mt-8 flex justify-center gap-4">
-                      {popup.type === "delete" ? (
-                          <>
-                          <button
-                              onClick={closePopup}
-                              className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100"
-                          >
-                              Cancel
-                          </button>
-
-                          <button
-                              onClick={() => {
-                              deleteLeaveRequest(popup.leaveId);
-                              closePopup();
-                              }}
-                              className="px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700"
-                          >
-                              Delete
-                          </button>
-                          </>
-                          ) : (
-                              <button
-                              onClick={closePopup}
-                              className="px-8 py-3 rounded-xl bg-[#0F5B33] text-white hover:bg-[#0C4A29]"
-                              >
-                              OK
-                              </button>
-                          )}
-                      </div>
-                  </div>
+                      <button
+                        onClick={() => {
+                          deleteLeaveRequest(popup.leaveId);
+                          closePopup();
+                        }}
+                        className="px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={closePopup}
+                      className="px-8 py-3 rounded-xl bg-[#0F5B33] text-white hover:bg-[#0C4A29]"
+                    >
+                      OK
+                    </button>
+                  )}
+                </div>
               </div>
+            </div>
           </div>
-          )}
+        )}
       </div>
     </>
   );

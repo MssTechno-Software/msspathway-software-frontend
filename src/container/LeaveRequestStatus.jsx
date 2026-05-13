@@ -21,36 +21,23 @@ function LeaveRequestStatus({
   const handleApprove = async () => {
 
     try {
-
       setLoading(true);
-
       await onApprove(selectedRequest);
-
     } catch (error) {
-
       console.error(error);
-
     } finally {
-
       setLoading(false);
     }
   };
 
   // HANDLE REJECT
   const handleReject = async () => {
-
     try {
-
       setLoading(true);
-
       await onReject(selectedRequest);
-
     } catch (error) {
-
-      console.error(error);
-
+      conole.error(error);
     } finally {
-
       setLoading(false);
     }
   };
@@ -74,7 +61,7 @@ function LeaveRequestStatus({
         </div>
       )}
 
-      <div className="w-full max-w-xl rounded-3xl bg-[#FCFAF8] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-96 max-w-xl rounded-3xl bg-[#FCFAF8] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         <div className="p-10">
 
@@ -101,13 +88,13 @@ function LeaveRequestStatus({
               Selected Request
             </p>
 
-            <h3 className="text-lg font-semibold text-[#1E130F]">
+            <h3 className="text-md font-semibold text-[#1E130F]">
               {selectedRequest.employee_name ||
                 selectedRequest.name ||
                 "Employee"}
             </h3>
 
-            <p className="mt-2 text-lg text-[#6E675F]">
+            <p className="mt-2 text-md text-[#6E675F]">
               {selectedRequest.employee_id ||
                 selectedRequest.id ||
                 "ID"}
@@ -121,36 +108,18 @@ function LeaveRequestStatus({
             <button
               disabled={loading}
               onClick={handleApprove}
-              className="w-full rounded-xl bg-green-800 py-5 text-xl font-semibold text-white shadow-lg hover:bg-green-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full rounded-xl bg-green-800 py-5 text-lg font-semibold text-white shadow-lg hover:bg-green-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-
-              {loading ? (
-                <>
-                  <FiLoader className="animate-spin text-2xl" />
-                  Processing...
-                </>
-              ) : (
-                "Approve"
-              )}
-
+              Approve
             </button>
 
             {/* REJECT */}
             <button
               disabled={loading}
               onClick={handleReject}
-              className="w-full rounded-xl border border-gray-300 bg-white py-5 text-xl font-semibold text-red-400 hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full rounded-xl border border-gray-300 bg-white py-5 text-lg font-semibold text-red-400 hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-
-              {loading ? (
-                <>
-                  <FiLoader className="animate-spin text-2xl" />
-                  Processing...
-                </>
-              ) : (
-                "Reject"
-              )}
-
+              Reject
             </button>
           </div>
         </div>
