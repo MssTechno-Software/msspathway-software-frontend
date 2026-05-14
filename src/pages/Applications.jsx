@@ -445,69 +445,7 @@ function Applications() {
                         );
                     })}
                 </div>
-
-                {/*Filter*/}
-                <div className="flex flex-col lg:flex-row lg:justify-end lg:items-center gap-3 w-full mt-2">
-
-                    {/* From Date */}
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
-                        <span className="text-xs font-semibold text-gray-500 uppercase">
-                            From
-                        </span>
-                        <input
-                            type="date"
-                            value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
-                            className="outline-none text-sm"
-                        />
-                    </div>
-
-                    {/* To Date */}
-                    <div className="flex items-center gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
-                        <span className="text-xs font-semibold text-gray-500 uppercase">
-                            To
-                        </span>
-                        <input
-                            type="date"
-                            value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
-                            className="outline-none text-sm"
-                        />
-                    </div>
-
-                    {/* Search Button */}
-                    <button
-                        onClick={() => {
-                            setLoading(true);
-                            setTimeout(() => {
-                                setAppliedFromDate(fromDate);
-                                setAppliedToDate(toDate);
-                                setLoading(false);
-                            }, 500);
-                        }}
-                        className="px-5 py-2 rounded-xl bg-green-800 text-white font-medium hover:bg-green-700 transition cursor-pointer"
-                    >
-                        Search
-                    </button>
-
-                    {/* Clear Button */}
-                    <button
-                        onClick={() => {
-                            setLoading(true);
-                            setTimeout(() => {
-                                setFromDate("");
-                                setToDate("");
-                                setAppliedFromDate("");
-                                setAppliedToDate("");
-                                setLoading(false);
-                            }, 500);
-                        }}
-                        className="px-5 py-2 rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer"
-                    >
-                        Clear
-                    </button>
-                </div>
-
+c
                 {/* TABS */}
                 <div className="flex gap-6 border-b mb-4 overflow-x-auto">
 
