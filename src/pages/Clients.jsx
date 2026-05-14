@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2, FiSearch, FiLoader } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiLoader, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AddClient from "./AddClient";
