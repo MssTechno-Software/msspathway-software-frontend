@@ -139,6 +139,15 @@ function Employees() {
           setLoading(true);
           const res = await API.delete(`/admin/users/${employee_id}`);
           console.log("Deleting Employee:", res.data);
+          if (res.data.success === false) {
+            setPopup({
+              show: true,
+              message: res.data.message || "Failed to delete employee.",
+              type: "error"
+            });
+
+            return;
+          }
           fetchEmployees();
           setPopup({
             show: true,
@@ -148,9 +157,12 @@ function Employees() {
         }
         catch (err) {
           console.error("Delete error:", err.response?.data || err.message);
-            setPopup({
+          setPopup({
             show: true,
-            message: "Failed to delete employee.",
+            message:
+              err.response?.data?.message ||
+              err.response?.data?.detail ||
+              "Failed to delete employee.",
             type: "error"
           });
         }
@@ -374,18 +386,10 @@ function Employees() {
                     <button
                       onClick={async () => {
                         await popup.onConfirm();
-                        setPopup({ show: false });
                       }}
                       className="bg-red-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-500"
                     >
-                      {loading ? (
-                        <span className="flex items-center gap-2">
-                          <FiLoader className="animate-spin" />
-                          Deleting...
-                        </span>
-                      ) : (
-                        "Yes"
-                      )}
+                      Yes
                     </button>
 
                     <button

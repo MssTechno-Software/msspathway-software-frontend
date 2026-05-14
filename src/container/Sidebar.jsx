@@ -53,21 +53,22 @@ function Sidebar({ children }) {
                     onClick={() => setOpenSidebar(!openSidebar)}
                     className="
                         absolute
-                        -right-4
-                        top-1/2
-                        -translate-y-1/2
+                        top-5
+                        -right-5
+                        transition-all
                         bg-green-800
                         text-white
                         shadow-md
                         rounded-full
                         p-2
                         z-50
+                        cursor-pointer
                     "
                 >
                     {openSidebar ? (
-                        <FiChevronLeft size={18} />
+                        <FiChevronLeft size={20} />
                     ) : (
-                        <FiChevronRight size={18} />
+                        <FiChevronRight size={20} />
                     )}
                 </button>
 

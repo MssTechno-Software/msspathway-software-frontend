@@ -49,6 +49,8 @@ export default function Reports() {
     const { client_id } = useParams();
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
+    const [appliedFromDate, setAppliedFromDate] = useState("");
+    const [appliedToDate, setAppliedToDate] = useState("");
     const [loading, setLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
     const [popup, setPopup] = useState({
@@ -237,34 +239,6 @@ export default function Reports() {
         }
     };
 
-    const counts = {
-        "Call Received": entries.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Call");
-        }).length,
-
-        "Mail Received": entries.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Mail");
-        }).length,
-
-        "L1 Interview": entries.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("L1");
-        }).length,
-
-        "L2 Interview": entries.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("L2");
-        }).length,
-
-        "Offer Letter": entries.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Offer");
-        }).length,
-    };
-
-
     // Group by company
     const grouped = Object.values(
         entries.reduce((acc, entry) => {
@@ -287,52 +261,152 @@ export default function Reports() {
         }, {})
     );
 
+    //filter
+    const parseLocalDate = (dateValue, endOfDay = false) => {
+
+        if (!dateValue) return null;
+
+        // ALREADY A DATE OBJECT
+        if (dateValue instanceof Date) {
+            return dateValue;
+        }
+
+        // HANDLE STRING
+        let dateStr = String(dateValue).trim();
+
+        // REMOVE TIME PART
+        if (dateStr.includes("T")) {
+            dateStr = dateStr.split("T")[0];
+        }
+
+        let year, month, day;
+
+        // YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+
+            [year, month, day] =
+                dateStr.split("-").map(Number);
+        }
+
+        // DD-MM-YYYY
+        else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+
+            [day, month, year] =
+                dateStr.split("-").map(Number);
+        }
+
+        // OTHER FORMATS
+        else {
+
+            const tempDate = new Date(dateStr);
+
+            if (isNaN(tempDate.getTime())) {
+                return null;
+            }
+
+            year = tempDate.getFullYear();
+            month = tempDate.getMonth() + 1;
+            day = tempDate.getDate();
+        }
+
+        return new Date(
+            year,
+            month - 1,
+            day,
+            endOfDay ? 23 : 0,
+            endOfDay ? 59 : 0,
+            endOfDay ? 59 : 0,
+            endOfDay ? 999 : 0
+        );
+    };
     const filtered = grouped.filter((company) => {
+
+        // SEARCH
+        const searchValue = search.toLowerCase().trim();
+
         const matchesSearch =
-            company.company?.toLowerCase().includes(search.toLowerCase());
+            !searchValue ||
+            company.company?.toLowerCase().includes(searchValue);
 
-        const latestDate = company.stages[company.stages.length - 1]?.date;
+        // LATEST DATE
+        const latestDate =
+            company.stages[company.stages.length - 1]?.date;
 
-        // If no date exists
+        // NO DATE
         if (!latestDate) {
             return matchesSearch;
         }
 
-        // Convert app date
-        const appDate = new Date(latestDate);
-        appDate.setHours(0, 0, 0, 0);
+        // SAFE DATE
+        const appDate = parseLocalDate(latestDate);
 
         let matchesDate = true;
 
-        // BOTH FROM & TO
-        if (fromDate && toDate) {
-            const from = new Date(fromDate);
-            from.setHours(0, 0, 0, 0);
+        // INVALID DATE
+        if (!appDate) {
+            matchesDate = false;
+        }
 
-            const to = new Date(toDate);
-            to.setHours(23, 59, 59, 999);
+        // APPLIED FROM
+        const from = appliedFromDate
+            ? parseLocalDate(appliedFromDate)
+            : null;
 
-            matchesDate = appDate >= from && appDate <= to;
+        // APPLIED TO
+        const to = appliedToDate
+            ? parseLocalDate(appliedToDate, true)
+            : null;
+
+        // BOTH
+        if (from && to && appDate) {
+            matchesDate =
+                appDate.getTime() >= from.getTime() &&
+                appDate.getTime() <= to.getTime();
         }
 
         // ONLY FROM
-        else if (fromDate) {
-            const from = new Date(fromDate);
-            from.setHours(0, 0, 0, 0);
-
-            matchesDate = appDate >= from;
+        else if (from && appDate) {
+            matchesDate =
+                appDate.getTime() >= from.getTime();
         }
 
         // ONLY TO
-        else if (toDate) {
-            const to = new Date(toDate);
-            to.setHours(23, 59, 59, 999);
-
-            matchesDate = appDate <= to;
+        else if (to && appDate) {
+            matchesDate =
+                appDate.getTime() <= to.getTime();
         }
 
         return matchesSearch && matchesDate;
     });
+
+    //count
+    const counts = {
+
+        "Call Received": filtered.filter((e) => {
+            const stage = e.stages?.[0]?.stage;
+            return STAGES.indexOf(stage) >= STAGES.indexOf("Call");
+        }).length,
+
+        "Mail Received": filtered.filter((e) => {
+            const stage = e.stages?.[0]?.stage;
+            return STAGES.indexOf(stage) >= STAGES.indexOf("Mail");
+        }).length,
+
+        "L1 Interview": filtered.filter((e) => {
+            const stage = e.stages?.[0]?.stage;
+            return STAGES.indexOf(stage) >= STAGES.indexOf("L1");
+        }).length,
+
+        "L2 Interview": filtered.filter((e) => {
+            const stage = e.stages?.[0]?.stage;
+            return STAGES.indexOf(stage) >= STAGES.indexOf("L2");
+        }).length,
+
+        "Offer Letter": filtered.filter((e) => {
+            const stage = e.stages?.[0]?.stage;
+            return STAGES.indexOf(stage) >= STAGES.indexOf("Offer");
+        }).length,
+    };
 
     // Pagination
     const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
@@ -441,6 +515,11 @@ export default function Reports() {
                             <div className="sm:pl-5 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
 
                                 <button
+                                    onClick={() => {
+                                        setAppliedFromDate(fromDate);
+                                        setAppliedToDate(toDate);
+                                        setCurrentPage(1);
+                                    }}
                                     className="bg-green-800 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer"
                                 >
                                     Search
@@ -450,9 +529,12 @@ export default function Reports() {
                                     onClick={() => {
                                         setFromDate("");
                                         setToDate("");
+                                        setAppliedFromDate("");
+                                        setAppliedToDate("");
                                         setCurrentPage(1);
+                                        setLoading(false);
                                     }}
-                                    className="border border-gray-200 rounded-xl font-medium text-xs text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
+                                    className="border border-gray-200 rounded-xl font-medium text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
                                 >
                                     Clear
                                 </button>

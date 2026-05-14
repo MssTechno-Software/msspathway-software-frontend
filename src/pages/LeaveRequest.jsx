@@ -166,19 +166,25 @@ function LeaveRequests() {
   // HELPERS
   const formatDate = (date) => {
     if (!date) return "-";
-
-    return new Date(date).toLocaleDateString("en-US", {
+    const safeDate = parseLocalDate(date);
+    return safeDate?.toLocaleDateString("en-US", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
   };
 
+
   const calculateDays = (start, end) => {
+
     if (!start || !end) return "1 Day";
 
+    const startDate = parseLocalDate(start);
+
+    const endDate = parseLocalDate(end);
+
     const diff =
-      new Date(end).getTime() - new Date(start).getTime();
+      endDate.getTime() - startDate.getTime();
 
     return `${Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1} Days`;
   };
@@ -198,30 +204,99 @@ function LeaveRequests() {
   };
 
   // FILTER REQUESTS BY DATE
+  const parseLocalDate = (dateValue, endOfDay = false) => {
+    if (!dateValue) return null;
+    // ALREADY DATE OBJECT
+    if (dateValue instanceof Date) {
+      return dateValue;
+    }
+    // HANDLE STRING
+    let dateStr = String(dateValue).trim();
+    // REMOVE TIME PART
+    if (dateStr.includes("T")) {
+      dateStr = dateStr.split("T")[0];
+    }
+    let year, month, day;
+    // YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      [year, month, day] =
+        dateStr.split("-").map(Number);
+    }
+
+    // // DD-MM-YYYY
+    // else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+    //   [day, month, year] =
+    //     dateStr.split("-").map(Number);
+    // }
+
+    // OTHER FORMATS
+    else {
+      const tempDate = new Date(dateStr);
+      if (isNaN(tempDate.getTime())) {
+        return null;
+      }
+      year = tempDate.getFullYear();
+      month = tempDate.getMonth() + 1;
+      day = tempDate.getDate();
+    }
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+      endOfDay ? 23 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 999 : 0
+    );
+  };
+
   const filteredRequests = requests.filter((item) => {
-    const requestDate = new Date(item.start_date);
+
+    let matchesDate = true;
+
+    // SAFE REQUEST DATE
+    const requestDate =
+      parseLocalDate(item.start_date);
+
+    // INVALID DATE
+    if (!requestDate) {
+      matchesDate = false;
+    }
 
     // FROM DATE
-    if (startFilter) {
-      const from = new Date(startFilter);
-      from.setHours(0, 0, 0, 0);
-
-      if (requestDate < from) {
-        return false;
-      }
-    }
+    const from = startFilter
+      ? parseLocalDate(startFilter)
+      : null;
 
     // TO DATE
-    if (endFilter) {
-      const to = new Date(endFilter);
-      to.setHours(23, 59, 59, 999);
+    const to = endFilter
+      ? parseLocalDate(endFilter, true)
+      : null;
 
-      if (requestDate > to) {
-        return false;
-      }
+    // BOTH FROM & TO
+    if (from && to && requestDate) {
+
+      matchesDate =
+        requestDate.getTime() >= from.getTime() &&
+        requestDate.getTime() <= to.getTime();
     }
 
-    return true;
+    // ONLY FROM
+    else if (from && requestDate) {
+
+      matchesDate =
+        requestDate.getTime() >= from.getTime();
+    }
+
+    // ONLY TO
+    else if (to && requestDate) {
+
+      matchesDate =
+        requestDate.getTime() <= to.getTime();
+    }
+
+    return matchesDate;
   });
 
   const handleSearchFilter = () => {

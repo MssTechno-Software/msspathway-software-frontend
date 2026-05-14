@@ -110,7 +110,7 @@ function Applications() {
                 platform: app.platform,
                 company_name: app.company,
                 role: app.role,
-                date_applied: new Date(app.date).toISOString().split("T")[0],
+                date_applied: app.date,
                 application_link: app.link,
                 notes: app.notes || ""
             };
@@ -254,29 +254,11 @@ function Applications() {
             console.error("Edit API error:", err.response?.data || err.message);
         }
     };
-
-    //count
-    const currentCounts = platforms.reduce((acc, platform) => {
-        if (platform === "All") {
-            acc[platform] = applications.length;
-        } else {
-            acc[platform] = applications.filter(a => a.platform === platform).length;
-        }
-        return acc;
-    }, {});
-
     useEffect(() => {
         const prev = JSON.parse(localStorage.getItem(`prev_counts_${client_id}`)) || {};
         setPreviousCounts(prev);
     }, [client_id]);
-
-    // const getPercentage = (current, previous) => {
-    //     if (previous === 0) {
-    //         return current > 0 ? 100 : 0;
-    //     }
-    //     return Math.round(((current - previous) / previous) * 100);
-    // };
-
+    //get the percentage
     const getPercentage = (count, total) => {
         if (total === 0) return 0;
 
@@ -284,6 +266,51 @@ function Applications() {
     };
 
     // FILTER
+    const parseLocalDate = (dateValue, endOfDay = false) => {
+        if (!dateValue) return null;
+        // ALREADY A DATE OBJECT
+        if (dateValue instanceof Date) {
+            return dateValue;
+        }
+        // HANDLE STRING
+        let dateStr = String(dateValue).trim();
+        // REMOVE TIME PART
+        if (dateStr.includes("T")) {
+            dateStr = dateStr.split("T")[0];
+        }
+        let year, month, day;
+        // YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            [year, month, day] =
+                dateStr.split("-").map(Number);
+        }
+        // DD-MM-YYYY
+        else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+            [day, month, year] =
+                dateStr.split("-").map(Number);
+        }
+        // OTHER DATE FORMATS
+        else {
+            const tempDate = new Date(dateStr);
+            if (isNaN(tempDate.getTime())) {
+                return null;
+            }
+            year = tempDate.getFullYear();
+            month = tempDate.getMonth() + 1;
+            day = tempDate.getDate();
+        }
+
+        return new Date(
+            year,
+            month - 1,
+            day,
+            endOfDay ? 23 : 0,
+            endOfDay ? 59 : 0,
+            endOfDay ? 59 : 0,
+            endOfDay ? 999 : 0
+        );
+    };
+
     const filteredApps = applications.filter((app) => {
         // TAB FILTER
         const matchesTab =
@@ -291,46 +318,69 @@ function Applications() {
             app.platform?.toLowerCase() === activeTab.toLowerCase();
 
         // SEARCH FILTER
+        const searchValue = search.toLowerCase().trim();
+
         const matchesSearch =
-            app.company?.toLowerCase().includes(search.toLowerCase()) ||
-            app.role?.toLowerCase().includes(search.toLowerCase()) ||
-            app.platform?.toLowerCase().includes(search.toLowerCase());
+            !searchValue ||
+            app.company?.toLowerCase().includes(searchValue) ||
+            app.role?.toLowerCase().includes(searchValue) ||
+            app.platform?.toLowerCase().includes(searchValue);
 
         // DATE FILTER
-        const appDate = new Date(app.date);
-        appDate.setHours(0, 0, 0, 0);
-
         let matchesDate = true;
 
+        // SAFE APP DATE
+        const appDate = parseLocalDate(app.date);
+
+        // INVALID DATE
+        if (!appDate) {
+            matchesDate = false;
+        }
+
+        // FROM DATE
+        const from = appliedFromDate
+            ? parseLocalDate(appliedFromDate)
+            : null;
+
+        // TO DATE (inclusive)
+        const to = appliedToDate
+            ? parseLocalDate(appliedToDate, true)
+            : null;
+
         // BOTH FROM & TO
-        if (appliedFromDate && appliedToDate) {
-            const from = new Date(appliedFromDate);
-            from.setHours(0, 0, 0, 0);
-
-            const to = new Date(appliedToDate);
-            to.setHours(23, 59, 59, 999);
-
-            matchesDate = appDate >= from && appDate <= to;
+        if (from && to && appDate) {
+            matchesDate =
+                appDate.getTime() >= from.getTime() &&
+                appDate.getTime() <= to.getTime();
         }
 
         // ONLY FROM
-        else if (appliedFromDate) {
-            const from = new Date(appliedFromDate);
-            from.setHours(0, 0, 0, 0);
-
-            matchesDate = appDate >= from;
+        else if (from && appDate) {
+            matchesDate = appDate.getTime() >= from.getTime();
         }
 
         // ONLY TO
-        else if (appliedToDate) {
-            const to = new Date(appliedToDate);
-            to.setHours(23, 59, 59, 999);
-
-            matchesDate = appDate <= to;
+        else if (to && appDate) {
+            matchesDate = appDate.getTime() <= to.getTime();
         }
         console.log(`From Date: ${appliedFromDate}, To Date: ${appliedToDate}`);
         return matchesTab && matchesSearch && matchesDate;
     });
+
+    //count
+    const currentCounts = platforms.reduce((acc, platform) => {
+
+        if (platform === "All") {
+            acc[platform] = filteredApps.length;
+        } else {
+            acc[platform] = filteredApps.filter(
+                (a) => a.platform === platform
+            ).length;
+        }
+
+        return acc;
+
+    }, {});
 
     const currentPage = pageMap[activeTab] || 1;
 
@@ -400,25 +450,12 @@ function Applications() {
 
                     {platforms.map((item) => {
                         const current = currentCounts[item] || 0;
-                        // const previous = previousCounts[item] || 0;
-                        // const percent = getPercentage(current, previous);
-                        // const isPositive = percent >= 0;
-                        const totalApplications = applications.length;
+                        const totalApplications = filteredApps.length;
                         const percent = getPercentage(current, totalApplications);
                         return (
                             <div key={item} className="bg-white p-5 rounded-2xl hover:shadow-md transition-all">
                                 <div className="flex justify-between items-center">
                                     <p className="text-gray-500 text-sm">{item}</p>
-
-                                    {/* <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-                                    isPositive
-                                    ? "bg-green-100 text-green-600"
-                                    : "bg-red-100 text-red-500"
-                                    }`}
-                                >
-                                    {isPositive ? `+${percent}%` : `${percent}%`}
-                                </span> */}
-
                                     <span className="text-sm font-semibold px-2 py-1 rounded-full bg-green-100 text-green-600">
                                         {percent}%
                                     </span>
@@ -433,8 +470,6 @@ function Applications() {
                                         {[4, 6, 5, 8, 7].map((h, i) => (
                                             <div
                                                 key={i}
-                                                // className={`w-2 rounded ${isPositive ? "bg-green-300" : "bg-red-300"
-                                                // }`}
                                                 className="w-2 rounded bg-green-300"
                                                 style={{ height: `${h * 4}px` }}
                                             />

@@ -26,7 +26,7 @@ function ClientLayout() {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+  const role = localStorage.getItem("role");
   const isActive = (path) => location.pathname.includes(path);
 
   useEffect(() => {
@@ -70,26 +70,26 @@ function ClientLayout() {
           onClick={() => setOpenSidebar(!openSidebar)}
           className="
             absolute
-            -right-4
-            top-1/2
-            -translate-y-1/2
+            top-5
+            -right-5
+            transition-all
             bg-green-800
             text-white
             shadow-md
             rounded-full
             p-2
             z-50
+            cursor-pointer
           "
         >
           {openSidebar ? (
-            <FiChevronLeft size={18} />
+            <FiChevronLeft size={20} />
           ) : (
-            <FiChevronRight size={18} />
+            <FiChevronRight size={20} />
           )}
         </button>
 
         <div>
-
           {/* HEADER */}
           <div className="px-4 py-6 border-b border-white/10">
 
@@ -224,6 +224,37 @@ function ClientLayout() {
               {openSidebar && <span>Overview</span>}
             </div>
           </div>
+        </div>
+        {/* BOTTOM BUTTON */}
+        <div className="p-4 border-t border-white/10">
+          <button
+            onClick={() =>
+              navigate(
+                role === "employee"
+                  ? "/employee-dashboard/clients"
+                  : "/dashboard/clients"
+              )
+            }
+            className="
+              w-full
+              flex items-center justify-center
+              gap-3
+              px-4 py-3
+              rounded-xl
+              bg-green-800
+              hover:bg-green-700
+              transition-all
+              cursor-pointer
+              text-white
+              font-medium
+            "
+          >
+            <FiArrowLeft size={20} />
+
+            {openSidebar && (
+              <span>Back to Clients</span>
+            )}
+          </button>
         </div>
       </div>
 

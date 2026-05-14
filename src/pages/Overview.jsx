@@ -43,7 +43,7 @@ export default function Overview() {
       } catch (err) {
         console.error("Error fetching applications", err);
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
     };
 
@@ -61,90 +61,163 @@ export default function Overview() {
       } catch (err) {
         console.error("Error fetching reports", err);
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchReports();
   }, [client_id]);
 
-  // const filteredApplications = applications.filter((app) => {
-  //   if (!appliedFromDate && !appliedToDate) return true;
+  //filter
+  const parseLocalDate = (dateValue, endOfDay = false) => {
 
-  //   const appDate = new Date(app.date);
+    if (!dateValue) return null;
 
-  //   const from = appliedFromDate ? new Date(appliedFromDate) : null;
-  //   const to = appliedToDate ? new Date(appliedToDate) : null;
+    // ALREADY DATE OBJECT
+    if (dateValue instanceof Date) {
+      return dateValue;
+    }
 
-  //   return (!from || appDate >= from) && (!to || appDate <= to);
-  // });
+    // HANDLE STRING
+    let dateStr = String(dateValue).trim();
 
-  // const filteredReports = reports.filter((r) => {
-  //   if (!appliedFromDate && !appliedToDate) return true;
+    // REMOVE TIME PART
+    if (dateStr.includes("T")) {
+      dateStr = dateStr.split("T")[0];
+    }
 
-  //   const date = new Date(r.updated_at || r.date);
+    let year, month, day;
 
-  //   const from = appliedFromDate ? new Date(appliedFromDate) : null;
-  //   const to = appliedToDate ? new Date(appliedToDate) : null;
+    // YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
 
-  //   return (!from || date >= from) && (!to || date <= to);
-  // });
+      [year, month, day] =
+        dateStr.split("-").map(Number);
+    }
+
+    // DD-MM-YYYY
+    else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+
+      [day, month, year] =
+        dateStr.split("-").map(Number);
+    }
+
+    // OTHER FORMATS
+    else {
+
+      const tempDate = new Date(dateStr);
+
+      if (isNaN(tempDate.getTime())) {
+        return null;
+      }
+
+      year = tempDate.getFullYear();
+      month = tempDate.getMonth() + 1;
+      day = tempDate.getDate();
+    }
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+      endOfDay ? 23 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 59 : 0,
+      endOfDay ? 999 : 0
+    );
+  };
 
   const filteredApplications = applications.filter((app) => {
-    if (!appliedFromDate && !appliedToDate) return true;
 
-    const appDate = new Date(app.date);
+    let matchesDate = true;
 
-    // normalize app date
-    appDate.setHours(0, 0, 0, 0);
+    // SAFE APP DATE
+    const appDate = parseLocalDate(app.date);
 
+    // INVALID DATE
+    if (!appDate) {
+      matchesDate = false;
+    }
+
+    // FROM DATE
     const from = appliedFromDate
-      ? new Date(appliedFromDate)
+      ? parseLocalDate(appliedFromDate)
       : null;
 
+    // TO DATE
     const to = appliedToDate
-      ? new Date(appliedToDate)
+      ? parseLocalDate(appliedToDate, true)
       : null;
 
-    if (from) {
-      from.setHours(0, 0, 0, 0);
+    // BOTH
+    if (from && to && appDate) {
+
+      matchesDate =
+        appDate.getTime() >= from.getTime() &&
+        appDate.getTime() <= to.getTime();
     }
 
-    if (to) {
-      to.setHours(23, 59, 59, 999);
+    // ONLY FROM
+    else if (from && appDate) {
+
+      matchesDate =
+        appDate.getTime() >= from.getTime();
     }
 
-    return (!from || appDate >= from) &&
-      (!to || appDate <= to);
+    // ONLY TO
+    else if (to && appDate) {
+
+      matchesDate =
+        appDate.getTime() <= to.getTime();
+    }
+
+    return matchesDate;
   });
 
-
   const filteredReports = reports.filter((r) => {
-    if (!appliedFromDate && !appliedToDate) return true;
 
-    const date = new Date(r.updated_at || r.date);
+    let matchesDate = true;
 
-    // normalize report date
-    date.setHours(0, 0, 0, 0);
+    // SAFE REPORT DATE
+    const reportDate = parseLocalDate(
+      r.updated_at || r.date
+    );
 
+    // INVALID DATE
+    if (!reportDate) {
+      matchesDate = false;
+    }
+
+    // FROM DATE
     const from = appliedFromDate
-      ? new Date(appliedFromDate)
+      ? parseLocalDate(appliedFromDate)
       : null;
 
+    // TO DATE
     const to = appliedToDate
-      ? new Date(appliedToDate)
+      ? parseLocalDate(appliedToDate, true)
       : null;
 
-    if (from) {
-      from.setHours(0, 0, 0, 0);
+    // BOTH
+    if (from && to && reportDate) {
+      matchesDate =
+        reportDate.getTime() >= from.getTime() &&
+        reportDate.getTime() <= to.getTime();
     }
 
-    if (to) {
-      to.setHours(23, 59, 59, 999);
+    // ONLY FROM
+    else if (from && reportDate) {
+      matchesDate =
+        reportDate.getTime() >= from.getTime();
     }
 
-    return (!from || date >= from) &&
-      (!to || date <= to);
+    // ONLY TO
+    else if (to && reportDate) {
+      matchesDate =
+        reportDate.getTime() <= to.getTime();
+    }
+
+    return matchesDate;
   });
 
   //APPLICATION PLATFORM COUNTS
@@ -294,50 +367,26 @@ export default function Overview() {
 
             {/* APPLY */}
             <button
-              disabled={loading || pageLoading}
               onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setAppliedFromDate(fromDate);
-                  setAppliedToDate(toDate);
-                  setLoading(false);
-                }, 500);
+                setAppliedFromDate(fromDate);
+                setAppliedToDate(toDate);
               }}
               className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <FiLoader className="animate-spin" />
-                  Loading...
-                </span>
-              ) : (
-                "Search"
-              )}
+              Search
             </button>
 
             {/* CLEAR */}
             <button
-              disabled={loading || pageLoading}
               onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setFromDate("");
-                  setToDate("");
-                  setAppliedFromDate("");
-                  setAppliedToDate("");
-                  setLoading(false);
-                }, 500);
+                setFromDate("");
+                setToDate("");
+                setAppliedFromDate("");
+                setAppliedToDate("");
               }}
               className="w-full sm:w-auto text-gray-600 text-sm px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <FiLoader className="animate-spin" />
-                  Clearing...
-                </span>
-              ) : (
-                "Clear"
-              )}
+            >              
+              Clear
             </button>
           </div>
         </div>
@@ -396,11 +445,10 @@ export default function Overview() {
                   <div
                     key={i}
                     className={`p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4
-                    ${
-                      item.highlight
+                    ${item.highlight
                         ? "bg-linear-to-r from-green-800 to-green-700"
                         : "bg-white/5 backdrop-blur-md border border-white/10"
-                    }`}
+                      }`}
                   >
 
                     {/* LEFT */}
