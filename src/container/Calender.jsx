@@ -157,10 +157,24 @@ function Calender({ selectedDate, onDateSelect }) {
           </div>
         </div>
       )}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm w-full">
+      <div
+        className="
+          w-full
+          bg-white
+          rounded-2xl
+          border
+          border-gray-100
+          shadow-sm
+          p-3
+          sm:p-4
+          md:p-5
+          xl:p-6
+          overflow-hidden
+        "
+      >
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-lg">
+       <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <h2 className="font-semibold text-base sm:text-lg xl:text-xl">
             {currentDate.toLocaleString("default", { month: "long" })} {year}
           </h2>
           <div className="flex gap-2">
@@ -174,14 +188,27 @@ function Calender({ selectedDate, onDateSelect }) {
         </div>
 
         {/* Weekdays */}
-        <div className="grid grid-cols-7 text-xs text-gray-400 text-center mb-2">
+        <div
+          className="
+            grid
+            grid-cols-7
+            gap-1
+            text-[8px]
+            sm:text-[10px]
+            md:text-xs
+            text-gray-400
+            text-center
+            mb-2
+          "
+        >
           {weekDays.map((d) => (
             <div key={d}>{d}</div>
           ))}
         </div>
 
         {/* Calendar Dates */}
-        <div className="grid grid-cols-7 gap-3 text-center">
+        <div className="grid grid-cols-7 min-w-0 gap-1 sm:gap-2 md:gap-2.5 text-center"
+        >
           {[...Array(startDay)].map((_, i) => (
             <div key={i} />
           ))}
@@ -229,7 +256,7 @@ function Calender({ selectedDate, onDateSelect }) {
                     status: value
                   })
                 }
-                className={`flex flex-col items-center justify-center min-h-16 sm:min-h-18 rounded-lg border text-sm leading-none
+                className={`flex flex-col items-center justify-center h-11 sm:h-13.5 md:h-15.5 lg:h-17 w-full min-w-0 rounded-lg border text-[10px] sm:text-xs md:text-sm leading-none transition-all duration-200
                   ${bg}
                   ${selected ? "ring-2 ring-green-600" : ""}
                   ${
@@ -240,7 +267,20 @@ function Calender({ selectedDate, onDateSelect }) {
                 `}
               >
                 {i + 1}
-                <div className="text-[10px] mt-1 font-medium">{label}</div>
+                <div
+                  className="
+                    text-[7px]
+                    sm:text-[8px]
+                    md:text-[9px]
+                    mt-0.5
+                    sm:mt-1
+                    font-medium
+                    truncate
+                    max-w-full
+                  "
+                >
+                  {label}
+                </div>
               </div>
             );
           })}
@@ -250,7 +290,18 @@ function Calender({ selectedDate, onDateSelect }) {
         <hr className="my-6 border-gray-200" />
 
         {/* Legend */}
-        <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
+        <div
+          className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            gap-2
+            sm:gap-3
+            text-[11px]
+            sm:text-xs
+            text-gray-600
+          "
+        >
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded bg-green-100 border"></span>
             Filled
@@ -310,7 +361,22 @@ function Calender({ selectedDate, onDateSelect }) {
               })
             )
           }
-          className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer">
+          className="
+            w-full
+            mt-4
+            bg-green-800
+            text-white
+            text-sm
+            sm:text-base
+            font-medium
+            shadow-sm
+            py-2.5
+            sm:py-3
+            rounded-xl
+            hover:bg-green-700
+            transition-all
+          "
+        >
             Apply for Leave
         </button>
         
@@ -322,7 +388,21 @@ function Calender({ selectedDate, onDateSelect }) {
                 : "/dashboard/leave-requests"
             )
           }
-          className="w-full mt-6 bg-green-800 text-white font-medium shadow-md py-3 rounded-xl hover:bg-green-700 cursor-pointer"
+          className="
+            w-full
+            mt-4
+            bg-green-800
+            text-white
+            text-sm
+            sm:text-base
+            font-medium
+            shadow-sm
+            py-2.5
+            sm:py-3
+            rounded-xl
+            hover:bg-green-700
+            transition-all
+          "
         >
           Leave Requests
         </button>

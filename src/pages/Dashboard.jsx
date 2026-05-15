@@ -23,7 +23,7 @@ function Dashboard() {
             <Sidebar />
 
             {/* Main Content */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-3">
                 <Routes>
                     <Route path="/" element={<Navigate to="clients" />} />
                     <Route path="clients" element={<Clients />} />
