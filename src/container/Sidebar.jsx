@@ -35,63 +35,35 @@ function Sidebar({ children }) {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#f7f8fa]">
-
-            {/* MOBILE OVERLAY */}
-            {openSidebar && (
-                <div
-                    className="
-                    fixed
-                    inset-0
-                    bg-black/30
-                    z-40
-                    lg:hidden
-                "
-                    onClick={() => setOpenSidebar(false)}
-                />
-            )}
+        <div className="flex min-h-screen">
 
             {/* SIDEBAR */}
-            <aside
+            <div
                 className={`
-                fixed lg:sticky
-                top-0
-                left-0
-                h-screen
-                lg:h-auto
-                lg:min-h-screen
-                bg-[#301E0F]
-                text-white
-                z-50
-                transition-all
-                duration-300
-                flex
-                flex-col
-                shrink-0
-
-                ${openSidebar
-                        ? "w-64"
-                        : "w-20"
-                    }
-            `}
+                    relative
+                    bg-[#301E0F]
+                    text-white
+                    transition-all duration-300
+                    ${openSidebar ? "w-64" : "w-20"}
+                `}
             >
 
                 {/* TOGGLE BUTTON */}
                 <button
-                    onClick={() =>
-                        setOpenSidebar(!openSidebar)
-                    }
+                    onClick={() => setOpenSidebar(!openSidebar)}
                     className="
-                    absolute
-                    top-5
-                    -right-5
-                    bg-green-800
-                    text-white
-                    shadow-lg
-                    rounded-full
-                    p-2.5
-                    z-50
-                "
+                        absolute
+                        top-5
+                        -right-5
+                        transition-all
+                        bg-green-800
+                        text-white
+                        shadow-md
+                        rounded-full
+                        p-2
+                        z-50
+                        cursor-pointer
+                    "
                 >
                     {openSidebar ? (
                         <FiChevronLeft size={20} />
@@ -103,28 +75,18 @@ function Sidebar({ children }) {
                 <div className="p-4 h-full flex flex-col">
 
                     {/* HEADER */}
-                    <div
-                        className={`
-                        flex items-center
-                        ${openSidebar
-                                ? "gap-3"
-                                : "justify-center"
-                            }
-                        mb-10
-                        border-b
-                        border-white/10
-                        pb-6
-                    `}
-                    >
-
+                    <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
+                        {/* BACK BUTTON */}
                         <button
                             onClick={handleBack}
                             className="
-                            flex items-center justify-center
-                            w-10 h-10
-                        "
+                                flex items-center justify-center
+                                w-10 h-10
+                                cursor-pointer hover:text-gray-300
+                                transition-all duration-200
+                            "
                         >
-                            <FiArrowLeft size={22} />
+                            <FiArrowLeft size={20} />
                         </button>
 
                         {openSidebar && (
@@ -140,7 +102,7 @@ function Sidebar({ children }) {
                         )}
                     </div>
 
-                    {/* KEEP YOUR NAVIGATION CODE HERE */}
+                    {/* MENU */}
                     <nav className="space-y-2 flex-1">
 
                         {/* MY PROFILE */}
@@ -265,26 +227,15 @@ function Sidebar({ children }) {
                             <span>Logout</span>
                         )}
                     </button>
-
                 </div>
-            </aside>
+            </div>
 
             {/* PAGE CONTENT */}
-            <main
-                className="
-                flex-1
-                overflow-x-hidden
-                overflow-auto
-                w-full
-                pl-20
-                lg:pl-0
-            "
-            >
+            <div className="flex-1 overflow-auto">
                 {children}
-            </main>
+            </div>
         </div>
     );
 }
 
 export default Sidebar;
-
