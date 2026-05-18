@@ -14,38 +14,39 @@ function Timesheet() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f7f8fa]">
+    <div className="w-full min-h-screen bg-[#f7f8fa] overflow-x-hidden">
       {/* MAIN CONTAINER */}
       <div
         className="
           w-full
-          px-3
-          sm:px-4
-          md:px-5
-          lg:px-6
-          xl:px-8
-          2xl:px-10
+          max-w-full
+          px-2
+          sm:px-3
+          md:px-4
+          lg:px-5
           py-4
+          overflow-x-hidden
         "
       >
         {/* LAYOUT */}
         <div
           className="
-            grid
-            grid-cols-1
-            lg:grid-cols-1
-            xl:grid-cols-[420px_minmax(0,1fr)]
-            2xl:grid-cols-[460px_minmax(0,1fr)]
+            flex
+            flex-col
+            xl:grid
+            xl:grid-cols-[380px_minmax(0,1fr)]
+            2xl:grid-cols-[420px_minmax(0,1fr)]
             gap-5
-            xl:gap-6
-            2xl:gap-8
             items-start
+            w-full
+            max-w-full
           "
         >
           {/* LEFT PANEL */}
           <div
             className="
               w-full
+              min-w-0
               flex
               flex-col
               gap-5
@@ -68,7 +69,7 @@ function Timesheet() {
           </div>
 
           {/* RIGHT PANEL */}
-          <div className="w-full min-w-0">
+          <div className="w-full min-w-0 overflow-hidden">
             <DailyWorkLog
               selectedDate={selectedDate}
               isLeave={dateStatus === "leave"}
