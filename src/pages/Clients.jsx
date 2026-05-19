@@ -108,7 +108,12 @@ function Clients() {
             formData.append("employee_id", String(client.employeeId));
             formData.append("professional_role", client.role);
             formData.append("aadhaar_number", client.aadhaar);
-            formData.append("location", client.location)
+            formData.append("location", client.location);
+            formData.append("start_date", client.startDate);
+            formData.append(
+                "end_date",
+                client.endDate || ""
+            );
             formData.append("notes", client.notes);
 
             // DEBUG (optional but useful)
@@ -227,17 +232,34 @@ function Clients() {
             professional_role: client.professional_role,
             aadhaar_number: client.aadhaar_number,
             location: client.location,
+            start_date: client.start_date,
+            end_date: client.end_date,
             notes: client.notes
         });
 
         setShowModal(true);
     };
 
-    const filteredClients = clients.filter((client) =>
-        client.client_name?.toLowerCase().includes(search.toLowerCase()) ||
-        client.mobile?.includes(search) ||
-        client.technology?.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredClients = clients.filter((client) => {
+        const searchValue = search.toLowerCase().trim();
+        const statusText =
+            client.status === "A"
+                ? "active"
+                : client.status === "C"
+                    ? "completed"
+                    : client.status === "P"
+                        ? "pause"
+                        : client.status === "T"
+                            ? "terminate"
+                            : "";
+        return (
+            client.client_name?.toLowerCase().includes(searchValue) ||
+            client.mobile?.toLowerCase().includes(searchValue) ||
+            client.technology?.toLowerCase().includes(searchValue) ||
+            client.employee_name?.toLowerCase().includes(searchValue) ||
+            statusText.includes(searchValue)
+        );
+    });
 
 
     const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
@@ -337,7 +359,7 @@ function Clients() {
                                     <tr key={client.client_id || client.id || `${client.client_name}-${client.mobile}`} className="text-left hover:bg-gray-50">
                                         {/* NAME */}
                                         <td
-                                            className="p-4 font-semibold cursor-pointer hover:underline truncate max-w-37.5"
+                                            className="p-4 cursor-pointer hover:underline truncate max-w-37.5"
                                             title={client.client_name}
                                             onClick={() => {
                                                 setPageLoading(true);

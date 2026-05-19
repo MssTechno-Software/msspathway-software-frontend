@@ -5,13 +5,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API = axios.create({
-    baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
+  baseURL: "https://timesheet-api-790373899641.asia-south1.run.app",
 });
 
 API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 function Employees() {
@@ -30,19 +30,19 @@ function Employees() {
   });
   const navigate = useNavigate();
 
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
 
   /*fetch api*/
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-        const res = await API.get("/admin/users-table");
-        console.log("feached employee data:",res.data);
-        setEmployees(res.data.data || res.data);
+      const res = await API.get("/admin/users-table");
+      console.log("feached employee data:", res.data);
+      setEmployees(res.data.data || res.data);
     } catch (err) {
-        console.error("Fetch error:", err.response?.data || err.message);
+      console.error("Fetch error:", err.response?.data || err.message);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -94,20 +94,20 @@ function Employees() {
         console.log("Updating Employee with data:", Object.fromEntries(formData.entries()));
         const res = await API.put(`/admin/users/${employee_id}`, formData);
         console.log("Updating Employee:", res.data);
-        setPopup({ 
-          show: true, 
-          message: "Employee updated successfully.", 
-          type: "success" 
+        setPopup({
+          show: true,
+          message: "Employee updated successfully.",
+          type: "success"
         });
       } else {
         /*add*/
         console.log("Adding Employee with data:", Object.fromEntries(formData.entries()));
         const res = await API.post("/admin/users", formData);
         console.log("Adding Employee:", res.data);
-        setPopup({ 
-          show: true, 
-          message: "Employee added successfully.", 
-          type: "success" 
+        setPopup({
+          show: true,
+          message: "Employee added successfully.",
+          type: "success"
         });
       }
 
@@ -123,7 +123,7 @@ function Employees() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -134,7 +134,7 @@ function Employees() {
       show: true,
       message: "Are you sure you want to delete this employee?",
       type: "confirm",
-      onConfirm: async () =>{
+      onConfirm: async () => {
         try {
           setLoading(true);
           const res = await API.delete(`/admin/users/${employee_id}`);
@@ -177,26 +177,33 @@ function Employees() {
     try {
       setLoading(true);
       const res = await API.get(`/admin/users/${employee_id}`);
-      setEditingEmployee(res.data.data ||res.data);
+      setEditingEmployee(res.data.data || res.data);
       setShowModal(true);
     } catch (err) {
-        console.error("Edit fetch error:", err.response?.data || err.message);
-        setPopup({
-            show: true,
-            message: "Failed to fetch employee details",
-            type: "error"
-        });
+      console.error("Edit fetch error:", err.response?.data || err.message);
+      setPopup({
+        show: true,
+        message: "Failed to fetch employee details",
+        type: "error"
+      });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   // FILTER
-  const filteredEmployees = employees.filter((emp) =>
-    emp.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-    emp.email?.toLowerCase().includes(search.toLowerCase()) ||
-    emp.mobile?.includes(search)
-  );
+  const filteredEmployees = employees.filter((emp) => {
+    const searchValue = search.toLowerCase().trim();
+    return (
+      String(emp.employee_id || "")
+        .toLowerCase()
+        .includes(searchValue) ||
+      emp.name?.toLowerCase().includes(searchValue) ||
+      emp.email?.toLowerCase().includes(searchValue) ||
+      emp.mobile?.toLowerCase().includes(searchValue) ||
+      emp.reporting_to?.toLowerCase().includes(searchValue)
+    );
+  });
 
   // PAGINATION
   const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage);
@@ -211,20 +218,20 @@ function Employees() {
   return (
     <>
       {(loading || pageLoading) && (
-          <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-            <div className="p-6 flex flex-col items-center gap-3">
+          <div className="p-6 flex flex-col items-center gap-3">
 
-              <FiLoader className="animate-spin text-4xl text-green-800" />
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-              <p className="text-gray-800 font-medium">
-                Please wait...
-              </p>
+            <p className="text-gray-800 font-medium">
+              Please wait...
+            </p>
 
-            </div>
           </div>
-        )}
-        <div className="p-6">
+        </div>
+      )}
+      <div className="p-6">
         {/* SEARCH */}
         <div className="w-full sm:w-1/2 mb-4">
           <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full">
@@ -240,21 +247,21 @@ function Employees() {
         </div>
 
         {/* HEADER */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold">Employees</h1>
-                <p className="text-gray-500 text-sm sm:text-base">
-                  Manage corporate personnel records
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowModal(true)}
-                className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
-              >
-                Add Employee
-              </button>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Employees</h1>
+            <p className="text-gray-500 text-sm sm:text-base">
+              Manage corporate personnel records
+            </p>
           </div>
+
+          <button
+            onClick={() => setShowModal(true)}
+            className="w-full sm:w-auto bg-green-800 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+          >
+            Add Employee
+          </button>
+        </div>
 
         {/* TABLE */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
@@ -279,7 +286,7 @@ function Employees() {
                 </tr>
               ) : (
                 currentEmployees.map((emp) => (
-                  <tr key={emp.employee_id ||emp.email}
+                  <tr key={emp.employee_id || emp.email}
                     onClick={() => {
                       setPageLoading(true);
                       setTimeout(() => {
@@ -324,7 +331,7 @@ function Employees() {
 
             <div className="flex gap-2">
               <button
-                disabled={loading || pageLoading} 
+                disabled={loading || pageLoading}
                 onClick={() => {
                   setPageLoading(true);
                   setTimeout(() => {
@@ -339,7 +346,7 @@ function Employees() {
               <button className="bg-green-800 text-white px-3 rounded cursor-pointer hover:bg-green-700">
                 {currentPage}
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setPageLoading(true);
                   setTimeout(() => {

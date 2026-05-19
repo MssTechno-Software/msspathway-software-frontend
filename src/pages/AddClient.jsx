@@ -13,6 +13,8 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         role: "",
         aadhaar: "",
         location: "",
+        startDate: "",
+        endDate: "",
         notes: ""
     });
 
@@ -20,7 +22,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [employeeIds, setEmployeeIds] = useState([]);
-
+    const [isCurrentlyClient, setIsCurrentlyClient] = useState(false);
     const techOptions = [
         "React",
         "Angular",
@@ -72,8 +74,14 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                 role: editingClient.professional_role || "",
                 aadhaar: editingClient.aadhaar_number || "",
                 location: editingClient.location || "",
+                startDate: editingClient.start_date || "",
+                endDate:
+                    editingClient.end_date === ""
+                        ? ""
+                        : editingClient.end_date || "",
                 notes: editingClient.notes || ""
             });
+            setIsCurrentlyClient(editingClient.end_date);
         }
     }, [editingClient]);
 
@@ -104,7 +112,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         if (name === "mobile") {
             value = value.replace(/[^0-9+\-\s()]/g, "");
         }
-        
+
         // For aadhaar, only allow numbers and dashes
         if (name === "aadhaar") {
             value = value.replace(/[^0-9\s-]/g, "");
@@ -149,9 +157,10 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             role: formData.role,
             aadhaar: formData.aadhaar,
             location: formData.location,
-
+            startDate: formData.startDate,
+            endDate: formData.endDate,
         };
-        
+
         if (!isEdit) {
             if (!trimmedData.name) {
                 return setPopup({ show: true, message: "Name is required", type: "error" });
@@ -212,10 +221,33 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             if (!trimmedData.location) {
                 return setPopup({ show: true, message: "Location is required", type: "error" });
             }
+
+            if (!formData.startDate) {
+                return setPopup({
+                    show: true,
+                    message: "Start date is required",
+                    type: "error"
+                });
+            }
+
+            if (
+                formData.endDate &&
+                new Date(formData.endDate) < new Date(formData.startDate)
+            ) {
+                return setPopup({
+                    show: true,
+                    message: "End date cannot be before start date",
+                    type: "error"
+                });
+            }
         }
 
         const client = {
-            ...trimmedData
+            ...trimmedData,
+
+            endDate: isCurrentlyClient
+                ? null
+                : formData.endDate || null
         };
         onAdd(client);
     };
@@ -500,6 +532,71 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </div>
                     </div>
 
+                    {/* START DATE + END DATE */}
+
+
+                    {/* START DATE */}
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            Start Date {!editingClient && <span className="text-red-500">*</span>}
+                        </label>
+
+                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                            <FiClock className="text-gray-400 mr-2 shrink-0" />
+
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={formData.startDate}
+                                onChange={handleChange}
+                                className="w-full py-3 outline-none text-sm bg-transparent"
+                            />
+                        </div>
+                    </div>
+
+                    {/* END DATE + CURRENTLY CLIENT */}
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            End Date
+                        </label>
+
+                        {/* TOGGLE */}
+                        <div className="flex items-center gap-2 mt-2">
+
+                            <input
+                                type="checkbox"
+                                checked={isCurrentlyClient}
+                                onChange={() => {
+                                    setIsCurrentlyClient(!isCurrentlyClient);
+
+                                    setFormData({
+                                        ...formData,
+                                        endDate: ""
+                                    });
+                                }}
+                                className="accent-green-700 cursor-pointer"
+                            />
+
+                            <label className="text-sm text-gray-600">
+                                Currently In Process
+                            </label>
+                        </div>
+
+                        {/* DATE INPUT */}
+                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+                            <FiClock className="text-gray-400 mr-2 shrink-0" />
+
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={formData.endDate}
+                                onChange={handleChange}
+                                disabled={isCurrentlyClient}
+                                className="w-full py-3 outline-none text-sm bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                            />
+                        </div>
+                    </div>
+
                     {/* NOTES */}
                     <div>
                         <div className="flex justify-between items-center gap-2">
@@ -510,8 +607,8 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             <p
                                 className={`text-xs text-right shrink-0
                                 ${formData.notes.length === 500
-                                    ? "text-red-500"
-                                    : "text-gray-500"}`}
+                                        ? "text-red-500"
+                                        : "text-gray-500"}`}
                             >
                                 {formData.notes.length}/500
                             </p>

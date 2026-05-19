@@ -169,6 +169,11 @@ function ClientProfile() {
       formData.append("professional_role", updatedData.role);
       formData.append("aadhaar_number", updatedData.aadhaar);
       formData.append("location", updatedData.location);
+      formData.append("start_date", updatedData.startDate);
+      formData.append(
+        "end_date",
+        updatedData.endDate || ""
+      );
       formData.append("notes", updatedData.notes);
 
 
@@ -187,7 +192,7 @@ function ClientProfile() {
         }
       );
       console.log("Update response:", response.data);
-      
+
       await fetchClient();
 
       setPopup({
@@ -272,7 +277,7 @@ function ClientProfile() {
     console.log("Viewing document:", doc);
     try {
       setLoading(true);
-      console.log("VIEW FILE ID:", doc.file_id); 
+      console.log("VIEW FILE ID:", doc.file_id);
       const res = await axios.get(
         `${BASE_URL}/documents/files/view`,
         {
@@ -610,7 +615,7 @@ function ClientProfile() {
         `${BASE_URL}/documents/clients/${client_id}/profile-picture`,
         {
           ...getAuthHeaders(),
-          params: {gcs_path: profileUrl}  
+          params: { gcs_path: profileUrl }
         }
       );
       console.log("Profile photo delete response:", res.data);
@@ -636,357 +641,378 @@ function ClientProfile() {
       setLoading(false);
     }
   };
-  
+
   return (
-  <div className="p-4 sm:p-6 bg-white min-h-screen">
-    {/* FULL SCREEN LOADER */}
-    {loading && (
-      <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
+    <div className="p-4 sm:p-6 bg-white min-h-screen">
+      {/* FULL SCREEN LOADER */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
 
-        <div className="p-6 flex flex-col items-center gap-3">
+          <div className="p-6 flex flex-col items-center gap-3">
 
-          <FiLoader className="animate-spin text-4xl text-green-800" />
+            <FiLoader className="animate-spin text-4xl text-green-800" />
 
-          <p className="text-gray-800 font-medium">
-            Please wait...
+            <p className="text-gray-800 font-medium">
+              Please wait...
+            </p>
+
+          </div>
+        </div>
+      )}
+
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+
+          <div className="relative">
+            <img
+              src={profileImage}
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
+            />
+
+            {/* CONDITIONAL ICON */}
+            <button
+              onClick={() => setShowPhotoModal(true)}
+              className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
+            >
+              {profileUrl ? <FiEdit /> : <FiUpload />}
+            </button>
+          </div>
+
+          <div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800">
+              {client.client_name || "No Name"}
+            </h1>
+
+            <p className="text-base sm:text-lg font-bold mt-1">
+              {client.professional_role || "No Role"}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setShowEdit(true)}
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
+        >
+          <FiEdit />
+          Update Client
+        </button>
+      </div>
+
+      {/* CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">EMAIL</p>
+          <p className="font-semibold break-all">
+            {client.email || "No Email"}
           </p>
+        </div>
 
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">MOBILE</p>
+          <p className="font-semibold">
+            {client.mobile || "No Mobile"}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">AADHAAR NUMBER</p>
+          <p className="font-semibold break-all">
+            {client.aadhaar_number || "No AADHAR Number"}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">LOCATION</p>
+          <p className="font-semibold">
+            {client.location || "No Location"}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">TECHNOLOGY STACKS</p>
+          <p className="font-semibold">
+            {client.technology || "No Technology Stacks"}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">ASSIGNED TO</p>
+          <p className="font-semibold">
+            {client.employee_id ? `${client.employee_id} - ${client.employee_name}` : "No Assigned Employee"}
+          </p>
+        </div>
+
+        {/* START DATE */}
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">START DATE</p>
+          <p className="font-semibold">
+            {client.start_date
+              ? new Date(client.start_date).toLocaleDateString()
+              : "No Start Date"}
+          </p>
+        </div>
+
+        {/* END DATE */}
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-400">END DATE</p>
+          <p className="font-semibold">
+            {client.end_date &&
+              !isNaN(new Date(client.end_date))
+              ? new Date(client.end_date).toLocaleDateString()
+              : "Currently In Process"}
+          </p>
         </div>
       </div>
-    )}
 
-    {/* HEADER */}
-    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+      {/* DOCUMENTS */}
+      <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
 
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+        {/* HEADER */}
+        <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
 
-        <div className="relative">
-          <img
-            src={profileImage}
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
-          />
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">
+              Document Repository
+            </h2>
 
-          {/* CONDITIONAL ICON */}
+            <p className="text-sm text-gray-400">
+              Verified compliance documents and professional records
+            </p>
+          </div>
+
           <button
-            onClick={() => setShowPhotoModal(true)}
-            className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
+            onClick={() => setShowDocModal(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
           >
-            {profileUrl ? <FiEdit /> : <FiUpload />}
+            <FiUpload />
+            Upload
           </button>
         </div>
 
-        <div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800">
-            {client.client_name || "No Name"}
-          </h1>
+        {/* DOCUMENTS LIST */}
+        {documents?.length ? (
+          documents.map((doc, i) => {
+            const fileName = doc.original_name || "document";
+            const fileType = fileName.split(".").pop().toUpperCase();
 
-          <p className="text-base sm:text-lg font-bold mt-1">
-            {client.professional_role || "No Role"}
-          </p>
-        </div>
-      </div>
+            return (
+              <div
+                key={i}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50 transition"
+              >
 
-      <button
-        onClick={() => setShowEdit(true)}
-        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow-md cursor-pointer"
-      >
-        <FiEdit />
-        Update Client
-      </button>
-    </div>
+                {/* Left Side*/}
+                <div className="flex items-start sm:items-center gap-4 w-full">
 
-    {/* CARDS */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+                  <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg">
+                    📄
+                  </div>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">EMAIL</p>
-        <p className="font-semibold break-all">
-          {client.email || "No Email"}
-        </p>
-      </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {fileName}
+                    </p>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">MOBILE</p>
-        <p className="font-semibold">
-          {client.mobile || "No Mobile"}
-        </p>
-      </div>
-
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">AADHAAR NUMBER</p>
-        <p className="font-semibold break-all">
-          {client.aadhaar_number || "No AADHAR Number"}
-        </p>
-      </div>
-
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">LOCATION</p>
-        <p className="font-semibold">
-          {client.location || "No Location"}
-        </p>
-      </div>
-
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">TECHNOLOGY STACKS</p>
-        <p className="font-semibold">
-          {client.technology || "No Technology Stacks"}
-        </p>
-      </div>
-
-      <div className="bg-white p-4 rounded-xl shadow-sm">
-        <p className="text-xs text-gray-400">ASSIGNED TO</p>
-        <p className="font-semibold">
-          {client.employee_id ? `${client.employee_id} - ${client.employee_name}`: "No Assigned Employee"}
-        </p>
-      </div>
-    </div>
-
-    {/* DOCUMENTS */}
-    <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
-
-      {/* HEADER */}
-      <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            Document Repository
-          </h2>
-
-          <p className="text-sm text-gray-400">
-            Verified compliance documents and professional records
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowDocModal(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
-        >
-          <FiUpload />
-          Upload
-        </button>
-      </div>
-
-      {/* DOCUMENTS LIST */}
-      {documents?.length ? (
-        documents.map((doc, i) => {
-          const fileName = doc.original_name || "document";
-          const fileType = fileName.split(".").pop().toUpperCase();
-
-          return (
-            <div
-              key={i}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50 transition"
-            >
-
-              {/* Left Side*/}
-              <div className="flex items-start sm:items-center gap-4 w-full">
-
-                <div className="w-10 h-10 bg-green-800 text-green-800 flex items-center justify-center rounded-lg">
-                  📄
+                    <p className="text-sm text-gray-400 flex flex-wrap items-center gap-2">
+                      {fileType} •{" "}
+                      {doc.created_at
+                        ? new Date(doc.created_at).toLocaleDateString()
+                        : "Recently added"}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">
-                    {fileName}
-                  </p>
+                {/* RIGHT */}
+                <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
 
-                  <p className="text-sm text-gray-400 flex flex-wrap items-center gap-2">
-                    {fileType} •{" "}
-                    {doc.created_at
-                      ? new Date(doc.created_at).toLocaleDateString()
-                      : "Recently added"}
-                  </p>
+                  <FiEye
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleView(doc)}
+                  />
+
+                  <FiDownload
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleDownload(doc)}
+                  />
+
+                  <FiTrash2
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleDelete(doc)}
+                  />
                 </div>
               </div>
-
-              {/* RIGHT */}
-              <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
-
-                <FiEye
-                  className="cursor-pointer hover:text-green-700"
-                  onClick={() => handleView(doc)}
-                />
-
-                <FiDownload
-                  className="cursor-pointer hover:text-green-700"
-                  onClick={() => handleDownload(doc)}
-                />
-
-                <FiTrash2
-                  className="cursor-pointer hover:text-green-700"
-                  onClick={() => handleDelete(doc)}
-                />
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <p className="p-6 text-gray-400">No documents available</p>
-      )}
-    </div>
-
-    {/* LINKS */}
-    <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
-
-      {/* HEADER */}
-      <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            Important Links
-          </h2>
-
-          <p className="text-sm text-gray-400">
-            External resources and client-related links
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowLinkModal(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
-        >
-          <FiLink />
-          Add Link
-        </button>
+            );
+          })
+        ) : (
+          <p className="p-6 text-gray-400">No documents available</p>
+        )}
       </div>
 
-      {/* LINKS LIST */}
-      {links?.length ? (
-        links.map((link, i) => {
-          let name = link.link_type || "Untitled";
-          let url = link.link || "#";
+      {/* LINKS */}
+      <div className="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
 
-          return (
-            <div
-              key={i}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
-            >
+        {/* HEADER */}
+        <div className="p-4 sm:p-6 bg-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
 
-              <div className="min-w-0">
-                <p className="text-md font-semibold text-gray-800">
-                  {name}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">
+              Important Links
+            </h2>
+
+            <p className="text-sm text-gray-400">
+              External resources and client-related links
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowLinkModal(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md cursor-pointer"
+          >
+            <FiLink />
+            Add Link
+          </button>
+        </div>
+
+        {/* LINKS LIST */}
+        {links?.length ? (
+          links.map((link, i) => {
+            let name = link.link_type || "Untitled";
+            let url = link.link || "#";
+
+            return (
+              <div
+                key={i}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
+              >
+
+                <div className="min-w-0">
+                  <p className="text-md font-semibold text-gray-800">
+                    {name}
+                  </p>
+
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-green-700 underline break-all"
+                  >
+                    {url}
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
+                  <FiTrash2
+                    className="cursor-pointer hover:text-green-700"
+                    onClick={() => handleDeleteLink(link.link)}
+                  />
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="p-6 text-gray-400">No links available</p>
+        )}
+      </div>
+
+      {/* DOCUMENT MODAL */}
+      {showDocModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
+
+          <div className="bg-white w-96 max-w-md rounded-2xl shadow-xl p-6 relative">
+
+            <h2 className="text-xl font-semibold mb-4">
+              Upload Document
+            </h2>
+
+            <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                id="fileUpload"
+              />
+
+              <label htmlFor="fileUpload" className="cursor-pointer">
+                <p className="text-gray-500">
+                  Click to upload or drag file
                 </p>
 
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-green-700 underline break-all"
-                >
-                  {url}
-                </a>
-              </div>
-
-              <div className="flex items-center gap-4 text-gray-500 self-end sm:self-auto">
-                <FiTrash2
-                  className="cursor-pointer hover:text-green-700"
-                  onClick={() => handleDeleteLink(link.link)}
-                />
-              </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  PDF, DOC, JPG, PNG, JPEG supported
+                </p>
+              </label>
             </div>
-          );
-        })
-      ) : (
-        <p className="p-6 text-gray-400">No links available</p>
-      )}
-    </div>
 
-    {/* DOCUMENT MODAL */}
-    {showDocModal && (
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
+            {selectedFile && (
+              <div className="mt-4">
+                <p className="text-sm font-medium break-all">
+                  {selectedFile.name}
+                </p>
 
-        <div className="bg-white w-96 max-w-md rounded-2xl shadow-xl p-6 relative">
+                {previewURL && (
+                  <img
+                    src={previewURL}
+                    alt="preview"
+                    className="w-20 h-20 mt-2 rounded object-cover"
+                  />
+                )}
+              </div>
+            )}
 
-          <h2 className="text-xl font-semibold mb-4">
-            Upload Document
-          </h2>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
 
-          <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50">
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="hidden"
-              id="fileUpload"
-            />
+              <button
+                onClick={() => setShowDocModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
+              >
+                Cancel
+              </button>
 
-            <label htmlFor="fileUpload" className="cursor-pointer">
-              <p className="text-gray-500">
-                Click to upload or drag file
-              </p>
-
-              <p className="text-xs text-gray-400 mt-1">
-                PDF, DOC, JPG, PNG, JPEG supported
-              </p>
-            </label>
-          </div>
-
-          {selectedFile && (
-            <div className="mt-4">
-              <p className="text-sm font-medium break-all">
-                {selectedFile.name}
-              </p>
-
-              {previewURL && (
-                <img
-                  src={previewURL}
-                  alt="preview"
-                  className="w-20 h-20 mt-2 rounded object-cover"
-                />
-              )}
+              <button
+                onClick={handleUploadDocument}
+                className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
+              >
+                Upload
+              </button>
             </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-
-            <button
-              onClick={() => setShowDocModal(false)}
-              className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
-            >
-              Cancel
-            </button>
-
-            <button
-              onClick={handleUploadDocument}
-              className="px-4 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
-            >
-              Upload
-            </button>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {showLinkModal && (
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      {showLinkModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
 
-        <div className="bg-white w-96 rounded-2xl shadow-xl p-6 relative">
+          <div className="bg-white w-96 rounded-2xl shadow-xl p-6 relative">
 
-          <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-3 cursor-pointer">
-            Add Link
-          </h2>
+            <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-3 cursor-pointer">
+              Add Link
+            </h2>
 
-          {/* INPUTS */}
-          <label className="text-sm font-semibold mb-1 px-2 block">
-            Link Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter link name"
-            value={linkName}
-            onChange={(e) => setLinkName(e.target.value)}
-            className="w-full border border-gray-200 p-3 rounded-2xl mb-3 hover:border-gray-200"
-          />
+            {/* INPUTS */}
+            <label className="text-sm font-semibold mb-1 px-2 block">
+              Link Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter link name"
+              value={linkName}
+              onChange={(e) => setLinkName(e.target.value)}
+              className="w-full border border-gray-200 p-3 rounded-2xl mb-3 hover:border-gray-200"
+            />
 
-          <label className="text-sm font-semibold mb-1 px-2 block">
-            URL <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter URL"
-            value={linkURL}
-            onChange={(e) => setLinkURL(e.target.value)}
-            className="w-full border border-gray-200 p-3 rounded-2xl hover:border-gray-200"
-          />
+            <label className="text-sm font-semibold mb-1 px-2 block">
+              URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter URL"
+              value={linkURL}
+              onChange={(e) => setLinkURL(e.target.value)}
+              className="w-full border border-gray-200 p-3 rounded-2xl hover:border-gray-200"
+            />
 
             {/* ACTIONS */}
             <div className="flex justify-end gap-3 mt-6">
@@ -1086,7 +1112,7 @@ function ClientProfile() {
             notes: client.notes || ""
           }}
           onClose={() => setShowEdit(false)}
-          onAdd={handleUpdate}     
+          onAdd={handleUpdate}
           setPopup={() => { }}
         />
       )}
@@ -1133,8 +1159,8 @@ function ClientProfile() {
           </div>
         </div>
       )}
-  </div>
-);
+    </div>
+  );
 }
 
 export default ClientProfile;
