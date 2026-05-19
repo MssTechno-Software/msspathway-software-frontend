@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
-export default function AddReport({ onClose, onSave, editData }) {
+export default function AddReport({ onClose, onSave, editData, setPopup }) {
 
     const STAGES = ["Call", "Mail", "L1", "L2", "Offer"];
 
@@ -10,7 +10,6 @@ export default function AddReport({ onClose, onSave, editData }) {
     const today = new Date().toISOString().split("T")[0];
     const [stageOpen, setStageOpen] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false);
-    const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
         company: "",
@@ -59,35 +58,80 @@ export default function AddReport({ onClose, onSave, editData }) {
     };
 
     const validateForm = () => {
-        let newErrors = {};
+
+        const trimmedForm = {
+            company: form.company.trim(),
+            recruiterName: form.recruiterName.trim(),
+            recruiterContact: form.recruiterContact.trim(),
+            recruiterEmail: form.recruiterEmail.trim(),
+            stage: form.stage,
+            status: form.status,
+            date: form.date,
+            notes: form.notes.trim()
+        };
+
+        // REQUIRED FIELDS
         if (!isEdit) {
-            if (!form.company.trim()) newErrors.company = "Company is required";
-            if (!form.stage) newErrors.stage = "Stage is required";
-            if (!form.status) newErrors.status = "Status is required";
-            if (!form.date) newErrors.date = "Date is required";
-        }
-        if (form.recruiterContact.trim()) {
-            if (!/^\d{10}$/.test(form.recruiterContact.trim())) {
-                newErrors.recruiterContact = "Contact must be a 10-digit number";
+            if (!trimmedForm.company) {
+                return setPopup({
+                    show: true,
+                    message: "Company name is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.stage) {
+                return setPopup({
+                    show: true,
+                    message: "Interview stage is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.status) {
+                return setPopup({
+                    show: true,
+                    message: "Interview status is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.date) {
+                return setPopup({
+                    show: true,
+                    message: "Date is required",
+                    type: "error"
+                });
             }
         }
-
-        if (form.recruiterEmail.trim()) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.recruiterEmail.trim())) {
-                newErrors.recruiterEmail = "Invalid email format";
+        // CONTACT VALIDATION
+        if (trimmedForm.recruiterContact) {
+            const contact = trimmedForm.recruiterContact.replace(/\s+/g, "");
+            if (!/^\d{10}$/.test(contact)) {
+                return setPopup({
+                    show: true,
+                    message: "Recruiter contact must be 10 digits",
+                    type: "error"
+                });
             }
         }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        // EMAIL VALIDATION
+        if (
+            trimmedForm.recruiterEmail &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedForm.recruiterEmail)
+        ) {
+            return setPopup({
+                show: true,
+                message: "Enter valid recruiter email",
+                type: "error"
+            });
+        }
+        return trimmedForm;
     };
 
     const handleSubmit = () => {
-        if (!validateForm()) {
+        const validatedForm = validateForm();
+        if (!validatedForm) {
             return;
         }
-
-        onSave(form);
+        onSave(validatedForm);
         onClose();
     };
 
@@ -111,14 +155,13 @@ export default function AddReport({ onClose, onSave, editData }) {
                         <label className="text-sm font-medium text-gray-700">
                             Company Name {!isEdit && <span className="text-red-500">*</span>}
                         </label>
-                            <input
-                                placeholder="Enter company name"
-                                value={form.company}
-                                onChange={(e) => setForm({...form, company: e.target.value})}
-                                disabled={isEdit}
-                                className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
-                                ${errors.company ? "border-red-500" : "border-gray-200"}`}
-                            />
+                        <input
+                            placeholder="Enter company name"
+                            value={form.company}
+                            onChange={(e) => setForm({ ...form, company: e.target.value })}
+                            disabled={isEdit}
+                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
+                        />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -130,9 +173,8 @@ export default function AddReport({ onClose, onSave, editData }) {
                             <input
                                 placeholder="Enter recruiter name"
                                 value={form.recruiterName}
-                                onChange={(e) => setForm({...form, recruiterName: e.target.value})}
-                                className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
-                                    ${errors.recruiterName ? "border-red-500" : "border-gray-200"}`}
+                                onChange={(e) => setForm({ ...form, recruiterName: e.target.value })}
+                                className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
                             />
                         </div>
 
@@ -144,9 +186,8 @@ export default function AddReport({ onClose, onSave, editData }) {
                             <input
                                 placeholder="Enter recruiter contact"
                                 value={form.recruiterContact}
-                                onChange={(e) => setForm({...form, recruiterContact: e.target.value})}
-                                className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
-                                    ${errors.recruiterContact ? "border-red-500" : "border-gray-200"}`}
+                                onChange={(e) => setForm({ ...form, recruiterContact: e.target.value })}
+                                className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
                             />
                         </div>
                     </div>
@@ -159,9 +200,8 @@ export default function AddReport({ onClose, onSave, editData }) {
                         <input
                             placeholder="Enter recruiter email"
                             value={form.recruiterEmail}
-                            onChange={(e) => setForm({...form, recruiterEmail: e.target.value})}
-                            className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
-                                ${errors.recruiterEmail ? "border-red-500" : "border-gray-200"}`}
+                            onChange={(e) => setForm({ ...form, recruiterEmail: e.target.value })}
+                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
                         />
                     </div>
 
@@ -175,13 +215,12 @@ export default function AddReport({ onClose, onSave, editData }) {
                             </label>
                             <div
                                 onClick={() => setStageOpen(!stageOpen)}
-                                className={`flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 p-3 cursor-pointer
-                                    ${errors.stage ? "border-red-500" : "border-gray-200"}`}
+                                className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 p-3 cursor-pointer"
                             >
                                 <span className="text-sm text-gray-700 truncate cursor-pointer">{form.stage}</span>
                                 <FiChevronDown className={`text-gray-500 transition-transform duration-200 
                                     ${stageOpen ? "rotate-180" : ""}`} />
-                                
+
                             </div>
 
                             {stageOpen && (
@@ -198,16 +237,14 @@ export default function AddReport({ onClose, onSave, editData }) {
                                                 onChange={() => {
                                                     setForm({ ...form, stage });
                                                     setStageOpen(false);
-                                                    setErrors({ ...errors, stage: "" });
                                                 }}
                                                 className="accent-green-700"
                                             />
                                             <span className="text-sm">{stage}</span>
                                         </label>
-                                    ))} 
+                                    ))}
                                 </div>
                             )}
-                            {errors.stage && <p className="text-red-500 text-sm">{errors.stage}</p>}
                         </div>
 
                         {/* STATUS */}
@@ -217,8 +254,7 @@ export default function AddReport({ onClose, onSave, editData }) {
                             </label>
                             <div
                                 onClick={() => setStatusOpen(!statusOpen)}
-                                className={`border rounded-xl p-3 mt-2 cursor-pointer bg-gray-50 flex justify-between items-center
-                                    ${errors.status ? "border-red-500" : "border-gray-200"}`}
+                                className="border rounded-xl p-3 mt-2 cursor-pointer bg-gray-50 flex justify-between items-center border-gray-200"
                             >
                                 <span className="text-sm text-gray-700 truncate cursor-pointer">{form.status}</span>
                                 <FiChevronDown className={`text-gray-500 transition-transform duration-200 
@@ -239,7 +275,6 @@ export default function AddReport({ onClose, onSave, editData }) {
                                                 onChange={() => {
                                                     setForm({ ...form, status });
                                                     setStatusOpen(false);
-                                                    setErrors({ ...errors, status: "" });
                                                 }}
                                                 className="accent-green-700"
                                             />
@@ -248,7 +283,6 @@ export default function AddReport({ onClose, onSave, editData }) {
                                     ))}
                                 </div>
                             )}
-                            {errors.status && <p className="text-red-500 text-sm mt-1">{errors.status}</p>}
                         </div>
                     </div>
 
@@ -262,12 +296,9 @@ export default function AddReport({ onClose, onSave, editData }) {
                             value={form.date}
                             onChange={(e) => {
                                 setForm({ ...form, date: e.target.value });
-                                setErrors({ ...errors, date: "" });
                             }}
-                            className={`w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none
-                                ${errors.date ? "border-red-500" : "border-gray-200"}`}
+                            className="w-full mt-2 border border-gray-200 rounded-xl p-3 bg-gray-50 outline-none"
                         />
-                        {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
                     </div>
 
                     {/* NOTES */}

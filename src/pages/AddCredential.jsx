@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLink } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";
 
-function AddCredential({ onClose, onSave, editingData }) {
+function AddCredential({ onClose, onSave, editingData, setPopup }) {
 
     const [form, setForm] = useState({
         portal: "",
@@ -12,14 +12,7 @@ function AddCredential({ onClose, onSave, editingData }) {
         notes: ""
     });
 
-    const [error, setError] = useState({});
     const [showPassword, setShowPassword] = useState(false);
-
-    const [popup, setPopup] = useState({
-        show: false,
-        message: "",
-        type: ""
-    });
 
     useEffect(() => {
         if (editingData) {
@@ -38,81 +31,111 @@ function AddCredential({ onClose, onSave, editingData }) {
             ...form,
             [e.target.name]: e.target.value
         });
-
-        setError({
-            ...error,
-            [e.target.name]: ""
-        });
     };
 
     //validation can be added here before submission
     const validate = () => {
-        let newError = {};
         const isEdit = !!editingData;
 
-        //REQUIRED only when adding
+        const trimmedForm = {
+            portal: form.portal.trim(),
+            portalLink: form.portalLink.trim(),
+            email: form.email.trim(),
+            password: form.password.trim(),
+            notes: form.notes.trim()
+        };
+
+        // REQUIRED FIELDS
         if (!isEdit) {
-            if (!form.portal.trim()) {
-                newError.portal = "Portal name is required";
+
+            if (!trimmedForm.portal) {
+                return setPopup({
+                    show: true,
+                    message: "Portal name is required",
+                    type: "error"
+                });
             }
 
-            if (!form.portalLink.trim()) {
-                newError.portalLink = "Portal link is required";
+            if (!trimmedForm.portalLink) {
+                return setPopup({
+                    show: true,
+                    message: "Portal link is required",
+                    type: "error"
+                });
             }
 
-            if (!form.email.trim()) {
-                newError.email = "Email address is required";
+            if (!trimmedForm.email) {
+                return setPopup({
+                    show: true,
+                    message: "Email address is required",
+                    type: "error"
+                });
             }
 
-            if (!form.password.trim()) {
-                newError.password = "Password is required";
+            if (!trimmedForm.password) {
+                return setPopup({
+                    show: true,
+                    message: "Password is required",
+                    type: "error"
+                });
             }
         }
 
-        //Validate only if value exists (for both add & edit)
+        // FLEXIBLE URL VALIDATION
+        if (trimmedForm.portalLink) {
 
-        if (form.portalLink.trim() && !/^https?:\/\/\S+$/.test(form.portalLink)) {
-            newError.portalLink = "Portal link must be a valid URL";
+            let value = trimmedForm.portalLink;
+
+            // Auto add https://
+            if (!/^https?:\/\//i.test(value)) {
+                value = "https://" + value;
+            }
+
+            const urlPattern =
+                /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=.]*)?$/i;
+
+            if (!urlPattern.test(value)) {
+                return setPopup({
+                    show: true,
+                    message: "Enter valid portal link",
+                    type: "error"
+                });
+            }
+
+            trimmedForm.portalLink = value;
         }
 
-        if (form.email.trim() && !/\S+@\S+\.\S+/.test(form.email)) {
-            newError.email = "Email address is invalid";
+        // EMAIL VALIDATION
+        if (trimmedForm.email &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedForm.email)) {
+
+            return setPopup({
+                show: true,
+                message: "Enter valid email address",
+                type: "error"
+            });
         }
 
-        if (form.password.trim() && form.password.length < 6) {
-            newError.password = "Password must be at least 6 characters";
+        // PASSWORD VALIDATION
+        if (trimmedForm.password &&
+            trimmedForm.password.length < 6) {
+
+            return setPopup({
+                show: true,
+                message: "Password must be at least 6 characters",
+                type: "error"
+            });
         }
-        setError(newError);
-        return newError;
+
+        return trimmedForm;
     };
 
     const handleSubmit = () => {
-        const error = validate();
+        const validatedForm = validate();
 
-        if (Object.keys(error).length > 0) {
-            const message = Object.values(error).join("\n");
-            setPopup({
-                show: true,
-                message: Object.values(error).join("\n"),
-                type: "error"
-            });
-            return;
-        }
+        if (!validatedForm) return;
 
-        onSave(form);
-        setPopup({
-            show: true,
-            message: editingData ? "Credential updated successfully." : "Credential saved successfully.",
-            type: "success"
-        });
-
-        setForm({
-            portal: "",
-            portalLink: "",
-            email: "",
-            password: "",
-            notes: ""
-        });
+        onSave(validatedForm);
     };
 
     return (
@@ -259,31 +282,6 @@ function AddCredential({ onClose, onSave, editingData }) {
 
                 </div>
             </div>
-
-            {popup.show && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
-
-                        <p className={`mb-4 font-semibold
-                ${popup.type === "success" ? "text-green-600" : "text-red-600"}
-            `}>
-                            {popup.message}
-                        </p>
-
-                        <button
-                            onClick={() => {
-                                setPopup({ show: false });
-                                onClose();
-                            }}
-                            className="bg-green-800 text-white px-4 py-2 rounded cursor-pointer"
-                        >
-                            OK
-                        </button>
-
-                    </div>
-                </div>
-            )}
-
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiX, FiLink, FiCalendar, FiChevronDown } from "react-icons/fi";
 
-function AddApplication({ onClose, onAdd, editingApp }) {
+function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
 
     const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
     const today = new Date().toISOString().split("T")[0];
@@ -13,8 +13,6 @@ function AddApplication({ onClose, onAdd, editingApp }) {
         link: "",
         notes: ""
     });
-
-    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
         setForm({
@@ -38,40 +36,76 @@ function AddApplication({ onClose, onAdd, editingApp }) {
 
     const handleSubmit = () => {
         const isEdit = !!editingApp;
-        let newErrors = {};
-
+        const trimmedForm = {
+            company: form.company.trim(),
+            role: form.role.trim(),
+            platform: form.platform,
+            date: form.date,
+            link: form.link.trim(),
+            notes: form.notes.trim()
+        };
         if (!isEdit) {
-            if (!form.company.trim()) newErrors.company = "Company is required";
-            if (!form.role.trim()) newErrors.role = "Role is required";
-            if (!form.platform || form.platform === "Select a platform")
-                newErrors.platform = "Platform is required";
-            if (!form.date) newErrors.date = "Date is required";
-            if (!form.link.trim()) newErrors.link = "Link is required";
-        }
-
-        // if (form.link.trim() && !/^https?:\/\/.+/.test(form.link)) {
-        //     newErrors.link = "Enter valid URL";
-        // }
-        if (form.link.trim()) {
-            try {
-                let value = form.link.trim();
-
-                // Add https:// if no protocol exists
-                if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(value)) {
-                    value = "https://" + value;
-                }
-
-                new URL(value);
-            } catch (err) {
-                newErrors.link = "Enter a valid link";
+            if (!trimmedForm.company) {
+                return setPopup({
+                    show: true,
+                    message: "Company name is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.role) {
+                return setPopup({
+                    show: true,
+                    message: "Role is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.platform || trimmedForm.platform === "Select a platform") {
+                return setPopup({
+                    show: true,
+                    message: "Platform is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.date) {
+                return setPopup({
+                    show: true,
+                    message: "Date is required",
+                    type: "error"
+                });
+            }
+            if (!trimmedForm.link) {
+                return setPopup({
+                    show: true,
+                    message: "Application link is required",
+                    type: "error"
+                });
             }
         }
-        setErrors(newErrors);
+        // Validate URL
+        if (trimmedForm.link) {
+            let value = trimmedForm.link.trim();
 
-        //stop if any error
-        if (Object.keys(newErrors).length > 0) return;
+            // Add https:// if missing
+            if (!/^https?:\/\//i.test(value)) {
+                value = "https://" + value;
+            }
 
-        onAdd(form);
+            // Regex for flexible URL validation
+            const urlPattern =
+                /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=.]*)?$/i;
+
+            if (!urlPattern.test(value)) {
+                return setPopup({
+                    show: true,
+                    message: "Enter valid link",
+                    type: "error"
+                });
+            }
+
+            // Save cleaned link
+            trimmedForm.link = value;
+        }
+        onAdd(trimmedForm);
     };
 
     return (
@@ -182,8 +216,7 @@ function AddApplication({ onClose, onAdd, editingApp }) {
                                     min={today}
                                     max={today}
                                     onChange={handleChange}
-                                    className={`w-full mt-2 border rounded-xl p-3 bg-gray-50 outline-none 
-                                    ${errors.date ? "border-red-500" : "border-gray-200"}`}
+                                    className="w-full mt-2 border rounded-xl p-3 bg-gray-50 outline-none border-gray-200"
                                 />
 
                             </div>

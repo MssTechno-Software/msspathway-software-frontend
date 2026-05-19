@@ -18,7 +18,6 @@ API.interceptors.request.use((config) => {
 
 function Applications() {
     const { client_id } = useParams();
-
     const [applications, setApplications] = useState([]);
     const [activeTab, setActiveTab] = useState("All");
     const [showModal, setShowModal] = useState(false);
@@ -311,11 +310,7 @@ function Applications() {
         );
     };
 
-    const filteredApps = applications.filter((app) => {
-        // TAB FILTER
-        const matchesTab =
-            activeTab === "All" ||
-            app.platform?.toLowerCase() === activeTab.toLowerCase();
+    const cardFilteredApps = applications.filter((app) => {
 
         // SEARCH FILTER
         const searchValue = search.toLowerCase().trim();
@@ -329,51 +324,55 @@ function Applications() {
         // DATE FILTER
         let matchesDate = true;
 
-        // SAFE APP DATE
         const appDate = parseLocalDate(app.date);
 
-        // INVALID DATE
         if (!appDate) {
             matchesDate = false;
         }
 
-        // FROM DATE
         const from = appliedFromDate
             ? parseLocalDate(appliedFromDate)
             : null;
 
-        // TO DATE (inclusive)
         const to = appliedToDate
             ? parseLocalDate(appliedToDate, true)
             : null;
 
-        // BOTH FROM & TO
         if (from && to && appDate) {
             matchesDate =
                 appDate.getTime() >= from.getTime() &&
                 appDate.getTime() <= to.getTime();
         }
 
-        // ONLY FROM
         else if (from && appDate) {
-            matchesDate = appDate.getTime() >= from.getTime();
+            matchesDate =
+                appDate.getTime() >= from.getTime();
         }
 
-        // ONLY TO
         else if (to && appDate) {
-            matchesDate = appDate.getTime() <= to.getTime();
+            matchesDate =
+                appDate.getTime() <= to.getTime();
         }
-        console.log(`From Date: ${appliedFromDate}, To Date: ${appliedToDate}`);
-        return matchesTab && matchesSearch && matchesDate;
+
+        return matchesSearch && matchesDate;
+    });
+
+    const filteredApps = cardFilteredApps.filter((app) => {
+
+        const matchesTab =
+            activeTab === "All" ||
+            app.platform?.toLowerCase() === activeTab.toLowerCase();
+
+        return matchesTab;
     });
 
     //count
     const currentCounts = platforms.reduce((acc, platform) => {
 
         if (platform === "All") {
-            acc[platform] = filteredApps.length;
+            acc[platform] = cardFilteredApps.length;
         } else {
-            acc[platform] = filteredApps.filter(
+            acc[platform] = cardFilteredApps.filter(
                 (a) => a.platform === platform
             ).length;
         }
@@ -450,7 +449,7 @@ function Applications() {
 
                     {platforms.map((item) => {
                         const current = currentCounts[item] || 0;
-                        const totalApplications = filteredApps.length;
+                        const totalApplications = cardFilteredApps.length;
                         const percent = getPercentage(current, totalApplications);
                         return (
                             <div key={item} className="bg-white p-5 rounded-2xl hover:shadow-md transition-all">
@@ -687,6 +686,7 @@ function Applications() {
                         }}
                         onAdd={addApplication}
                         editingApp={editingApp}
+                        setPopup={setPopup}
                     />
                 )}
 

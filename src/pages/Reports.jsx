@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AddReports from "./AddReports";
 import CompanyCard from "../container/CompanyCard";
-import { FiSearch, FiLoader } from "react-icons/fi";
+import { FiSearch, FiLoader, FiX } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -454,6 +454,15 @@ export default function Reports() {
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="outline-none"
                             />
+                            {/* Clear Button */}
+                            {search && (
+                                <button
+                                    onClick={() => setSearch("")}
+                                    className="ml-2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                                >
+                                    <FiX size={18} />
+                                </button>
+                            )}
                         </div>
 
                         {/* ADD BUTTON */}
@@ -532,7 +541,6 @@ export default function Reports() {
                                         setAppliedFromDate("");
                                         setAppliedToDate("");
                                         setCurrentPage(1);
-                                        setLoading(false);
                                     }}
                                     className="border border-gray-200 rounded-xl font-medium text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 transition px-5 py-2 cursor-pointer w-full sm:w-auto"
                                 >
@@ -662,6 +670,7 @@ export default function Reports() {
                         onClose={() => setShowModal(false)}
                         onSave={handleSave}
                         editData={editData}
+                        setPopup={setPopup}
                     />
                 )}
 
