@@ -133,20 +133,6 @@ function Login() {
 
   return (
      <>
-      {/* {(loading || pageLoading) && (
-        <div className="fixed inset-0 bg-black/40 z-9999 flex items-center justify-center">
-
-          <div className="p-6 flex flex-col items-center gap-3">
-
-            <FiLoader className="animate-spin text-4xl text-green-800" />
-
-            <p className="text-gray-800 font-medium">
-              Signing In...
-            </p>
-
-          </div>
-        </div>
-      )} */}
       <div className="min-h-screen font-sans flex items-center justify-center relative overflow-hidden px-4">
         <img src="./watermark.png" alt="Watermark" className="absolute w-200 opacity-40" />
         <img src="./textMSS.png" alt="Text Logo" className="absolute w-200" />

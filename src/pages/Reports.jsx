@@ -297,9 +297,7 @@ export default function Reports() {
 
         // OTHER FORMATS
         else {
-
             const tempDate = new Date(dateStr);
-
             if (isNaN(tempDate.getTime())) {
                 return null;
             }
@@ -319,90 +317,77 @@ export default function Reports() {
             endOfDay ? 999 : 0
         );
     };
-    const filtered = grouped.filter((company) => {
+    // DATE FILTER ONLY (FOR COUNTS)
+    const dateFiltered = grouped.filter((company) => {
+        const latestDate =
+            company.stages[company.stages.length - 1]?.date;
 
-        // SEARCH
+        if (!latestDate) {
+            return true;
+        }
+        const appDate = parseLocalDate(latestDate);
+        let matchesDate = true;
+        if (!appDate) {
+            matchesDate = false;
+        }
+        const from = appliedFromDate
+            ? parseLocalDate(appliedFromDate)
+            : null;
+        const to = appliedToDate
+            ? parseLocalDate(appliedToDate, true)
+            : null;
+        if (from && to && appDate) {
+            matchesDate =
+                appDate.getTime() >= from.getTime() &&
+                appDate.getTime() <= to.getTime();
+        }
+        else if (from && appDate) {
+            matchesDate =
+                appDate.getTime() >= from.getTime();
+        }
+        else if (to && appDate) {
+            matchesDate =
+                appDate.getTime() <= to.getTime();
+        }
+
+        return matchesDate;
+    });
+
+    // SEARCH + DATE FILTER (FOR COMPANY CARDS)
+    const filtered = dateFiltered.filter((company) => {
+
         const searchValue = search.toLowerCase().trim();
 
         const matchesSearch =
             !searchValue ||
             company.company?.toLowerCase().includes(searchValue);
 
-        // LATEST DATE
-        const latestDate =
-            company.stages[company.stages.length - 1]?.date;
-
-        // NO DATE
-        if (!latestDate) {
-            return matchesSearch;
-        }
-
-        // SAFE DATE
-        const appDate = parseLocalDate(latestDate);
-
-        let matchesDate = true;
-
-        // INVALID DATE
-        if (!appDate) {
-            matchesDate = false;
-        }
-
-        // APPLIED FROM
-        const from = appliedFromDate
-            ? parseLocalDate(appliedFromDate)
-            : null;
-
-        // APPLIED TO
-        const to = appliedToDate
-            ? parseLocalDate(appliedToDate, true)
-            : null;
-
-        // BOTH
-        if (from && to && appDate) {
-            matchesDate =
-                appDate.getTime() >= from.getTime() &&
-                appDate.getTime() <= to.getTime();
-        }
-
-        // ONLY FROM
-        else if (from && appDate) {
-            matchesDate =
-                appDate.getTime() >= from.getTime();
-        }
-
-        // ONLY TO
-        else if (to && appDate) {
-            matchesDate =
-                appDate.getTime() <= to.getTime();
-        }
-
-        return matchesSearch && matchesDate;
+        return matchesSearch;
     });
-
     //count
     const counts = {
 
-        "Call Received": filtered.filter((e) => {
+        "Call Received": dateFiltered.filter((e) => {
             const stage = e.stages?.[0]?.stage;
             return STAGES.indexOf(stage) >= STAGES.indexOf("Call");
         }).length,
 
-        "Mail Received": filtered.filter((e) => {
+        "Mail Received": dateFiltered.filter((e) => {
             const stage = e.stages?.[0]?.stage;
             return STAGES.indexOf(stage) >= STAGES.indexOf("Mail");
         }).length,
 
-        "L1 Interview": filtered.filter((e) => {
+        "L1 Interview": dateFiltered.filter((e) => {
             const stage = e.stages?.[0]?.stage;
             return STAGES.indexOf(stage) >= STAGES.indexOf("L1");
         }).length,
 
-        "L2 Interview": filtered.filter((e) => {
+        "L2 Interview": dateFiltered.filter((e) => {
             const stage = e.stages?.[0]?.stage;
             return STAGES.indexOf(stage) >= STAGES.indexOf("L2");
         }).length,
 
-        "Offer Letter": filtered.filter((e) => {
+        "Offer Letter": dateFiltered.filter((e) => {
             const stage = e.stages?.[0]?.stage;
             return STAGES.indexOf(stage) >= STAGES.indexOf("Offer");
         }).length,

@@ -310,18 +310,9 @@ function Applications() {
         );
     };
 
+    // FILTER FOR CARDS (ONLY DATE FILTER)
     const cardFilteredApps = applications.filter((app) => {
 
-        // SEARCH FILTER
-        const searchValue = search.toLowerCase().trim();
-
-        const matchesSearch =
-            !searchValue ||
-            app.company?.toLowerCase().includes(searchValue) ||
-            app.role?.toLowerCase().includes(searchValue) ||
-            app.platform?.toLowerCase().includes(searchValue);
-
-        // DATE FILTER
         let matchesDate = true;
 
         const appDate = parseLocalDate(app.date);
@@ -354,16 +345,25 @@ function Applications() {
                 appDate.getTime() <= to.getTime();
         }
 
-        return matchesSearch && matchesDate;
+        return matchesDate;
     });
 
+    // FILTER FOR TABLE (SEARCH + TAB + DATE)
     const filteredApps = cardFilteredApps.filter((app) => {
+
+        const searchValue = search.toLowerCase().trim();
+
+        const matchesSearch =
+            !searchValue ||
+            app.company?.toLowerCase().includes(searchValue) ||
+            app.role?.toLowerCase().includes(searchValue) ||
+            app.platform?.toLowerCase().includes(searchValue);
 
         const matchesTab =
             activeTab === "All" ||
             app.platform?.toLowerCase() === activeTab.toLowerCase();
 
-        return matchesTab;
+        return matchesSearch && matchesTab;
     });
 
     //count
