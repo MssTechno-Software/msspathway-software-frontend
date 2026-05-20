@@ -265,7 +265,7 @@ function Employees() {
 
         {/* TABLE */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
-          <table className="w-full text-sm">
+          <table className="w-full text-md">
             <thead className="bg-gray-100 text-gray-800">
               <tr className="border-b border-gray-200">
                 <th className="p-4 text-left">ID</th>

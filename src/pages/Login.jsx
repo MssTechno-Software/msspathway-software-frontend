@@ -569,16 +569,13 @@ function Login() {
             sm:p-8
           "
           >
-
-            {/* EMAIL */}
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {/* Email */}
+            <label className="text-sm font-semibold text-gray-700 tracking-wide">
               EMAIL ID
             </label>
-
-            <div className={`flex items-center border rounded-xl px-4 h-12 mb-3 ${emailError ? "border-red-500" : "border-gray-300"
+            <div className={`flex items-center border rounded-lg mt-1 mb-3 px-3 ${emailError ? "border-red-500" : "border-gray-300"
               }`}>
-              <FiMail className="text-gray-400 mr-3 shrink-0" />
-
+              <FiMail className="text-gray-400 mr-2" />
               <input
                 type="email"
                 placeholder="you@msstechno.com"
@@ -587,25 +584,23 @@ function Login() {
                   setEmail(e.target.value);
                   setEmailError("");
                 }}
-                className="w-full outline-none text-sm bg-transparent"
+                className="w-full py-2 outline-none text-sm"
               />
             </div>
 
             {emailError && (
-              <p className="text-red-500 text-xs mb-3">
+              <p className="text-red-500 text-xs text-left">
                 {emailError}
               </p>
             )}
 
-            {/* PASSWORD */}
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {/* Password */}
+            <label className="text-sm font-semibold text-gray-700 tracking-wide">
               PASSWORD
             </label>
-
-            <div className={`flex items-center border rounded-xl px-4 h-12 mb-2 ${passwordError ? "border-red-500" : "border-gray-300"
+            <div className={`flex items-center border rounded-lg mt-1 mb-1 px-3 ${passwordError ? "border-red-500" : "border-gray-300"
               }`}>
-              <FiLock className="text-gray-400 mr-3 shrink-0" />
-
+              <FiLock className="text-gray-400 mr-2 shrink-0" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
@@ -614,50 +609,34 @@ function Login() {
                   setPassword(e.target.value);
                   setPasswordError("");
                 }}
-                className="w-full outline-none text-sm bg-transparent"
+                className="w-full py-2 outline-none text-sm"
               />
-
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-500"
+                className="text-gray-500 ml-2"
               >
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
 
             {passwordError && (
-              <p className="text-red-500 text-xs mb-3">
+              <p className="text-red-500 text-xs text-left">
                 {passwordError}
               </p>
             )}
 
-            {/* FORGOT PASSWORD */}
             <p
-              className="text-green-700 text-sm mb-6 cursor-pointer hover:underline"
+              className="text-left text-sm text-green-600 cursor-pointer hover:underline mb-6"
               onClick={() => setShowPopup(true)}
             >
               Forgot password?
             </p>
 
-            {/* BUTTON */}
             <button
               type="submit"
               disabled={loading || pageLoading}
-              className="
-              w-full
-              h-12
-              bg-green-800
-              hover:bg-green-700
-              rounded-xl
-              text-white
-              font-semibold
-              transition
-              flex
-              items-center
-              justify-center
-              gap-2
-            "
+              className="w-full py-2 bg-green-800 text-white rounded-lg hover:bg-green-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

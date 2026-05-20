@@ -329,7 +329,7 @@ function Clients() {
             <div className="bg-white rounded-xl shadow overflow-hidden">
                 <div className="overflow-x-auto">
 
-                    <table className="min-w-175 w-full text-sm">
+                    <table className="min-w-175 w-full text-md">
 
                         <thead className="bg-gray-100 text-gray-800">
                             <tr>
