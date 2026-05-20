@@ -7,6 +7,8 @@ const weekDays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 function Calender({ selectedDate, onDateSelect }) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const [hoursMap, setHoursMap] = useState({});
@@ -17,6 +19,22 @@ function Calender({ selectedDate, onDateSelect }) {
   const monthIndex = currentDate.getMonth(); //0-11
   const month = monthIndex + 1; //1-12
 
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const years = Array.from({ length: 21 }, (_, i) => 2020 + i);
   /*Fetch calendar data on month/year change */
   useEffect(() => {
     fetchCalendarData();
@@ -58,11 +76,8 @@ function Calender({ selectedDate, onDateSelect }) {
 
       const data = await response.json();
       console.log("Calendar API Response:", data);
-
-
       /* Convert API object into simple hours map */
       const formattedMap = {};
-
       const calendarData = data.date || {};
       console.log("Calendar Data:", calendarData);
       Object.entries(calendarData).forEach(([key, entry]) => {
@@ -176,15 +191,81 @@ function Calender({ selectedDate, onDateSelect }) {
           overflow-hidden
         "
       >
+
         {/* Header */}
-        <div className="flex justify-between items-center mb-3 sm:mb-4">
-          <h2 className="font-semibold text-base sm:text-lg xl:text-xl">
-            {currentDate.toLocaleString("default", { month: "long" })} {year}
-          </h2>
+        <div className="flex justify-between items-center mb-4 relative">
+
+          {/* Month + Year */}
+          <div className="flex items-center gap-2">
+
+            {/* Month Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowMonthDropdown(!showMonthDropdown);
+                  setShowYearDropdown(false);
+                }}
+                className="font-semibold text-base sm:text-lg xl:text-xl"
+              >
+                {months[monthIndex]}
+              </button>
+
+              {showMonthDropdown && (
+                <div className="absolute top-10 left-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg w-28 max-h-60 overflow-y-auto">
+                  {months.map((m, index) => (
+                    <div
+                      key={m}
+                      onClick={() => {
+                        setCurrentDate(new Date(year, index, 1));
+                        setShowMonthDropdown(false);
+                      }}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    >
+                      {m}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Year Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowYearDropdown(!showYearDropdown);
+                  setShowMonthDropdown(false);
+                }}
+                className="font-semibold text-base sm:text-lg xl:text-xl"
+              >
+                {year}
+              </button>
+
+              {showYearDropdown && (
+                <div className="absolute top-10 left-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg w-28 max-h-60 overflow-y-auto">
+                  {years.map((y) => (
+                    <div
+                      key={y}
+                      onClick={() => {
+                        setCurrentDate(new Date(y, monthIndex, 1));
+                        setShowYearDropdown(false);
+                      }}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    >
+                      {y}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Arrows */}
           <div className="flex gap-2">
             <button onClick={prevMonth}>
               <ChevronLeft size={18} />
             </button>
+
             <button onClick={nextMonth}>
               <ChevronRight size={18} />
             </button>

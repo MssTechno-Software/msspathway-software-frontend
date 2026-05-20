@@ -13,35 +13,54 @@ function PublicHolidayTable() {
     });
 
     /* FETCH HOLIDAYS */
-    useEffect(() => {
-        const fetchHolidays = async () => {
-            const token = localStorage.getItem("token");
+    const fetchHolidays = async () => {
+        const token = localStorage.getItem("token");
 
-            if (!token) return;
-            try {
-                setLoading(true);
-                const response = await fetch(
-                    "https://timesheet-api-790373899641.asia-south1.run.app/calendar/public-holidays/current-year",
-                    {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                if (!response.ok) {
-                    throw new Error("Failed to fetch holidays");
+        if (!token) return;
+        try {
+            setLoading(true);
+            const response = await fetch(
+                "https://timesheet-api-790373899641.asia-south1.run.app/calendar/public-holidays/current-year",
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
-                const data = await response.json();
-                console.log("Public Holidays:", data);
-                setHolidays(data || []);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch holidays");
             }
-        };
+            const data = await response.json();
+            console.log("Public Holidays:", data);
+            setHolidays(data || []);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
         fetchHolidays();
+    }, []);
+
+    useEffect(() => {
+        const refreshHolidays = () => {
+            fetchHolidays();
+        };
+
+        window.addEventListener(
+            "timesheetSubmitted",
+            refreshHolidays
+        );
+
+        return () => {
+            window.removeEventListener(
+                "timesheetSubmitted",
+                refreshHolidays
+            );
+        };
+
     }, []);
 
     /* DELETE HOLIDAY */
@@ -211,13 +230,13 @@ function PublicHolidayTable() {
             {/* POPUP */}
             {popup.show && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50">
-                    <div className="bg-white w-full max-w-xs sm:max-w-[320px] p-5 sm:p-6 rounded-lg shadow-lg text-center">
+                    <div className="bg-white w-full max-w-xs sm:max-w-[320px] p-5 sm:p-6 rounded-xl shadow-lg text-center">
                         <h3
                             className={`text-lg font-semibold mb-2 ${popup.type === "error"
-                                    ? "text-red-600"
-                                    : popup.type === "success"
-                                        ? "text-green-600"
-                                        : "text-gray-900"
+                                ? "text-red-600"
+                                : popup.type === "success"
+                                    ? "text-green-600"
+                                    : "text-gray-900"
                                 }`}
                         >
                             {popup.type === "confirm"
@@ -241,7 +260,7 @@ function PublicHolidayTable() {
                                                 onConfirm: null,
                                             })
                                         }
-                                        className="px-5 py-2 border border-gray-200 rounded-md text-sm"
+                                        className="px-5 py-2 border border-gray-200 rounded-xl text-sm"
                                     >
                                         Cancel
                                     </button>
@@ -257,7 +276,7 @@ function PublicHolidayTable() {
                                                 onConfirm: null,
                                             });
                                         }}
-                                        className="px-5 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
+                                        className="px-5 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 text-sm"
                                     >
                                         Delete
                                     </button>
@@ -272,7 +291,7 @@ function PublicHolidayTable() {
                                             onConfirm: null,
                                         })
                                     }
-                                    className="px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm"
+                                    className="px-6 py-2 bg-green-800 text-white rounded-xl hover:bg-green-700 text-sm"
                                 >
                                     OK
                                 </button>
