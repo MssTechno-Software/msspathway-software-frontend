@@ -217,7 +217,7 @@ function Leave() {
                         onChange={(date) => setTo(date)}
                         dateFormat="dd-MM-yyyy"
                         wrapperClassName="w-full"
-                        className="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-600 outline-none"
+                        className="w-full border border-gray-300 p-2 rounded-xl text-sm hover:border-gray-200 outline-none"
                         shouldCloseOnSelect={true}
                         closeOnScroll={false}
                         onClickOutside={(e) => e.preventDefault()}
@@ -235,7 +235,7 @@ function Leave() {
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     rows={3}
-                    className="w-full border p-2 rounded text-sm"
+                    className="w-full border border-gray-300 p-2 rounded-xl text-sm hover:border-gray-200 outline-none"
                   />
                 </div>
               </div>
@@ -244,7 +244,7 @@ function Leave() {
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setOpen(false)}
-                className="text-sm text-gray-500"
+                className="text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50"
               >
                 Cancel
               </button>

@@ -4,6 +4,7 @@ import DailyWorkLog from "../container/DailyWorkLog";
 import Guideline from "../container/Guideline";
 import Leave from "../container/Leave";
 import PublicHoliday from "../container/PublicHoliday";
+import PublicHolidayTable from "../container/PublicHolidaysList";
 
 function Timesheet() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -77,13 +78,20 @@ function Timesheet() {
 
           {/* RIGHT PANEL */}
           <div className="w-full min-w-0 overflow-hidden">
-            <DailyWorkLog
-              selectedDate={selectedDate}
-              isLeave={dateStatus === "leave"}
-              isPublicHoliday={
-                dateStatus === "publicholiday"
-              }
-            />
+            {localStorage.getItem("role") === "super admin" ? (
+              <PublicHolidayTable />
+            ) : (
+
+              <DailyWorkLog
+                selectedDate={selectedDate}
+                isLeave={dateStatus === "leave"}
+                isPublicHoliday={
+                  dateStatus === "publicholiday"
+                }
+              />
+
+            )}
+
           </div>
         </div>
       </div>

@@ -100,7 +100,6 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
         if (submittedFlag === "true") {
           isSubmitted = true;
         }
-        
 
         setSubmitted(isSubmitted);
         

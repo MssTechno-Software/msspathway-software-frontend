@@ -58,7 +58,7 @@ function PublicHoliday() {
   const addHoliday = async () => {
     if (
       !holidayDate ||
-      !holidayName
+      !description
     ) {
       openPopup(
         "Please fill all required fields",
@@ -69,7 +69,6 @@ function PublicHoliday() {
     }
 
     const token = localStorage.getItem("token");
-
     if (!token) {
       openPopup("Bad token.", "error");
       return;
@@ -77,7 +76,6 @@ function PublicHoliday() {
 
     try {
       setLoading(true);
-
       const payload = {
         holiday_date: formatDate(holidayDate),
         description: description,
@@ -87,7 +85,6 @@ function PublicHoliday() {
         `https://timesheet-api-790373899641.asia-south1.run.app/calendar/public-holiday?holiday_date=${payload.holiday_date}&description=${encodeURIComponent(payload.description)}`,
         {
           method: "POST",
-
           headers: {
             Authorization: `Bearer ${token.trim()}`,
           },
@@ -154,25 +151,6 @@ function PublicHoliday() {
 
             <div className="space-y-4">
 
-              {/* HOLIDAY NAME */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Holiday Name <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  type="text"
-                  value={holidayName}
-                  onChange={(e) =>
-                    setHolidayName(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter holiday name"
-                  className="w-full border p-2 rounded text-sm"
-                />
-              </div>
-
               {/* HOLIDAY DATE */}
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -187,7 +165,7 @@ function PublicHoliday() {
                   }
                   dateFormat="dd-MM-yyyy"
                   wrapperClassName="w-full"
-                  className="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-green-600 outline-none"
+                  className="w-full border border-gray-300 p-2 rounded-xl text-sm hover:border-gray-200 outline-none"
                   shouldCloseOnSelect={true}
                   closeOnScroll={false}
                   onClickOutside={(e) =>
@@ -195,6 +173,25 @@ function PublicHoliday() {
                   }
                 />
               </div>
+
+              {/* DESCRIPTION */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description <span className="text-red-500">*</span>
+                </label>
+
+                <textarea
+                  value={description}
+                  onChange={(e) =>
+                    setDescription(
+                      e.target.value
+                    )
+                  }
+                  rows={3}
+                  className="w-full border border-gray-300 p-2 rounded-xl text-sm hover:border-gray-200"
+                />
+              </div>
+
             </div>
 
             {/* BUTTONS */}
@@ -202,7 +199,7 @@ function PublicHoliday() {
 
               <button
                 onClick={() => setOpen(false)}
-                className="text-sm text-gray-500"
+                className="text-sm text-gray-500 border border-gray-200 px-4 py-2 rounded-xl hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -210,7 +207,7 @@ function PublicHoliday() {
               <button
                 onClick={addHoliday}
                 disabled={loading}
-                className="px-4 py-2 rounded text-sm bg-green-800 text-white hover:bg-green-700"
+                className="px-4 py-2 rounded-xl text-sm bg-green-800 text-white hover:bg-green-700"
               >
                 {loading
                   ? "Adding..."
