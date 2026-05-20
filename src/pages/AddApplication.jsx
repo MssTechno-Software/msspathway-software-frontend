@@ -35,7 +35,6 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
     }, [editingApp]);
 
     const handleSubmit = () => {
-        const isEdit = !!editingApp;
         const trimmedForm = {
             company: form.company.trim(),
             role: form.role.trim(),
@@ -44,42 +43,41 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
             link: form.link.trim(),
             notes: form.notes.trim()
         };
-        if (!isEdit) {
-            if (!trimmedForm.company) {
-                return setPopup({
-                    show: true,
-                    message: "Company name is required",
-                    type: "error"
-                });
-            }
-            if (!trimmedForm.role) {
-                return setPopup({
-                    show: true,
-                    message: "Role is required",
-                    type: "error"
-                });
-            }
-            if (!trimmedForm.platform || trimmedForm.platform === "Select a platform") {
-                return setPopup({
-                    show: true,
-                    message: "Platform is required",
-                    type: "error"
-                });
-            }
-            if (!trimmedForm.date) {
-                return setPopup({
-                    show: true,
-                    message: "Date is required",
-                    type: "error"
-                });
-            }
-            if (!trimmedForm.link) {
-                return setPopup({
-                    show: true,
-                    message: "Application link is required",
-                    type: "error"
-                });
-            }
+
+        if (!trimmedForm.company) {
+            return setPopup({
+                show: true,
+                message: "Company name is required",
+                type: "error"
+            });
+        }
+        if (!trimmedForm.role) {
+            return setPopup({
+                show: true,
+                message: "Role is required",
+                type: "error"
+            });
+        }
+        if (!trimmedForm.platform || trimmedForm.platform === "Select a platform") {
+            return setPopup({
+                show: true,
+                message: "Platform is required",
+                type: "error"
+            });
+        }
+        if (!trimmedForm.date) {
+            return setPopup({
+                show: true,
+                message: "Date is required",
+                type: "error"
+            });
+        }
+        if (!trimmedForm.link) {
+            return setPopup({
+                show: true,
+                message: "Application link is required",
+                type: "error"
+            });
         }
         // Validate URL
         if (trimmedForm.link) {
@@ -134,7 +132,7 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Company Name {!editingApp && <span className="text-red-500">*</span>}
+                                Company Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 name="company"
@@ -147,7 +145,7 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Role of Application {!editingApp && <span className="text-red-500">*</span>}
+                                Role of Application <span className="text-red-500">*</span>
                             </label>
                             <input
                                 name="role"
@@ -165,7 +163,7 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
 
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Select Platform {!editingApp && <span className="text-red-500">*</span>}
+                                Select Platform <span className="text-red-500">*</span>
                             </label>
 
                             <div
@@ -204,7 +202,7 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Date Applied {!editingApp && <span className="text-red-500">*</span>}
+                                Date Applied <span className="text-red-500">*</span>
                             </label>
 
                             <div className="relative">
@@ -228,7 +226,7 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
                     {/* Link */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Application Link {!editingApp && <span className="text-red-500">*</span>}
+                            Application Link <span className="text-red-500">*</span>
                         </label>
 
                         <div

@@ -15,6 +15,12 @@ API.interceptors.request.use((config) => {
 });
 
 function Employees() {
+  const role = localStorage
+    .getItem("role")
+    ?.toLowerCase()
+    ?.trim();
+
+  console.log("ROLE:", role);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);

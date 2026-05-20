@@ -64,15 +64,19 @@ function Calender({ selectedDate, onDateSelect }) {
       const formattedMap = {};
 
       const calendarData = data.date || {};
-
+      console.log("Calendar Data:", calendarData);
       Object.entries(calendarData).forEach(([key, entry]) => {
-        if(!entry) return;
+        if (!entry) return;
 
         if (entry.status === "leave") {
           formattedMap[key] = "leave";
         } else if (entry.status === "pending") {
           formattedMap[key] = "pending";
-        }else if (entry.status === "publicholiday") {
+        } else if (
+          entry.status === "publicholiday" ||
+          entry.status === "public_holiday" ||
+          entry.status === "public holiday"
+        ) {
           formattedMap[key] = "publicholiday";
         } else {
           formattedMap[key] = entry.hours || 0;
@@ -80,12 +84,12 @@ function Calender({ selectedDate, onDateSelect }) {
       });
 
       setHoursMap(formattedMap);
-    } 
-    
+    }
+
     catch (error) {
       console.error("Error fetching calendar data:", error);
-    } 
-    
+    }
+
     finally {
       setLoading(false);
     }
@@ -173,7 +177,7 @@ function Calender({ selectedDate, onDateSelect }) {
         "
       >
         {/* Header */}
-       <div className="flex justify-between items-center mb-3 sm:mb-4">
+        <div className="flex justify-between items-center mb-3 sm:mb-4">
           <h2 className="font-semibold text-base sm:text-lg xl:text-xl">
             {currentDate.toLocaleString("default", { month: "long" })} {year}
           </h2>
@@ -225,23 +229,23 @@ function Calender({ selectedDate, onDateSelect }) {
 
             if (weekend) {
               bg = "bg-gray-100 border-gray-400 text-gray-400";
-            } 
+            }
             else if (value === "leave") {
               bg = "bg-red-50 border-red-200 text-red-600";
               label = "leave";
-            } 
+            }
             else if (value === "pending") {
               bg = "bg-gray-100 border-gray-400 text-gray-400";
               label = "pending";
-            } 
+            }
             else if (value === "publicholiday") {
               bg = "bg-blue-100 border-blue-300 text-blue-700";
               label = "public hol";
-            } 
+            }
             else if (Number(value) >= 8) {
               bg = "bg-green-50 border-green-200 text-green-700";
               label = `${value}h`;
-            } 
+            }
             else if (Number(value) > 0) {
               bg = "bg-yellow-50 border-yellow-200 text-yellow-700";
               label = `${value}h`;
@@ -259,10 +263,9 @@ function Calender({ selectedDate, onDateSelect }) {
                 className={`flex flex-col items-center justify-center h-11 sm:h-13.5 md:h-15.5 lg:h-17 w-full min-w-0 rounded-lg border text-[10px] sm:text-xs md:text-sm leading-none transition-all duration-200
                   ${bg}
                   ${selected ? "ring-2 ring-green-600" : ""}
-                  ${
-                    weekend
-                      ? "cursor-not-allowed"
-                      : "cursor-pointer hover:bg-gray-100"
+                  ${weekend
+                    ? "cursor-not-allowed"
+                    : "cursor-pointer hover:bg-gray-100"
                   }
                 `}
               >
@@ -353,33 +356,62 @@ function Calender({ selectedDate, onDateSelect }) {
 
         <hr className="my-3 border-gray-200" />
 
-        <button
-          onClick={() =>
-            window.dispatchEvent(
-              new CustomEvent("leave-event", {
-                detail: "open-leave-modal",
-              })
-            )
-          }
-          className="
-            w-full
-            mt-4
-            bg-green-800
-            text-white
-            text-sm
-            sm:text-base
-            font-medium
-            shadow-sm
-            py-2.5
-            sm:py-3
-            rounded-xl
-            hover:bg-green-700
-            transition-all
-          "
-        >
+        {role !== "super admin" ? (
+          <button
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("leave-event", {
+                  detail: "open-leave-modal",
+                })
+              )
+            }
+            className="
+              w-full
+              mt-4
+              bg-green-800
+              text-white
+              text-sm
+              sm:text-base
+              font-medium
+              shadow-sm
+              py-2.5
+              sm:py-3
+              rounded-xl
+              hover:bg-green-700
+              transition-all
+            "
+          >
             Apply for Leave
-        </button>
-        
+          </button>
+        ) : (
+          <button
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("holiday-event", {
+                  detail: "open-holiday-modal",
+                })
+              )
+            }
+            className="
+              w-full
+              mt-4
+              bg-green-800
+              text-white
+              text-sm
+              sm:text-base
+              font-medium
+              shadow-sm
+              py-2.5
+              sm:py-3
+              rounded-xl
+              hover:bg-green-700
+              transition-all
+            "
+          >
+            Add Public Holiday
+          </button>
+        )}
+
         <button
           onClick={() =>
             navigate(

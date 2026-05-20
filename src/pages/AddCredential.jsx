@@ -35,7 +35,6 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
 
     //validation can be added here before submission
     const validate = () => {
-        const isEdit = !!editingData;
 
         const trimmedForm = {
             portal: form.portal.trim(),
@@ -46,69 +45,60 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
         };
 
         // REQUIRED FIELDS
-        if (!isEdit) {
+        if (!trimmedForm.portal) {
+            return setPopup({
+                show: true,
+                message: "Portal name is required",
+                type: "error"
+            });
+        }
 
-            if (!trimmedForm.portal) {
-                return setPopup({
-                    show: true,
-                    message: "Portal name is required",
-                    type: "error"
-                });
-            }
+        if (!trimmedForm.portalLink) {
+            return setPopup({
+                show: true,
+                message: "Portal link is required",
+                type: "error"
+            });
+        }
 
-            if (!trimmedForm.portalLink) {
-                return setPopup({
-                    show: true,
-                    message: "Portal link is required",
-                    type: "error"
-                });
-            }
+        if (!trimmedForm.email) {
+            return setPopup({
+                show: true,
+                message: "Email address is required",
+                type: "error"
+            });
+        }
 
-            if (!trimmedForm.email) {
-                return setPopup({
-                    show: true,
-                    message: "Email address is required",
-                    type: "error"
-                });
-            }
-
-            if (!trimmedForm.password) {
-                return setPopup({
-                    show: true,
-                    message: "Password is required",
-                    type: "error"
-                });
-            }
+        if (!trimmedForm.password) {
+            return setPopup({
+                show: true,
+                message: "Password is required",
+                type: "error"
+            });
         }
 
         // FLEXIBLE URL VALIDATION
-        if (trimmedForm.portalLink) {
+        let value = trimmedForm.portalLink;
 
-            let value = trimmedForm.portalLink;
-
-            // Auto add https://
-            if (!/^https?:\/\//i.test(value)) {
-                value = "https://" + value;
-            }
-
-            const urlPattern =
-                /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=.]*)?$/i;
-
-            if (!urlPattern.test(value)) {
-                return setPopup({
-                    show: true,
-                    message: "Enter valid portal link",
-                    type: "error"
-                });
-            }
-
-            trimmedForm.portalLink = value;
+        if (!/^https?:\/\//i.test(value)) {
+            value = "https://" + value;
         }
 
-        // EMAIL VALIDATION
-        if (trimmedForm.email &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedForm.email)) {
+        const urlPattern =
+            /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=.]*)?$/i;
 
+        if (!urlPattern.test(value)) {
+            return setPopup({
+                show: true,
+                message: "Enter valid portal link",
+                type: "error"
+            });
+        }
+
+        trimmedForm.portalLink = value;
+
+        // EMAIL VALIDATION
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedForm.email)) {
             return setPopup({
                 show: true,
                 message: "Enter valid email address",
@@ -117,9 +107,7 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
         }
 
         // PASSWORD VALIDATION
-        if (trimmedForm.password &&
-            trimmedForm.password.length < 6) {
-
+        if (trimmedForm.password.length < 6) {
             return setPopup({
                 show: true,
                 message: "Password must be at least 6 characters",
@@ -156,7 +144,7 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
                     {/* PORTAL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Portal Name {!editingData && <span className="text-red-500">*</span>}
+                            Portal Name <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -175,7 +163,7 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
                     {/* PORTAL LINK*/}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Portal Link {!editingData && <span className="text-red-500">*</span>}
+                            Portal Link <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -193,7 +181,7 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
                     {/* EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Email Address {!editingData && <span className="text-red-500">*</span>}
+                            Email Address <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -211,7 +199,7 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
                     {/* PASSWORD */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Password {!editingData && <span className="text-red-500">*</span>}
+                            Password <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">

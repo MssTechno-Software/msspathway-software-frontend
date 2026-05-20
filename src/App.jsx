@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard"
 import Clients from "./pages/Clients";
 import ClientLayout from "./pages/ClientLayout";
 import ClientProfile from "./pages/ClientProfile";
@@ -17,6 +18,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard/*" element={<Dashboard />} />
       <Route path="/employee-dashboard/*" element={<EmployeeDashboard />} />
+      <Route path="/super-admin-dashboard/*" element={<SuperAdminDashboard />} />
       <Route path="/clients" element={<Clients />} />
 
       {/* NEW STRUCTURE */}

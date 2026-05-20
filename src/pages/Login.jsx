@@ -439,8 +439,17 @@ function Login() {
       localStorage.removeItem("employee_id");
 
       // Store token
-      if (response.data.refresh_token) {
-        localStorage.setItem("token", response.data.refresh_token);
+      // Store ACCESS TOKEN (IMPORTANT FIX)
+      const token =
+        response.data.access_token ||
+        response.data.token ||
+        response.data.jwt ||
+        response.data.data?.access_token;
+
+      console.log("TOKEN:", token);
+
+      if (token) {
+        localStorage.setItem("token", token);
       }
 
       // Store user_id
@@ -478,14 +487,16 @@ function Login() {
       console.log("Role:", role);
 
       if (role) {
-        localStorage.setItem("role", role);
+        const formattedRole = role.toLowerCase().trim();
+        console.log("Formatted Role:", formattedRole);
+        localStorage.setItem("role", formattedRole);
       }
 
       // Navigate after storing
       setPageLoading(true);
       setTimeout(() => {
-        // navigate("/dashboard");
-        if (role === "employee") {
+        const formattedRole = role?.toLowerCase()?.trim();
+        if (formattedRole === "employee") {
           navigate("/employee-dashboard");
         } else {
           navigate("/dashboard");

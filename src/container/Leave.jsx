@@ -171,15 +171,8 @@ function Leave() {
                 {leaveType === "single" && (
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Date
+                      Date <span className="text-red-500">*</span>
                     </label>
-                    {/* <input
-                      type="date"
-                      value={singleDate}
-                      onChange={(e) => setSingleDate(e.target.value)}
-                      className="w-full border p-2 rounded text-sm"
-                    /> */}
-                    
                     <DatePicker
                       placeholderText="dd-mm-yyyy"
                       selected={singleDate}
@@ -199,15 +192,8 @@ function Leave() {
                   <>
                     <div>
                       <label className="block text-sm font-medium mb-1">
-                        Start Date
+                        Start Date <span className="text-red-500">*</span>
                       </label>
-                      {/* <input
-                        type="date"
-                        value={from}
-                        onChange={(e) => setFrom(e.target.value)}
-                        className="w-full border p-2 rounded text-sm"
-                      /> */}
-
                       <DatePicker
                         placeholderText="dd-mm-yyyy"
                         selected={from}
@@ -223,15 +209,8 @@ function Leave() {
 
                     <div>
                       <label className="block text-sm font-medium mb-1">
-                        End Date
+                        End Date <span className="text-red-500">*</span>
                       </label>
-                      {/* <input
-                        type="date"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value)}
-                        className="w-full border p-2 rounded text-sm"
-                      /> */}
-
                       <DatePicker
                         placeholderText="dd-mm-yyyy"
                         selected={to}
@@ -250,7 +229,7 @@ function Leave() {
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Description
+                    Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={reason}

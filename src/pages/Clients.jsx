@@ -14,7 +14,10 @@ const statusMap = {
 
 function Clients() {
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const role = localStorage
+    .getItem("role")
+    ?.toLowerCase()
+    ?.trim();
     const [clients, setClients] = useState([]);
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);

@@ -16,7 +16,11 @@ import { useState } from "react";
 
 function Sidebar({ children }) {
     const navigate = useNavigate();
-    const role = localStorage.getItem("role");
+    const role = localStorage
+        .getItem("role")
+        ?.toLowerCase()
+        ?.trim();
+    console.log("ROLE:", role);
     const employee_id = localStorage.getItem("employee_id");
 
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -96,7 +100,13 @@ function Sidebar({ children }) {
                                 </h2>
 
                                 <p className="text-sm text-gray-300">
-                                    Dashboard
+                                    {role === "employee"
+                                        ? "Employee Dashboard"
+                                        : role === "admin"
+                                            ? "Admin Dashboard"
+                                            : role === "super admin"
+                                                ? "Super Admin Dashboard"
+                                                : "Dashboard"}
                                 </p>
                             </div>
                         )}
@@ -106,30 +116,32 @@ function Sidebar({ children }) {
                     <nav className="space-y-2 flex-1">
 
                         {/* MY PROFILE */}
-                        <NavLink
-                            to={
-                                role === "employee"
-                                    ? `/employee-dashboard/my-profile/${employee_id}`
-                                    : `/dashboard/my-profile/${employee_id}`
-                            }
-                            className={({ isActive }) =>
-                                `
+                        {role !== "super admin" && (
+                            <NavLink
+                                to={
+                                    role === "employee"
+                                        ? `/employee-dashboard/my-profile/${employee_id}`
+                                        : `/dashboard/my-profile/${employee_id}`
+                                }
+                                className={({ isActive }) =>
+                                    `
                                 flex items-center gap-3
                                 px-4 py-3 rounded-xl
                                 transition-all duration-200
                                 ${isActive
-                                    ? "bg-green-800"
-                                    : "hover:bg-green-700"
-                                }
+                                        ? "bg-green-800"
+                                        : "hover:bg-green-700"
+                                    }
                                 `
-                            }
-                        >
-                            <FiUser size={20} />
+                                }
+                            >
+                                <FiUser size={20} />
 
-                            {openSidebar && (
-                                <span>My Profile</span>
-                            )}
-                        </NavLink>
+                                {openSidebar && (
+                                    <span>My Profile</span>
+                                )}
+                            </NavLink>
+                        )}
 
                         {/* CLIENTS */}
                         <NavLink

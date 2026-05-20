@@ -55,7 +55,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
       try {
         const response = await fetch(
-          `${BASE_URL}/draft/${dateKey}`,
+          `${BASE_URL}/draft/${work_date}`,
           {
             method: "POST",
             headers: {
@@ -363,7 +363,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Project Name
+              Project Name <span className="text-red-500">*</span>
             </label>
             <input
               disabled={isDisabled}
@@ -371,14 +371,14 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
               onChange={(e) =>
                 setFormData({ ...formData, project: e.target.value })
               }
-              placeholder="Project Name *"
+              placeholder="Project Name"
               className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Task Category
+              Task Category <span className="text-red-500">*</span>
             </label>
             <input
               disabled={isDisabled}
@@ -386,7 +386,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value })
               }
-              placeholder="Task Category *"
+              placeholder="Task Category "
               className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-sm"
             />
           </div>
@@ -395,7 +395,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Time
+              Start Time <span className="text-red-500">*</span>
             </label>
             <input
               disabled={isDisabled}
@@ -410,7 +410,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Time
+              End Time <span className="text-red-500">*</span>
             </label>
             <input
               disabled={isDisabled}
@@ -441,12 +441,12 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Task Description
+            Task Description <span className="text-red-500">*</span>
           </label>
           <textarea
             disabled={isDisabled}
             rows={4}
-            placeholder="What have you achieved today? *"
+            placeholder="What have you achieved today?"
             value={formData.description}
             required
             onChange={(e) =>

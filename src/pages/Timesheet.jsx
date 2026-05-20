@@ -3,6 +3,7 @@ import Calender from "../container/Calender";
 import DailyWorkLog from "../container/DailyWorkLog";
 import Guideline from "../container/Guideline";
 import Leave from "../container/Leave";
+import PublicHoliday from "../container/PublicHoliday";
 
 function Timesheet() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -59,9 +60,15 @@ function Timesheet() {
               />
             </div>
 
-            <div className="w-full">
-              <Leave />
-            </div>
+            {localStorage.getItem("role") !== "super admin" ? (
+              <div className="w-full">
+                <Leave />
+              </div>
+            ) : (
+              <div className="w-full">
+                <PublicHoliday />
+              </div>
+            )}
 
             <div className="w-full">
               <Guideline />
