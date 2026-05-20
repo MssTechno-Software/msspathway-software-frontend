@@ -188,8 +188,6 @@ function PublicHolidayTable() {
                                                 }}
                                                 className="
                                                     p-2
-                                                    rounded-lg
-                                                    hover:bg-red-50
                                                     transition
                                                     group
                                                 "
@@ -197,7 +195,7 @@ function PublicHolidayTable() {
                                                 <Trash2
                                                     size={18}
                                                     className="
-                                                    text-red-500
+                                                    text-gray-500
                                                     group-hover:text-red-600
                                                     "
                                                 />
@@ -207,7 +205,6 @@ function PublicHolidayTable() {
                                 </tr>
                             ))
                         )}
-
                     </tbody>
                 </table>
             </div>
