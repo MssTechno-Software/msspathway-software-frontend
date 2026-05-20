@@ -102,6 +102,10 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
       return onSave({ error: true, message: "Last name is required" });
     }
 
+    if (!isEdit && !form.aadhaar_no?.trim()) {
+      return onSave({ error: true, message: "Aadhaar is required" });
+    }
+
     if (!isEdit && !form.email?.trim()) {
       return onSave({ error: true, message: "Email is required" });
     }
@@ -142,10 +146,6 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
     if (!isEdit && !form.hr?.trim()) {
       return onSave({ error: true, message: "HR ID is required" });
-    }
-
-    if (!isEdit && !form.aadhaar_no?.trim()) {
-      return onSave({ error: true, message: "Aadhaar is required" });
     }
 
     if (!isEdit && !form.location?.trim()) {
@@ -290,7 +290,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*end date + currently working toggle*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              End Date {!editingEmployee && <span className="text-red-500">*</span>}
+              End Date
             </label>
             <div className="flex items-center gap-2 mt-2">
               <input

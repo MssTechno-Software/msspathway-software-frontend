@@ -95,12 +95,18 @@ function Applications() {
     const addApplication = async (app) => {
         try {
             setLoading(true);
-            if (!app.platform || !app.company || !app.role || !app.date || !app.link) {
+            const isEdit = !!editingApp;
+            // Required only while adding
+            if (
+                !isEdit &&
+                (!app.platform || !app.company || !app.role || !app.date || !app.link)
+            ) {
                 setPopup({
                     show: true,
                     message: "Please fill in all required fields",
                     type: "error"
                 });
+
                 setLoading(false);
                 return;
             }
