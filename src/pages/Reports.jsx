@@ -53,6 +53,13 @@ export default function Reports() {
     const [appliedToDate, setAppliedToDate] = useState("");
     const [loading, setLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
+    const [counts, setCounts] = useState({
+        "Call Received": 0,
+        "Mail Received": 0,
+        "L1 Interview": 0,
+        "L2 Interview": 0,
+        "Offer Letter": 0,
+    });
     const [popup, setPopup] = useState({
         show: false,
         message: "",
@@ -66,25 +73,56 @@ export default function Reports() {
     const fetchReports = async () => {
         try {
             setLoading(true);
+
             const res = await API.get(`/reports/clients/${client_id}/reports`);
+
             console.log("Fetched reports:", res.data);
 
-            const data = res.data?.company_progression || [];
+            const responseData = res.data || {};
+
+            // PIPELINE OVERVIEW COUNTS
+            setCounts({
+                "Call Received": responseData.pipeline_overview?.calls_received || 0,
+                "Mail Received": responseData.pipeline_overview?.mails_received || 0,
+                "L1 Interview": responseData.pipeline_overview?.l1_interviews || 0,
+                "L2 Interview": responseData.pipeline_overview?.l2_interviews || 0,
+                "Offer Letter": responseData.pipeline_overview?.offer_letters || 0,
+            });
+
+            // COMPANY PROGRESSION
+            const data = responseData.company_progression || [];
 
             const formatted = data.map((item) => ({
                 company: item.company,
-                stages: [
-                    {
-                        id: item.latest_report_id,
-                        stage: normalizeStage(item.current_stage),
-                        status: normalizeStatus(item.status),
-                        date: item.updated_at,
-                    },
-                ],
+
+                stages: (item.stages || []).map((stageItem, index) => ({
+                    id: item.report_id,
+
+                    stage: normalizeStage(stageItem.stage),
+
+                    status: normalizeStatus(stageItem.status),
+
+                    date: stageItem.date,
+                })),
             }));
+
             setEntries(formatted);
+
         } catch (err) {
-            console.error("ERROR:", err.response?.data || err.message);
+
+            console.error(
+                "ERROR:",
+                err.response?.data || err.message
+            );
+
+            setPopup({
+                show: true,
+                message:
+                    err.response?.data?.message ||
+                    "Failed to fetch reports",
+                type: "error"
+            });
+
         } finally {
             setLoading(false);
         }
@@ -364,34 +402,6 @@ export default function Reports() {
 
         return matchesSearch;
     });
-    //count
-    const counts = {
-
-        "Call Received": dateFiltered.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Call");
-        }).length,
-
-        "Mail Received": dateFiltered.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Mail");
-        }).length,
-
-        "L1 Interview": dateFiltered.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("L1");
-        }).length,
-
-        "L2 Interview": dateFiltered.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("L2");
-        }).length,
-
-        "Offer Letter": dateFiltered.filter((e) => {
-            const stage = e.stages?.[0]?.stage;
-            return STAGES.indexOf(stage) >= STAGES.indexOf("Offer");
-        }).length,
-    };
 
     // Pagination
     const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
@@ -601,6 +611,7 @@ export default function Reports() {
 
                 {/* PAGINATION */}
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+
                     <p className="text-gray-500 text-sm">
                         {filtered.length === 0
                             ? "No data available"
@@ -608,13 +619,28 @@ export default function Reports() {
                     </p>
 
                     <div className="flex flex-wrap gap-2 items-center justify-center sm:justify-end text-xs sm:text-sm">
-                        {/* PREVIOUS BUTTON */}
+
+                        {/* FIRST PAGE */}
                         <button
-                            onClick={() => setCurrentPage(p => p - 1)}
+                            onClick={() => setCurrentPage(1)}
                             disabled={currentPage === 1}
-                            className={`px-3 py-1 rounded ${currentPage === 1
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-gray-700 hover:bg-gray-100"
+                            className={`px-3 py-1 rounded border
+                                ${currentPage === 1
+                                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                }`}
+                        >
+                            {"<<"}
+                        </button>
+
+                        {/* PREVIOUS */}
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-1 rounded border
+                                ${currentPage === 1
+                                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
                                 }`}
                         >
                             Previous
@@ -626,25 +652,42 @@ export default function Reports() {
                                 <button
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
-                                    className={`px-3 py-1 rounded ${currentPage === page
-                                        ? "bg-green-800 text-white"
-                                        : "text-gray-700 hover:bg-gray-100"
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === page
+                                            ? "bg-green-800 text-white border-green-800"
+                                            : "text-gray-700 hover:bg-gray-100 border-gray-300"
                                         }`}
                                 >
                                     {page}
                                 </button>
                             ))}
 
-                        {/* NEXT BUTTON */}
+                        {/* NEXT */}
                         <button
-                            onClick={() => setCurrentPage(p => p + 1)}
+                            onClick={() =>
+                                setCurrentPage(p => Math.min(p + 1, totalPages))
+                            }
                             disabled={currentPage === totalPages}
-                            className={`px-3 py-1 rounded ${currentPage === totalPages
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-gray-700 hover:bg-gray-100"
+                            className={`px-3 py-1 rounded border
+                                ${currentPage === totalPages
+                                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
                                 }`}
                         >
                             Next
+                        </button>
+
+                        {/* LAST PAGE */}
+                        <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-1 rounded border
+                                ${currentPage === totalPages
+                                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                }`}
+                        >
+                            {">>"}
                         </button>
                     </div>
                 </div>

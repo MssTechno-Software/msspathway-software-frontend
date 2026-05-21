@@ -128,7 +128,7 @@ function Credentials() {
                 message: "Failed to save credential. Please try again.",
                 type: "error"
             });
-        } finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -406,6 +406,7 @@ function Credentials() {
                                 </tbody>
                             </table>
                         </div>
+
                         {/* PAGINATION */}
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 border-t border-gray-200 bg-gray-50">
 
@@ -414,25 +415,70 @@ function Credentials() {
                             </div>
 
                             <div className="flex flex-wrap justify-center items-center gap-2">
+
+                                {/* FIRST PAGE */}
                                 <button
                                     disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                    className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => setCurrentPage(1)}
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === 1
+                                            ? "text-gray-300 border-gray-200 cursor-not-allowed"
+                                            : "bg-gray-100 hover:bg-gray-200 border-gray-300 cursor-pointer"
+                                        }`}
+                                >
+                                    {"<<"}
+                                </button>
+
+                                {/* PREVIOUS */}
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() =>
+                                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                                    }
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === 1
+                                            ? "text-gray-300 border-gray-200 cursor-not-allowed"
+                                            : "bg-gray-100 hover:bg-gray-200 border-gray-300 cursor-pointer"
+                                        }`}
                                 >
                                     Previous
                                 </button>
 
-                                <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
+                                {/* CURRENT PAGE */}
+                                <button className="bg-green-800 text-white px-3 py-1 rounded border border-green-800 cursor-pointer">
                                     {currentPage}
                                 </button>
 
+                                {/* NEXT */}
                                 <button
                                     disabled={currentPage === totalPages}
-                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                    className="px-3 py-1 rounded bg-gray-100 cursor-pointer disabled:opacity-40"
+                                    onClick={() =>
+                                        setCurrentPage((prev) =>
+                                            Math.min(prev + 1, totalPages)
+                                        )
+                                    }
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === totalPages
+                                            ? "text-gray-300 border-gray-200 cursor-not-allowed"
+                                            : "bg-gray-100 hover:bg-gray-200 border-gray-300 cursor-pointer"
+                                        }`}
                                 >
                                     Next
                                 </button>
+
+                                {/* LAST PAGE */}
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === totalPages
+                                            ? "text-gray-300 border-gray-200 cursor-not-allowed"
+                                            : "bg-gray-100 hover:bg-gray-200 border-gray-300 cursor-pointer"
+                                        }`}
+                                >
+                                    {">>"}
+                                </button>
+
                             </div>
                         </div>
                     </div>

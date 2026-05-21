@@ -15,9 +15,9 @@ const statusMap = {
 function Clients() {
     const navigate = useNavigate();
     const role = localStorage
-    .getItem("role")
-    ?.toLowerCase()
-    ?.trim();
+        .getItem("role")
+        ?.toLowerCase()
+        ?.trim();
     const [clients, setClients] = useState([]);
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -447,38 +447,87 @@ function Clients() {
                     </table>
 
                     {/* PAGINATION */}
-                    <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50 gap-4">
 
                         {/* LEFT SIDE */}
                         <div className="text-sm text-gray-500">
-                            Showing {currentClients.length} of {filteredClients.length} clients
+                            {filteredClients.length === 0
+                                ? "No clients available"
+                                : `Showing ${currentClients.length} of ${filteredClients.length} clients`}
                         </div>
 
                         {/* RIGHT SIDE */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+
+                            {/* FIRST PAGE */}
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1 || loading}
+                                className={`px-3 py-1 rounded border
+                                    ${currentPage === 1
+                                        ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                        : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                    }`}
+                            >
+                                {"<<"}
+                            </button>
 
                             {/* PREVIOUS */}
                             <button
                                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1 || loading}
-                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
+                                className={`px-3 py-1 rounded border
+                                    ${currentPage === 1
+                                        ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                        : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                    }`}
                             >
-                                Previous
+                                Prev
                             </button>
 
-                            {/* CURRENT PAGE */}
-                            <button className="px-3 py-1 bg-green-800 text-white rounded">
-                                {currentPage}
-                            </button>
+                            {/* PAGE NUMBERS */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-3 py-1 rounded border
+                                        ${currentPage === page
+                                            ? "bg-green-800 text-white border-green-800"
+                                            : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
 
                             {/* NEXT */}
                             <button
-                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                onClick={() =>
+                                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                                }
                                 disabled={currentPage === totalPages || loading}
-                                className="px-3 py-1 bg-gray-100 text-gray-600 rounded cursor-pointer disabled:opacity-40"
+                                className={`px-3 py-1 rounded border
+                                    ${currentPage === totalPages
+                                        ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                        : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                    }`}
                             >
                                 Next
                             </button>
+
+                            {/* LAST PAGE */}
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages || loading}
+                                className={`px-3 py-1 rounded border
+                ${currentPage === totalPages
+                                        ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                        : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                                    }`}
+                            >
+                                {">>"}
+                            </button>
+
                         </div>
                     </div>
                 </div>

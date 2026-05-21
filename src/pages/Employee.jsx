@@ -331,38 +331,78 @@ function Employees() {
 
           {/* PAGINATION */}
           <div className="flex justify-between p-4 bg-gray-50">
-            <p className="text-sm text-gray-500">
-              Showing {currentEmployees.length} of {filteredEmployees.length}
+            {/* LEFT SIDE */}
+            <p className="text-gray-500 text-sm">
+              {filteredEmployees.length === 0
+                ? "No employees available"
+                : `Showing ${currentEmployees.length} of ${filteredEmployees.length} employees`}
             </p>
 
             <div className="flex gap-2">
+              {/* FIRST PAGE */}
               <button
-                disabled={loading || pageLoading}
-                onClick={() => {
-                  setPageLoading(true);
-                  setTimeout(() => {
-                    setCurrentPage(p => Math.max(p - 1, 1));
-                    setPageLoading(false);
-                  }, 400);
-                }}
-                className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded border
+                  ${currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                {"<<"}
+              </button>
+              {/* PREVIOUS */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded border
+                  ${currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                  }`}
               >
                 Prev
               </button>
-              <button className="bg-green-800 text-white px-3 rounded cursor-pointer hover:bg-green-700">
-                {currentPage}
-              </button>
+              {/* PAGE NUMBERS */}
+              {totalPages > 0 &&
+                Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1 rounded border
+                      ${currentPage === page
+                        ? "bg-green-800 text-white border-green-800"
+                        : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              {/* NEXT */}
               <button
-                onClick={() => {
-                  setPageLoading(true);
-                  setTimeout(() => {
-                    setCurrentPage(p => Math.min(p + 1, totalPages));
-                    setPageLoading(false);
-                  }, 400);
-                }}
-                className="bg-gray-300 text-gray-600 px-4 py-2 rounded cursor-pointer hover:bg-gray-400"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded border
+                  ${currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                  }`}
               >
                 Next
+              </button>
+              {/* LAST PAGE */}
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded border
+                  ${currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-700 hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                {">>"}
               </button>
             </div>
           </div>

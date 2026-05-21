@@ -628,55 +628,100 @@ function Applications() {
                             </tbody>
                         </table>
 
-                        {/*Pagination*/}
-                        <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50">
+                        {/* Pagination */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50 gap-3">
+
                             {/* LEFT */}
                             <div className="text-sm text-gray-500">
                                 Showing {paginatedApps.length} of {filteredApps.length} applications
                             </div>
 
                             {/* RIGHT */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+
+                                {/* START */}
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => {
+                                        setPageLoading(true);
+
+                                        setTimeout(() => {
+                                            setPageMap({
+                                                ...pageMap,
+                                                [activeTab]: 1,
+                                            });
+
+                                            setPageLoading(false);
+                                        }, 400);
+                                    }}
+                                    className="px-3 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-40 cursor-pointer"
+                                >
+                                    {"<<"}
+                                </button>
 
                                 {/* PREVIOUS */}
                                 <button
                                     disabled={currentPage === 1}
                                     onClick={() => {
                                         setPageLoading(true);
+
                                         setTimeout(() => {
                                             setPageMap({
                                                 ...pageMap,
                                                 [activeTab]: Math.max(currentPage - 1, 1),
                                             });
+
                                             setPageLoading(false);
                                         }, 400);
                                     }}
-                                    className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
+                                    className="px-3 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-40 cursor-pointer"
                                 >
                                     Previous
                                 </button>
 
-                                {/* PAGE */}
-                                <button className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer">
+                                {/* PAGE NUMBER */}
+                                <button className="bg-green-800 text-white px-4 py-1 rounded font-medium">
                                     {currentPage}
                                 </button>
+
                                 {/* NEXT */}
                                 <button
                                     disabled={currentPage === totalPages}
                                     onClick={() => {
                                         setPageLoading(true);
+
                                         setTimeout(() => {
                                             setPageMap({
                                                 ...pageMap,
                                                 [activeTab]: Math.min(currentPage + 1, totalPages),
                                             });
-                                            setPageLoading(false);
 
+                                            setPageLoading(false);
                                         }, 400);
                                     }}
-                                    className="px-3 py-1 rounded text-gray-600 bg-gray-100 cursor-pointer disabled:opacity-40"
+                                    className="px-3 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-40 cursor-pointer"
                                 >
                                     Next
+                                </button>
+
+                                {/* LAST */}
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => {
+                                        setPageLoading(true);
+
+                                        setTimeout(() => {
+                                            setPageMap({
+                                                ...pageMap,
+                                                [activeTab]: totalPages,
+                                            });
+
+                                            setPageLoading(false);
+                                        }, 400);
+                                    }}
+                                    className="px-3 py-1 rounded bg-gray-100 text-gray-600 disabled:opacity-40 cursor-pointer"
+                                >
+                                    {">>"}
                                 </button>
                             </div>
                         </div>

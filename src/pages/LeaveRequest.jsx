@@ -522,23 +522,51 @@ function LeaveRequests() {
 
                   {/* Pagination */}
                   <div className="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-0">
-                    {/* Previous */}
+
+                    {/* FIRST PAGE */}
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className={`px-4 py-2 text-sm rounded-lg border
+                        ${currentPage === 1
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          : "border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
+                        }`}
+                    >
+                      {"<<"}
+                    </button>
+
+                    {/* PREVIOUS */}
                     <button
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
                       disabled={currentPage === 1}
-                      className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                      className={`px-4 py-2 text-sm rounded-lg border
+                        ${currentPage === 1
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          : "border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
+                        }`}
                     >
                       Previous
                     </button>
 
-                    {/* Page Number */}
-                    <button className="w-10 h-10 rounded-lg bg-[#0F5B33] text-white font-semibold shadow-sm">
-                      {currentPage}
-                    </button>
+                    {/* PAGE NUMBERS */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-lg border text-sm font-semibold
+                          ${currentPage === page
+                            ? "bg-[#0F5B33] text-white border-[#0F5B33]"
+                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
 
-                    {/* Next */}
+                    {/* NEXT */}
                     <button
                       onClick={() =>
                         setCurrentPage((prev) =>
@@ -546,10 +574,28 @@ function LeaveRequests() {
                         )
                       }
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                      className={`px-4 py-2 text-sm rounded-lg border
+                        ${currentPage === totalPages
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          : "border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
+                        }`}
                     >
                       Next
                     </button>
+
+                    {/* LAST PAGE */}
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className={`px-4 py-2 text-sm rounded-lg border
+                        ${currentPage === totalPages
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          : "border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
+                        }`}
+                    >
+                      {">>"}
+                    </button>
+
                   </div>
                 </div>
               )}

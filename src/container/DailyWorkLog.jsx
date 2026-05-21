@@ -181,7 +181,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
       if (editIndex !== null) {
         const draftId = entries[editIndex].draft_id;
 
-        const response = await fetch(
+        response = await fetch(
           `${BASE_URL}/update/${draftId}`,
           {
             method: "POST",
@@ -196,7 +196,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
       /*CREATE*/
       else {
-        const response = await fetch(
+        response = await fetch(
           `${BASE_URL}/create_draft`,
           {
             method: "POST",
