@@ -14,11 +14,11 @@ function CompanyCard({ data, onEdit, onDelete }) {
     const stageData = data?.stages || [];
 
     const latestStage =
-    stageData.length > 0
-        ? [...stageData].sort(
-            (a, b) => new Date(b.date) - new Date(a.date)
-        )[0]
-        : null;
+        stageData.length > 0
+            ? [...stageData].sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+            )[0]
+            : null;
 
     const getStatusColor = (status) => {
         if (status === "Cleared") return "bg-green-100 text-green-700";
@@ -39,7 +39,7 @@ function CompanyCard({ data, onEdit, onDelete }) {
                     </h3>
 
                     <p className="text-sm text-gray-400 mt-1">
-                        Updated {latestStage?.date || "N/A"}
+                        Created {data?.created_date || "-"}
                     </p>
                 </div>
 
@@ -72,20 +72,25 @@ function CompanyCard({ data, onEdit, onDelete }) {
                     return STAGES.map((stage, index) => {
                         const item = stageMap[stage];
                         let color = "bg-gray-200";
-
-                        // Previous stages = green
-                        if (index < latestIndex) {
-                            color = "bg-green-500";
-                        }
-
-                        // Current stage = actual status
+                        // STAGE EXISTS
                         if (item) {
-                            if (item.status === "Rejected") color = "bg-red-500";
-                            else if (item.status === "Pending") color = "bg-yellow-500";
-                            else if (item.status === "Cleared") color = "bg-green-500";
-                            else if (item.status === "Skipped") color = "bg-gray-400";
+                            if (item.status === "Rejected") {
+                                color = "bg-red-500";
+                            }
+                            else if (item.status === "Pending") {
+                                color = "bg-yellow-500";
+                            }
+                            else if (item.status === "Cleared") {
+                                color = "bg-green-500";
+                            }
+                            else if (item.status === "Skipped") {
+                                color = "bg-gray-400";
+                            }
                         }
-
+                        // PREVIOUS MISSING STAGES = SKIPPED
+                        else if (index < latestIndex) {
+                            color = "bg-gray-400";
+                        }
                         return (
                             <div
                                 key={stage}

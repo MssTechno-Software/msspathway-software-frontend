@@ -94,14 +94,11 @@ export default function Reports() {
 
             const formatted = data.map((item) => ({
                 company: item.company,
-
-                stages: (item.stages || []).map((stageItem, index) => ({
+                created_date: item.created_date,
+                stages: (item.stages || []).map((stageItem) => ({
                     id: item.report_id,
-
                     stage: normalizeStage(stageItem.stage),
-
                     status: normalizeStatus(stageItem.status),
-
                     date: stageItem.date,
                 })),
             }));
@@ -184,14 +181,17 @@ export default function Reports() {
         }
     };
 
-    const handleDelete = async (report_id) => {
+    const handleDelete = async (companyName) => {
 
-        console.log("Attempting to delete report with ID:", report_id);
+        console.log(
+            "Attempting to delete company:",
+            companyName
+        );
 
-        if (!report_id) {
+        if (!companyName) {
             setPopup({
                 show: true,
-                message: "Invalid report ID. Cannot delete.",
+                message: "Invalid company name.",
                 type: "error"
             });
             return;
@@ -199,39 +199,68 @@ export default function Reports() {
 
         setPopup({
             show: true,
-            message: "Are you sure you want to delete this report?",
+            message: "Are you sure you want to delete this company report?",
             type: "confirm",
+
             onConfirm: async () => {
+
                 try {
                     setLoading(true);
-                    const response = await API.delete(`/reports/reports/${report_id}`);
-                    console.log("Delete response:", response.data);
+                    // GET LATEST REPORTS
+                    const res = await API.get(
+                        `/reports/clients/${client_id}/reports`
+                    );
+                    const companies =
+                        res.data?.company_progression || [];
 
-                    // Refresh
+                    // GET ALL REPORT IDS OF SAME COMPANY
+                    const reportIds = companies
+                        .filter((item) => item.company === companyName)
+                        .map((item) => item.report_id)
+                        .filter(Boolean);
+
+                    console.log(
+                        "Deleting report IDs:",
+                        reportIds
+                    );
+                    // REMOVE COMPANY FROM UI FIRST
+                    setEntries((prev) =>
+                        prev.filter(
+                            (item) => item.company !== companyName
+                        )
+                    );
+
+                    // DELETE ALL REPORTS IN BACKEND
+                    await Promise.all(
+                        reportIds.map((report_id) =>
+                            API.delete(`/reports/reports/${report_id}`)
+                        )
+                    );
+
+                    // REFRESH FINAL DATA
                     await fetchReports();
-                    console.log("Reports refreshed after deletion.");
-
                     setPopup({
                         show: true,
-                        message: "Report deleted successfully.",
+                        message: "Company deleted successfully.",
                         type: "success"
                     });
-
-                }
-                catch (err) {
-                    console.error("ERROR:", err.response?.data || err.message);
+                } catch (err) {
+                    console.error(
+                        "DELETE ERROR:",
+                        err.response?.data || err.message
+                    );
                     setPopup({
                         show: true,
-                        message: "Failed to delete report. Please try again.",
+                        message: "Failed to delete company.",
                         type: "error"
                     });
                 } finally {
                     setLoading(false);
+
                 }
             }
         });
     };
-
     const handleEdit = async (company) => {
         try {
             const latest = [...company.stages]
@@ -283,10 +312,10 @@ export default function Reports() {
             if (!acc[entry.company]) {
                 acc[entry.company] = {
                     company: entry.company,
+                    created_date: entry.created_date,
                     stages: [],
                 };
             }
-
             // push actual stage objects
             acc[entry.company].stages.push(...entry.stages);
 
@@ -301,14 +330,11 @@ export default function Reports() {
 
     //filter
     const parseLocalDate = (dateValue, endOfDay = false) => {
-
         if (!dateValue) return null;
-
         // ALREADY A DATE OBJECT
         if (dateValue instanceof Date) {
             return dateValue;
         }
-
         // HANDLE STRING
         let dateStr = String(dateValue).trim();
 
@@ -584,25 +610,11 @@ export default function Reports() {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {paginated.map((company, idx) => (
                         <CompanyCard
-                            key={idx}
+                            key={company.company}
                             data={company}
                             onDelete={() => {
-                                const latestStage = [...company.stages]
-                                    .filter(stage => stage.id !== null && stage.id !== undefined)
-                                    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-                                if (!latestStage) {
-                                    setPopup({
-                                        show: true,
-                                        message: "No valid report found to delete.",
-                                        type: "error"
-                                    });
-                                    return;
-                                }
-
-                                handleDelete(latestStage.id);
+                                handleDelete(company.company);
                             }}
-
                             onEdit={() => handleEdit(company)}
                         />
 
