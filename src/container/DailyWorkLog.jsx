@@ -34,7 +34,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-
+  const [holidayDescription, setHolidayDescription] = useState("");
   const [popupMessage, setPopupMessage] = useState("");
   const [popupType, setPopupType] = useState("success"); // success | error
   const [showPopup, setShowPopup] = useState(false);
@@ -95,7 +95,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
           isSubmitted = data.some(
             (item) => item.status?.toLowerCase() === "submitted"
           );
-        } 
+        }
         // If API returns empty after submission
         const submittedFlag = localStorage.getItem(`submitted_${dateKey}`);
         if (submittedFlag === "true") {
@@ -103,7 +103,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
         }
 
         setSubmitted(isSubmitted);
-        
+
       } catch (error) {
         setEntries([]);
       } finally {
@@ -115,6 +115,45 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     setFormData(emptyForm);
     setEditIndex(null);
   }, [dateKey, userId]);
+
+  useEffect(() => {
+    const fetchHoliday = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !isPublicHoliday) {
+        setHolidayDescription("");
+        return;
+      }
+      try {
+        const response = await fetch(
+          `https://timesheet-api-790373899641.asia-south1.run.app/calendar/public-holidays/date/${dateKey}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch holiday");
+        }
+        const data = await response.json();
+        console.log("Holiday API:", data);
+        if (Array.isArray(data) && data.length > 0) {
+          setHolidayDescription(
+            data[0]?.description || "Public Holiday"
+          );
+
+        } else {
+          setHolidayDescription("Public Holiday");
+        }
+      } catch (error) {
+        console.error("Holiday fetch error:", error);
+        setHolidayDescription("Public Holiday");
+      }
+    };
+    fetchHoliday();
+  }, [dateKey, isPublicHoliday]);
 
   /*CALCULATE HOURS*/
   const calculateHours = (start, end, breakMin) => {
@@ -129,7 +168,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
   /*SAVE / UPDATE*/
   const saveLog = async (e) => {
     e.preventDefault();
-    if (submitted){
+    if (submitted) {
       openPopup("Day already submitted. No changes allowed ❌", "error");
       return;
     }
@@ -314,7 +353,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     } catch (error) {
       console.error("Submit error:", error);
       openPopup("Submit failed ❌", "error");
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -506,7 +545,9 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
       {isPublicHoliday && (
         <div className="bg-green-50 border-l-4 border-green-800 text-black-700 p-4 mt-6" role="alert">
           <p className="font-semibold">Public Holiday Notice</p>
-          <p className="text-sm">This day is a public holiday. Timesheet entries cannot be added or edited.</p>
+          <p className="text-sm">
+            {holidayDescription} is a public holiday. Timesheet entries cannot be added or edited.
+          </p>
         </div>
       )}
 
@@ -538,7 +579,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
             {!isDisabled && (
               <div className="flex gap-3 self-end sm:self-auto">
                 <button onClick={() => editEntry(i)} className="text-gray-400 hover:text-gray-600 transition" title="Edit"><Edit size={18} /></button>
-                <button onClick={() => {setDeleteIndex(i); setShowDeleteModal(true);}} className="text-gray-400 hover:text-gray-600 transition" title="Delete"><Trash size={18} /> </button>
+                <button onClick={() => { setDeleteIndex(i); setShowDeleteModal(true); }} className="text-gray-400 hover:text-gray-600 transition" title="Delete"><Trash size={18} /> </button>
               </div>
             )}
           </div>
@@ -552,7 +593,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
         {!isDisabled && entries.length > 0 && (
           <button
-            disabled = {submitted}
+            disabled={submitted}
             onClick={() => setShowSubmitModal(true)}
             className="bg-green-800 text-white px-6 py-3 rounded-xl mt-4 w-full hover:bg-green-700 cursor-pointer"
           >

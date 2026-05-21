@@ -19,6 +19,13 @@ export default function Overview() {
   const { client_id } = useParams();
   const [applications, setApplications] = useState([]);
   const [reports, setReports] = useState([]);
+  const [pipelineCounts, setPipelineCounts] = useState({
+    calls_received: 0,
+    mails_received: 0,
+    l1_interviews: 0,
+    l2_interviews: 0,
+    offer_letters: 0,
+  });
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
@@ -56,7 +63,24 @@ export default function Overview() {
       try {
         setLoading(true);
         const res = await API.get(`/reports/clients/${client_id}/reports`);
-        const data = res.data?.company_progression || [];
+        const responseData = res.data || {};
+        // SET COUNTS FROM BACKEND
+        setPipelineCounts({
+          calls_received:
+            responseData.pipeline_overview?.calls_received || 0,
+          mails_received:
+            responseData.pipeline_overview?.mails_received || 0,
+          l1_interviews:
+            responseData.pipeline_overview?.l1_interviews || 0,
+          l2_interviews:
+            responseData.pipeline_overview?.l2_interviews || 0,
+          offer_letters:
+            responseData.pipeline_overview?.offer_letters || 0,
+        });
+
+        // COMPANY DATA
+        const data =
+          responseData.company_progression || [];
         setReports(data);
       } catch (err) {
         console.error("Error fetching reports", err);
@@ -180,7 +204,7 @@ export default function Overview() {
 
     // SAFE REPORT DATE
     const reportDate = parseLocalDate(
-      r.updated_at || r.date
+      r.created_date
     );
 
     // INVALID DATE
@@ -245,64 +269,45 @@ export default function Overview() {
     return null;
   };
 
-  const getStageCount = (stage) => {
-    return filteredReports.filter((r) => {
-      const normalized = normalizeStage(r.current_stage);
-      if (!normalized) return false;
-
-      const currentIndex = STAGES.indexOf(normalized);
-      const targetIndex = STAGES.indexOf(stage);
-
-      return currentIndex >= targetIndex; // keeps previous stages
-    }).length;
-  };
-
   // PERCENTAGE FUNCTION
   const getPercentage = (current, previous) => {
     if (previous === 0) return 0;
     return Math.round((current / previous) * 100);
   };
 
-  // FUNNEL DATA
-  const callCount = getStageCount("Call");
-  const mailCount = getStageCount("Mail");
-  const l1Count = getStageCount("L1");
-  const l2Count = getStageCount("L2");
-  const offerCount = getStageCount("Offer");
-
   const funnel = [
     {
       title: "Calls Received",
-      value: callCount,
+      value: pipelineCounts.calls_received,
       percent: 100,
       subtitle: "Initial Screening",
       icon: <FiPhone />,
     },
     {
       title: "Mails Received",
-      value: mailCount,
-      percent: getPercentage(mailCount, callCount),
+      value: pipelineCounts.mails_received,
+      percent: getPercentage(pipelineCounts.mails_received, pipelineCounts.calls_received),
       subtitle: "Documentation",
       icon: <FiMail />,
     },
     {
       title: "L1 Interviews",
-      value: l1Count,
-      percent: getPercentage(l1Count, mailCount),
+      value: pipelineCounts.l1_interviews,
+      percent: getPercentage(pipelineCounts.l1_interviews,pipelineCounts.mails_received),
       subtitle: "Technical Round",
       icon: <FiUser />,
     },
     {
       title: "L2 Interviews",
-      value: l2Count,
-      percent: getPercentage(l2Count, l1Count),
+      value: pipelineCounts.l2_interviews,
+      percent: getPercentage(pipelineCounts.l2_interviews,pipelineCounts.l1_interviews),
       subtitle: "Cultural Fit",
       icon: <FiUser />,
     },
     {
       title: "Offer Letters",
-      value: offerCount,
-      percent: getPercentage(offerCount, l2Count),
+      value: pipelineCounts.offer_letters,
+      percent: getPercentage(pipelineCounts.offer_letters,pipelineCounts.l2_interviews),
       subtitle: "Final Selection",
       icon: <FiAward />,
       highlight: true,
@@ -385,7 +390,7 @@ export default function Overview() {
                 setAppliedToDate("");
               }}
               className="w-full sm:w-auto text-gray-600 text-sm px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer"
-            >              
+            >
               Clear
             </button>
           </div>
