@@ -294,6 +294,7 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
                         <input
                             type="date"
                             value={form.date}
+                            max={today}
                             onChange={(e) => {
                                 setForm({ ...form, date: e.target.value });
                             }}

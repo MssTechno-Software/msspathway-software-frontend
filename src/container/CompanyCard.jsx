@@ -14,7 +14,11 @@ function CompanyCard({ data, onEdit, onDelete }) {
     const stageData = data?.stages || [];
 
     const latestStage =
-        stageData.length > 0 ? stageData[stageData.length - 1] : null;
+    stageData.length > 0
+        ? [...stageData].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+        )[0]
+        : null;
 
     const getStatusColor = (status) => {
         if (status === "Cleared") return "bg-green-100 text-green-700";
@@ -99,16 +103,12 @@ function CompanyCard({ data, onEdit, onDelete }) {
 
                     return (
                         <div key={stage}>
-                            <p className="uppercase text-xs font-medium tracking-wide">
+                            <p className="uppercase text-xs tracking-wide">
                                 {stageLabels[stage]}
                             </p>
 
-                            <p className="text-[11px] text-gray-400 mt-1">
-                                {item?.date || (
-                                    stages.indexOf(stage) < stages.indexOf(latestStage?.stage)
-                                        ? latestStage?.date
-                                        : "-"
-                                )}
+                            <p className="text-[10px] text-gray-400 mt-1">
+                                {item?.date || "-"}
                             </p>
 
                             {item?.status && (stage === "L1" || stage === "L2") && (
