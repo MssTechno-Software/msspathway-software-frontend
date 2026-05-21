@@ -56,7 +56,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
       try {
         setLoading(true);
         const response = await fetch(
-          `${BASE_URL}/draft/${work_date}`,
+          `${BASE_URL}/draft/${dateKey}`,
           {
             method: "POST",
             headers: {
