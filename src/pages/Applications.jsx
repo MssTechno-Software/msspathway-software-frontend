@@ -428,7 +428,13 @@ function Applications() {
                                 <input
                                     placeholder="Search applications..."
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                        setPageMap({
+                                            ...pageMap,
+                                            [activeTab]: 1,
+                                        });
+                                    }}
                                     className="pl-11 pr-10 rounded-full outline-none placeholder-gray-400"
                                 />
                                 {/*clear search*/}
@@ -534,11 +540,17 @@ function Applications() {
                     <button
                         onClick={() => {
                             setLoading(true);
+
                             setTimeout(() => {
                                 setFromDate("");
                                 setToDate("");
                                 setAppliedFromDate("");
                                 setAppliedToDate("");
+                                setSearch("");
+                                setActiveTab("All");
+                                setPageMap({
+                                    All: 1,
+                                });
                                 setLoading(false);
                             }, 500);
                         }}
