@@ -269,45 +269,34 @@ export default function Overview() {
     return null;
   };
 
-  // PERCENTAGE FUNCTION
-  const getPercentage = (current, previous) => {
-    if (previous === 0) return 0;
-    return Math.round((current / previous) * 100);
-  };
-
   const funnel = [
     {
       title: "Calls Received",
       value: pipelineCounts.calls_received,
-      percent: 100,
       subtitle: "Initial Screening",
       icon: <FiPhone />,
     },
     {
       title: "Mails Received",
       value: pipelineCounts.mails_received,
-      percent: getPercentage(pipelineCounts.mails_received, pipelineCounts.calls_received),
       subtitle: "Documentation",
       icon: <FiMail />,
     },
     {
       title: "L1 Interviews",
       value: pipelineCounts.l1_interviews,
-      percent: getPercentage(pipelineCounts.l1_interviews,pipelineCounts.mails_received),
       subtitle: "Technical Round",
       icon: <FiUser />,
     },
     {
       title: "L2 Interviews",
       value: pipelineCounts.l2_interviews,
-      percent: getPercentage(pipelineCounts.l2_interviews,pipelineCounts.l1_interviews),
       subtitle: "Cultural Fit",
       icon: <FiUser />,
     },
     {
       title: "Offer Letters",
       value: pipelineCounts.offer_letters,
-      percent: getPercentage(pipelineCounts.offer_letters,pipelineCounts.l2_interviews),
       subtitle: "Final Selection",
       icon: <FiAward />,
       highlight: true,
@@ -478,10 +467,6 @@ export default function Overview() {
                     <div className="text-left sm:text-right">
                       <p className="text-lg sm:text-xl font-semibold">
                         {item.value}
-                      </p>
-
-                      <p className="text-xs text-gray-300">
-                        {item.percent}% {i === 0 ? "Volume" : "Pass Rate"}
                       </p>
                     </div>
 
