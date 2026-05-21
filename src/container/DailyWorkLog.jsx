@@ -54,6 +54,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
       if (!token) return;
 
       try {
+        setLoading(true);
         const response = await fetch(
           `${BASE_URL}/draft/${work_date}`,
           {
@@ -105,6 +106,8 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
         
       } catch (error) {
         setEntries([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -172,14 +175,13 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
     try {
       setLoading(true);
-
       let response;
 
       /*UPDATE*/
       if (editIndex !== null) {
         const draftId = entries[editIndex].draft_id;
 
-        response = await fetch(
+        const response = await fetch(
           `${BASE_URL}/update/${draftId}`,
           {
             method: "POST",
@@ -194,7 +196,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
 
       /*CREATE*/
       else {
-        response = await fetch(
+        const response = await fetch(
           `${BASE_URL}/create_draft`,
           {
             method: "POST",
@@ -208,13 +210,9 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
       }
 
       if (!response.ok) throw new Error("Save failed ❌");
-
       const data = await response.json();
-
       console.log("Create API Response:", data);
-
       const updated = [...entries];
-
       const record = {
         ...formData,
         hours,
@@ -251,6 +249,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     const draftId = entries[index].draft_id;
 
     try {
+      setLoading(true);
       const response = await fetch(
         `${BASE_URL}/delete/${draftId}`,
         {
@@ -271,6 +270,8 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     } catch (error) {
       console.error("Delete error:", error);
       openPopup("Delete failed ❌", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -281,6 +282,7 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     const token = localStorage.getItem("token");
 
     try {
+      setLoading(true);
       const response = await fetch(
         `${BASE_URL}/submit`,
         {
@@ -312,6 +314,8 @@ function DailyWorkLog({ selectedDate, isLeave, isPublicHoliday }) {
     } catch (error) {
       console.error("Submit error:", error);
       openPopup("Submit failed ❌", "error");
+    } finally{
+      setLoading(false);
     }
   };
 
