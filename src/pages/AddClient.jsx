@@ -161,6 +161,13 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             endDate: formData.endDate,
         };
 
+        if (!trimmedData.startDate) {
+            return setPopup({
+                show: true,
+                message: "Start date is required",
+                type: "error"
+            });
+        }
         if (!isEdit) {
             if (!trimmedData.name) {
                 return setPopup({ show: true, message: "Name is required", type: "error" });
@@ -274,7 +281,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Client Name */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Client Name {!editingClient && <span className="text-red-500">*</span>}
+                            Client Name <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -293,7 +300,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Mobile */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Mobile Number {!editingClient && <span className="text-red-500">*</span>}
+                            Mobile Number <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -312,7 +319,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* EMAIL */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Email {!editingClient && <span className="text-red-500">*</span>}
+                            Email <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -334,7 +341,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         {/* TECH STACK */}
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Technology Stack {!editingClient && <span className="text-red-500">*</span>}
+                                Technology Stack <span className="text-red-500">*</span>
                             </label>
 
                             <div
@@ -380,7 +387,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         {/* STATUS */}
                         <div className="relative">
                             <label className="text-sm font-medium text-gray-700">
-                                Initial Status {!editingClient && <span className="text-red-500">*</span>}
+                                Initial Status <span className="text-red-500">*</span>
                             </label>
 
                             <div
@@ -429,7 +436,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* Employee ID */}
                     <div className="relative">
                         <label className="text-sm font-medium text-gray-700">
-                            Assigned Employee ID {!editingClient && <span className="text-red-500">*</span>}
+                            Assigned Employee ID <span className="text-red-500">*</span>
                         </label>
 
                         <div
@@ -478,7 +485,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Professional Role {!editingClient && <span className="text-red-500">*</span>}
+                                Professional Role <span className="text-red-500">*</span>
                             </label>
 
                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -496,7 +503,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">
-                                Aadhaar / ID Number {!editingClient && <span className="text-red-500">*</span>}
+                                Aadhaar / ID Number <span className="text-red-500">*</span>
                             </label>
 
                             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -516,7 +523,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* LOCATION */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Location {!editingClient && <span className="text-red-500">*</span>}
+                            Location <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -538,7 +545,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     {/* START DATE */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
-                            Start Date {!editingClient && <span className="text-red-500">*</span>}
+                            Start Date <span className="text-red-500">*</span>
                         </label>
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">

@@ -52,7 +52,7 @@ function EmployeeProfile() {
     } catch (err) {
       console.error("Error fetching employee data:", err.response || err.message);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -73,7 +73,7 @@ function EmployeeProfile() {
     } catch (err) {
       console.error("Error fetching documents:", err.response || err.message);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -102,7 +102,7 @@ function EmployeeProfile() {
       console.error("Error fetching profile photo:", err);
       setProfileUrl("");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -184,7 +184,7 @@ function EmployeeProfile() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -192,8 +192,8 @@ function EmployeeProfile() {
   const handleView = async (doc) => {
     console.log("Viewing document:", doc);
     try {
-     setLoading(true);
-     console.log("VIEW FILE ID:", doc.file_id);
+      setLoading(true);
+      console.log("VIEW FILE ID:", doc.file_id);
       const res = await axios.get(
         `${BASE_URL}/documents/files/view`,
         {
@@ -220,7 +220,7 @@ function EmployeeProfile() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -263,7 +263,7 @@ function EmployeeProfile() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -305,7 +305,7 @@ function EmployeeProfile() {
             type: "error"
           });
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
       }
     });
@@ -407,7 +407,7 @@ function EmployeeProfile() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -439,7 +439,7 @@ function EmployeeProfile() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -506,7 +506,7 @@ function EmployeeProfile() {
 
           <div className="bg-white p-4 rounded-xl shadow-sm w-full min-w-0 overflow-hidden">
             <p className="text-xs text-gray-400">EMAIL</p>
-            <p className="font-semibold">{employee.email || "No Email"}</p>
+            <p className="font-semibold break-all">{employee.email || "No Email"}</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm w-full min-w-0 overflow-hidden">
@@ -526,7 +526,7 @@ function EmployeeProfile() {
 
           <div className="bg-white p-4 rounded-xl shadow-sm w-full min-w-0 overflow-hidden">
             <p className="text-xs text-gray-400">LOCATION</p>
-            <p className="font-semibold">{employee.location || "No Location"}</p>
+            <p className="font-semibold break-all">{employee.location || "No Location"}</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm w-full min-w-0 overflow-hidden">
@@ -755,51 +755,154 @@ function EmployeeProfile() {
             editingEmployee={employee}
             onClose={() => setShowEdit(false)}
             onSave={async (formData) => {
-              try {
-                const data = new FormData();
+              // Catch validation errors bubbled up from AddEmployee's submit()
+              if (formData.error) {
+                setPopup({
+                  show: true,
+                  message: formData.message,
+                  type: "error"
+                });
+                return;
+              }
 
-                data.append("first_name", formData.first_name);
-                data.append("last_name", formData.last_name);
-                data.append("email", formData.email);
-                data.append("mobile", formData.mobile);
-                data.append("designation", formData.designation);
-                data.append("aadhaar_number", formData.aadhaar_no);
+              // First Name
+              if (!formData.first_name?.trim()) {
+                return setPopup({ show: true, message: "First name is required", type: "error" });
+              }
+
+              // Last Name
+              if (!formData.last_name?.trim()) {
+                return setPopup({ show: true, message: "Last name is required", type: "error" });
+              }
+
+              // Aadhaar
+              if (!formData.aadhaar_no?.trim()) {
+                return setPopup({ show: true, message: "Aadhaar number is required", type: "error" });
+              }
+              if (!/^\d{12}$/.test(formData.aadhaar_no.replace(/\s/g, ""))) {
+                return setPopup({ show: true, message: "Aadhaar must contain 12 digits", type: "error" });
+              }
+
+              // Email
+              if (!formData.email?.trim()) {
+                return setPopup({ show: true, message: "Email is required", type: "error" });
+              }
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                return setPopup({ show: true, message: "Enter a valid email address", type: "error" });
+              }
+
+              // Mobile
+              if (!formData.mobile?.trim()) {
+                return setPopup({ show: true, message: "Mobile number is required", type: "error" });
+              }
+              const mobile = formData.mobile.replace(/\s+/g, "");
+              if (!/^\+?\d{10,15}$/.test(mobile)) {
+                return setPopup({ show: true, message: "Enter a valid mobile number", type: "error" });
+              }
+
+              // Designation
+              if (!formData.designation?.trim()) {
+                return setPopup({ show: true, message: "Designation is required", type: "error" });
+              }
+
+              // Start Date
+              if (!formData.startDate) {
+                return setPopup({ show: true, message: "Start date is required", type: "error" });
+              }
+
+              // End Date must be after start date if provided
+              if (formData.endDate && formData.startDate) {
+                if (new Date(formData.endDate) < new Date(formData.startDate)) {
+                  return setPopup({ show: true, message: "End date cannot be before start date", type: "error" });
+                }
+              }
+
+              // Reporting Manager
+              if (!formData.reporting_to?.trim()) {
+                return setPopup({ show: true, message: "Reporting manager is required", type: "error" });
+              }
+
+              // HR
+              if (!formData.hr?.trim()) {
+                return setPopup({ show: true, message: "HR ID is required", type: "error" });
+              }
+
+              // Role
+              if (!formData.role?.trim()) {
+                return setPopup({ show: true, message: "Role is required", type: "error" });
+              }
+
+              // Location
+              if (!formData.location?.trim()) {
+                return setPopup({ show: true, message: "Location is required", type: "error" });
+              }
+
+              try {
+                setLoading(true);
+                const data = new FormData();
+                data.append("first_name", formData.first_name.trim());
+                data.append("last_name", formData.last_name.trim());
+                data.append("email", formData.email.trim());
+                data.append("mobile", formData.mobile.trim());
+                data.append("designation", formData.designation.trim());
+                data.append("aadhaar_number", formData.aadhaar_no.trim());
                 data.append("role", formData.role.toLowerCase());
-                data.append("location", formData.location);
+                data.append("location", formData.location.trim());
                 data.append("reporting_to", formData.reporting_to);
                 data.append("HR", formData.hr);
                 data.append("start_date", formData.startDate);
 
+                // Only send password if filled in — optional on edit
+                if (formData.password?.trim()) {
+                  data.append("password", formData.password.trim());
+                }
+
                 if (formData.endDate) {
                   data.append("end_date", formData.endDate);
                 } else {
-                  data.append("end_date", "");
+                  data.append("end_date", "currently working");
                 }
 
-                // CALL UPDATE API
+                for (let [k, v] of data.entries()) {
+                  console.log(k, v);
+                }
+
                 await axios.put(
                   `${BASE_URL}/admin/users/${employee_id}`,
                   data,
-                  getAuthHeaders()
+                  {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      "Content-Type": "multipart/form-data"
+                    }
+                  }
                 );
-                await fetchEmployee();
 
+                await fetchEmployee();
                 setPopup({
                   show: true,
                   message: "Employee updated successfully",
                   type: "success"
                 });
-
                 setShowEdit(false);
 
               } catch (err) {
-                console.error(err);
+                console.log("FULL BACKEND ERROR:", err.response?.data);
+                setPopup({
+                  show: true,
+                  message:
+                    err.response?.data?.detail ||
+                    err.response?.data?.message ||
+                    "Update failed",
+                  type: "error"
+                });
+              } finally {
+                setLoading(false);
               }
             }}
             setPopup={setPopup}
           />
         )}
-
         {popup.show && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-40 z-50 px-2">
             <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
@@ -844,7 +947,7 @@ function EmployeeProfile() {
         )}
 
       </div>
-    </> 
+    </>
   );
 }
 

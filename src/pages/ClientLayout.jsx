@@ -51,12 +51,26 @@ function ClientLayout() {
   };
 
   return (
-    <div className="flex min-h-screen">
-
+    // <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* SIDEBAR */}
-      <div
+      {/* <div
         className={`
           relative
+          bg-[#301E0F]
+          text-white
+          flex flex-col justify-between
+          transition-all duration-300
+          ${openSidebar ? "w-64" : "w-20"}
+        `}
+      > */}
+      <div
+        className={`
+          fixed
+          top-0
+          left-0
+          h-screen
+          z-40
           bg-[#301E0F]
           text-white
           flex flex-col justify-between
@@ -259,8 +273,23 @@ function ClientLayout() {
       </div>
 
       {/* PAGE CONTENT */}
-      <div className="flex-1 p-6 overflow-auto">
+      {/* <div className="flex-1 p-6 overflow-auto">
         <Outlet />
+      </div> */}
+      <div
+        className={`
+          flex-1
+          h-screen
+          overflow-y-auto
+          p-6
+          transition-all duration-300
+          w-[calc(100%-16rem)]
+          ${openSidebar
+            ? "ml-64"
+            : "ml-20 w-[calc(100%-5rem)]"}
+        `}
+      >
+          <Outlet />
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ function CompanyCard({ data, onEdit, onDelete }) {
         Mail: "MAIL",
         L1: "L1 STAGE",
         L2: "L2 STAGE",
-        Offer: "OFFER LETTER"
+        Offer: "OFFER"
     };
 
     const stageData = data?.stages || [];
@@ -116,7 +116,7 @@ function CompanyCard({ data, onEdit, onDelete }) {
                                 {item?.date || "-"}
                             </p>
 
-                            {item?.status && (stage === "L1" || stage === "L2") && (
+                            {item?.status && (stage === "L1" || stage === "L2" || stage === "Offer") && (
                                 <span
                                     className={`text-[10px] px-2 py-1 rounded-full mt-2 inline-block font-medium ${getStatusColor(
                                         item.status

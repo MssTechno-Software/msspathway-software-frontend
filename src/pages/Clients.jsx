@@ -363,19 +363,22 @@ function Clients() {
                                         {/* NAME */}
                                         <td
                                             className="p-4 cursor-pointer hover:underline truncate max-w-37.5"
-                                            title={client.client_name}
+                                            title={client.client_name || "No Name"}
                                             onClick={() => {
                                                 setPageLoading(true);
+
                                                 setTimeout(() => {
                                                     navigate(`/clients/${client.client_id || client.id}`, {
-                                                        state: { clientName: client.client_name },
-                                                    })
+                                                        state: {
+                                                            clientName: client.client_name || "No Name",
+                                                        },
+                                                    });
                                                 }, 500);
                                             }}
                                         >
-                                            {client.client_name.length > 15
-                                                ? client.client_name.slice(0, 15) + "..."
-                                                : client.client_name}
+                                            {(client.client_name || "No Name").length > 15
+                                                ? (client.client_name || "No Name").slice(0, 15) + "..."
+                                                : (client.client_name || "No Name")}
                                         </td>
 
                                         {/* MOBILE */}

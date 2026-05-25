@@ -65,15 +65,31 @@ function Applications() {
                     apps.map(app => ({ ...app, platform }))
                 );
 
-                const formatted = allApplications.map((app) => ({
-                    id: app.id,
-                    platform: app.platform,
-                    company: app.company_name,
-                    role: app.role,
-                    date: app.date,
-                    link: app.application_link,
-                    notes: app.notes
-                }));
+                const formatted = allApplications
+                    .map((app) => ({
+                        id: app.id,
+                        platform: app.platform,
+                        company: app.company_name,
+                        role: app.role,
+                        date: app.date,
+                        link: app.application_link,
+                        notes: app.notes,
+                        created_at: app.created_at,
+                        updated_at: app.updated_at
+                    }))
+                    .sort((a, b) => {
+
+                        // latest updated first
+                        const dateA = new Date(
+                            a.updated_at || a.created_at
+                        );
+
+                        const dateB = new Date(
+                            b.updated_at || b.created_at
+                        );
+
+                        return dateB - dateA;
+                    });
 
                 setApplications(formatted);
             } catch (err) {

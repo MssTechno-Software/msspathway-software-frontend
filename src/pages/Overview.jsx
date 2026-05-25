@@ -65,18 +65,6 @@ export default function Overview() {
         const res = await API.get(`/reports/clients/${client_id}/reports`);
         const responseData = res.data || {};
         // SET COUNTS FROM BACKEND
-        setPipelineCounts({
-          calls_received:
-            responseData.pipeline_overview?.calls_received || 0,
-          mails_received:
-            responseData.pipeline_overview?.mails_received || 0,
-          l1_interviews:
-            responseData.pipeline_overview?.l1_interviews || 0,
-          l2_interviews:
-            responseData.pipeline_overview?.l2_interviews || 0,
-          offer_letters:
-            responseData.pipeline_overview?.offer_letters || 0,
-        });
 
         // COMPANY DATA
         const data =
@@ -269,38 +257,84 @@ export default function Overview() {
     return null;
   };
 
+  // CALCULATE COUNTS FROM FILTERED REPORTS
+  const filteredCounts = {
+    calls_received: 0,
+    mails_received: 0,
+    l1_interviews: 0,
+    l2_interviews: 0,
+    offer_letters: 0,
+  };
+
+  filteredReports.forEach((company) => {
+    const stages = company.stages || [];
+
+    const from = appliedFromDate ? parseLocalDate(appliedFromDate) : null;
+    const to = appliedToDate ? parseLocalDate(appliedToDate, true) : null;
+
+    // Filter stages by date if filter is applied
+    const dateFilteredStages = stages.filter((stage) => {
+      if (!from && !to) return true;
+      const stageDate = parseLocalDate(stage.date);
+      if (!stageDate) return false;
+      if (from && to) return stageDate >= from && stageDate <= to;
+      if (from) return stageDate >= from;
+      if (to) return stageDate <= to;
+      return true;
+    });
+
+    // Remove duplicates per stage type
+    const uniqueStages = [];
+    dateFilteredStages.forEach((stage) => {
+      const exists = uniqueStages.some(s => s.stage === stage.stage);
+      if (!exists) uniqueStages.push(stage);
+    });
+
+    uniqueStages.forEach((stage) => {
+      const normalized = normalizeStage(stage.stage);
+      switch (normalized) {
+        case "Call": filteredCounts.calls_received++; break;
+        case "Mail": filteredCounts.mails_received++; break;
+        case "L1": filteredCounts.l1_interviews++; break;
+        case "L2": filteredCounts.l2_interviews++; break;
+        case "Offer": filteredCounts.offer_letters++; break;
+        default: break;
+      }
+    });
+  });
+
   const funnel = [
     {
       title: "Calls Received",
-      value: pipelineCounts.calls_received,
+      value: filteredCounts.calls_received,
       subtitle: "Initial Screening",
-      icon: <FiPhone />,
+      icon: <FiPhone />
     },
     {
       title: "Mails Received",
-      value: pipelineCounts.mails_received,
+      value: filteredCounts.mails_received,
       subtitle: "Documentation",
-      icon: <FiMail />,
+      icon: <FiMail />
     },
     {
       title: "L1 Interviews",
-      value: pipelineCounts.l1_interviews,
+      value: filteredCounts.l1_interviews,
       subtitle: "Technical Round",
-      icon: <FiUser />,
+      icon: <FiUser />
     },
     {
       title: "L2 Interviews",
-      value: pipelineCounts.l2_interviews,
+      value: filteredCounts.l2_interviews,
       subtitle: "Cultural Fit",
-      icon: <FiUser />,
+      icon: <FiUser />
     },
     {
       title: "Offer Letters",
-      value: pipelineCounts.offer_letters,
+      value: filteredCounts.offer_letters,
       subtitle: "Final Selection",
       icon: <FiAward />,
-      highlight: true,
-    },
+      highlight: true
+    }
   ];
 
   return (

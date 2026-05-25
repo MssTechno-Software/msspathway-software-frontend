@@ -364,7 +364,7 @@ function MyProfilePage() {
 
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <p className="text-xs text-gray-400">EMAIL</p>
-            <p className="font-semibold">{employee?.email || "No Email"}</p>
+            <p className="font-semibold break-all">{employee?.email || "No Email"}</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm">
@@ -384,7 +384,7 @@ function MyProfilePage() {
 
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <p className="text-xs text-gray-400">LOCATION</p>
-            <p className="font-semibold">{employee?.location || "No Location"}</p>
+            <p className="font-semibold break-all">{employee?.location || "No Location"}</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm">

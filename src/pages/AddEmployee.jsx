@@ -25,7 +25,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     endDate: "",
     photo: "",
     password: "",
-    reporting_to: "",   
+    reporting_to: "",
     hr: "",
     role: "Employee",
     location: ""
@@ -56,26 +56,30 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   }, []);
 
   useEffect(() => {
-  if (editingEmployee) {
-    setForm({
-      first_name: editingEmployee.first_name || "",
-      last_name: editingEmployee.last_name || "",
-      email: editingEmployee.email || "",
-      mobile: editingEmployee.mobile || "",
-      designation: editingEmployee.designation || "",
-      password: "",
-      reporting_to: editingEmployee.reporting_to || "",
-      hr: editingEmployee.HR || "", 
-      aadhaar_no: editingEmployee.aadhaar_number || "",
-      role: editingEmployee.role || "Employee",
-      startDate: editingEmployee.start_date?.split("T")[0] || "",
-      endDate: editingEmployee.end_date?.split("T")[0] || "",
-      location: editingEmployee.location || ""
-    });
+    if (editingEmployee) {
+      setForm({
+        first_name: editingEmployee.first_name || "",
+        last_name: editingEmployee.last_name || "",
+        email: editingEmployee.email || "",
+        mobile: editingEmployee.mobile || "",
+        designation: editingEmployee.designation || "",
+        password: "",
+        reporting_to: editingEmployee.reporting_to || "",
+        hr: editingEmployee.HR || "",
+        aadhaar_no: editingEmployee.aadhaar_number || "",
+        role:
+          editingEmployee.role
+            ? editingEmployee.role.charAt(0).toUpperCase() +
+            editingEmployee.role.slice(1).toLowerCase()
+            : "Employee",
+        startDate: editingEmployee.start_date?.split("T")[0] || "",
+        endDate: editingEmployee.end_date?.split("T")[0] || "",
+        location: editingEmployee.location || ""
+      });
 
-    setIsCurrentlyWorking(!editingEmployee.end_date);
-  }
-}, [editingEmployee]);
+      setIsCurrentlyWorking(!editingEmployee.end_date);
+    }
+  }, [editingEmployee]);
 
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -93,67 +97,86 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   };
 
   const isEdit = !!editingEmployee;
+
   const submit = () => {
-    if (!isEdit && !form.first_name?.trim()) {
+    // First Name
+    if (!form.first_name?.trim()) {
       return onSave({ error: true, message: "First name is required" });
     }
 
-    if (!isEdit && !form.last_name?.trim()) {
+    // Last Name
+    if (!form.last_name?.trim()) {
       return onSave({ error: true, message: "Last name is required" });
     }
 
-    if (!isEdit && !form.aadhaar_no?.trim()) {
+    // Aadhaar
+    if (!form.aadhaar_no?.trim()) {
       return onSave({ error: true, message: "Aadhaar is required" });
     }
+    if (!/^\d{12}$/.test(form.aadhaar_no)) {
+      return onSave({ error: true, message: "Aadhaar must contain 12 digits" });
+    }
 
-    if (!isEdit && !form.email?.trim()) {
+    // Email
+    if (!form.email?.trim()) {
       return onSave({ error: true, message: "Email is required" });
     }
-
-    if (form.email?.trim()) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      return onSave({ error: true, message: "Enter a valid email address" });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      return onSave({ error: true, message: "Enter valid email address" });
     }
-  }
 
-    if (!isEdit && !form.mobile?.trim()) {
+    // Mobile
+    if (!form.mobile?.trim()) {
       return onSave({ error: true, message: "Mobile is required" });
     }
-
-    if (form.mobile?.trim()) {
-      const mobile = form.mobile.replace(/\s+/g, "");
-
-      if (!/^\+?\d{10,15}$/.test(mobile)) {
-        return onSave({
-          error: true,
-          message: "Enter valid mobile number"
-        });
-      }
+    const mobile = form.mobile.replace(/\s+/g, "");
+    if (!/^\+?\d{10,15}$/.test(mobile)) {
+      return onSave({ error: true, message: "Enter valid mobile number" });
     }
 
-    if (!isEdit && !form.designation?.trim()) {
+    // Designation
+    if (!form.designation?.trim()) {
       return onSave({ error: true, message: "Designation is required" });
     }
 
-    if (!isEdit && !form.startDate) {
+    // Start Date
+    if (!form.startDate) {
       return onSave({ error: true, message: "Start date is required" });
     }
 
-    if (!isEdit && !form.reporting_to?.trim()) {
+    // End Date: must be after start date if provided
+    if (form.endDate && form.startDate) {
+      if (new Date(form.endDate) < new Date(form.startDate)) {
+        return onSave({ error: true, message: "End date cannot be before start date" });
+      }
+    }
+
+    // Reporting Manager
+    if (!form.reporting_to?.trim()) {
       return onSave({ error: true, message: "Reporting manager is required" });
     }
 
-    if (!isEdit && !form.hr?.trim()) {
+    // HR
+    if (!form.hr?.trim()) {
       return onSave({ error: true, message: "HR ID is required" });
     }
 
-    if (!isEdit && !form.location?.trim()) {
-      return onSave({ error: true, message: "Location is required" });
+    // Password — only required when adding, optional on edit
+    if (!isEdit && !form.password?.trim()) {
+      return onSave({ error: true, message: "Password is required" });
     }
 
+    // Role
+    if (!form.role?.trim()) {
+      return onSave({ error: true, message: "Role is required" });
+    }
+
+    // Location
+    if (!form.location?.trim()) {
+      return onSave({ error: true, message: "Location is required" });
+    }
     console.log("FORM BEFORE SEND:", form);
-    onSave(form); 
+    onSave(form);
   };
 
   return (
@@ -177,7 +200,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                First Name {!editingEmployee && <span className="text-red-500">*</span>}
+                First Name <span className="text-red-500">*</span>
               </label>
               <input
                 name="first_name"
@@ -190,7 +213,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Last Name {!editingEmployee && <span className="text-red-500">*</span>}
+                Last Name <span className="text-red-500">*</span>
               </label>
               <input
                 name="last_name"
@@ -204,7 +227,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Aadhaar Number {!editingEmployee && <span className="text-red-500">*</span>}
+              Aadhaar Number <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -220,7 +243,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/* EMAIL */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Email Address {!editingEmployee && <span className="text-red-500">*</span>}
+              Email Address <span className="text-red-500">*</span>
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -240,7 +263,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Mobile Number {!editingEmployee && <span className="text-red-500">*</span>}
+                Mobile Number <span className="text-red-500">*</span>
               </label>
 
               <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -257,7 +280,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Designation {!editingEmployee && <span className="text-red-500">*</span>}
+                Designation <span className="text-red-500">*</span>
               </label>
 
               <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
@@ -277,7 +300,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*start date*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Start Date {!editingEmployee && <span className="text-red-500">*</span>}
+              Start Date <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -321,10 +344,10 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* Reporting To */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                Reporting To (Employee ID) {!editingEmployee && <span className="text-red-500">*</span>}
+                Reporting To (Employee ID) <span className="text-red-500">*</span>
               </label>
 
-              <div 
+              <div
                 onClick={() => setShowReportingDropdown(!showReportingDropdown)}
                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
               >
@@ -345,13 +368,13 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                         type="radio"
                         checked={form.reporting_to === tz}
                         onChange={() => {
-                        setForm({ ...form, reporting_to: tz });
-                        setShowReportingDropdown(false);
+                          setForm({ ...form, reporting_to: tz });
+                          setShowReportingDropdown(false);
                         }
                         }
                         className="mr-2 accent-green-700"
                       />
-                        {tz}
+                      {tz}
                     </label>
                   ))}
                 </div>
@@ -361,10 +384,10 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* HR Employee ID */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                HR Employee ID {!editingEmployee && <span className="text-red-500">*</span>}
+                HR Employee ID <span className="text-red-500">*</span>
               </label>
 
-              <div 
+              <div
                 onClick={() => setShowHrDropdown(!showHrDropdown)}
                 className="flex items-center justify-between border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3 py-3 cursor-pointer select-none"
               >
@@ -385,12 +408,12 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                         type="radio"
                         checked={form.hr === tz}
                         onChange={() => {
-                        setForm({ ...form, hr: tz });
-                        setShowHrDropdown(false);
+                          setForm({ ...form, hr: tz });
+                          setShowHrDropdown(false);
                         }}
                         className="mr-2 accent-green-700"
                       />
-                        {tz}
+                      {tz}
                     </label>
                   ))}
                 </div>
@@ -402,11 +425,11 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*Password*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Password {!editingEmployee && <span className="text-red-500">*</span>}
+              Password <span className="text-red-500">*</span>
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-              
+
               <FiLock className="text-gray-400 mr-2" />
 
               <input
@@ -432,7 +455,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/* ROLE DROPDOWN */}
           <div className="relative">
             <label className="text-sm font-medium text-gray-700">
-              Role {!editingEmployee && <span className="text-red-500">*</span>}
+              Role <span className="text-red-500">*</span>
             </label>
 
             <div
@@ -479,7 +502,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Location {!editingEmployee && <span className="text-red-500">*</span>}
+              Location <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
               <FiMapPin className="text-gray-400 mr-2" />

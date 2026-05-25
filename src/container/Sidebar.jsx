@@ -42,11 +42,19 @@ function Sidebar({ children }) {
         <div className="flex min-h-screen">
 
             {/* SIDEBAR */}
-            <div
+            {/* <div
                 className={`
                     relative
                     bg-[#301E0F]
                     text-white
+                    transition-all duration-300
+                    ${openSidebar ? "w-64" : "w-20"}
+                `}
+            > */}
+            <div
+                className={`
+                    fixed top-0 left-0 h-screen z-40
+                    bg-[#301E0F] text-white
                     transition-all duration-300
                     ${openSidebar ? "w-64" : "w-20"}
                 `}
@@ -243,7 +251,16 @@ function Sidebar({ children }) {
             </div>
 
             {/* PAGE CONTENT */}
-            <div className="flex-1 overflow-auto">
+            {/* <div className="flex-1 overflow-auto">
+                {children}
+            </div> */}
+            <div
+                className={`
+                    flex-1 h-screen overflow-y-auto
+                    transition-all duration-300
+                    ${openSidebar ? "ml-64" : "ml-20"}
+                `}
+            >
                 {children}
             </div>
         </div>

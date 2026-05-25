@@ -152,6 +152,118 @@ function ClientProfile() {
     console.log("Updating client with data:", updatedData);
     try {
       setLoading(true);
+      // REQUIRED VALIDATIONS
+      if (!updatedData.name?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Name is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.mobile?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Mobile number is required",
+          type: "error"
+        });
+      }
+
+      if (!/^\d{10}$/.test(updatedData.mobile)) {
+        return setPopup({
+          show: true,
+          message: "Enter valid 10 digit mobile number",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.email?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Email is required",
+          type: "error"
+        });
+      }
+
+      if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
+          updatedData.email
+        )
+      ) {
+        return setPopup({
+          show: true,
+          message: "Enter valid email",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.tech?.length) {
+        return setPopup({
+          show: true,
+          message: "Technology is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.status) {
+        return setPopup({
+          show: true,
+          message: "Status is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.employeeId) {
+        return setPopup({
+          show: true,
+          message: "Employee ID is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.role?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Role is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.aadhaar?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Aadhaar number is required",
+          type: "error"
+        });
+      }
+
+      if (
+        !/^\d{12}$/.test(
+          updatedData.aadhaar.replace(/\s/g, "")
+        )
+      ) {
+        return setPopup({
+          show: true,
+          message: "Aadhaar must contain 12 digits",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.location?.trim()) {
+        return setPopup({
+          show: true,
+          message: "Location is required",
+          type: "error"
+        });
+      }
+
+      if (!updatedData.startDate) {
+        return setPopup({
+          show: true,
+          message: "Start date is required",
+          type: "error"
+        });
+      }
       const statusMap = {
         Active: "A",
         Completed: "C",
@@ -703,42 +815,42 @@ function ClientProfile() {
       {/* CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">EMAIL</p>
           <p className="font-semibold break-all">
             {client.email || "No Email"}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">MOBILE</p>
           <p className="font-semibold">
             {client.mobile || "No Mobile"}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">AADHAAR NUMBER</p>
           <p className="font-semibold break-all">
             {client.aadhaar_number || "No AADHAR Number"}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">LOCATION</p>
-          <p className="font-semibold">
+          <p className="font-semibold break-all">
             {client.location || "No Location"}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">TECHNOLOGY STACKS</p>
-          <p className="font-semibold">
+          <p className="font-semibold break-all">
             {client.technology || "No Technology Stacks"}
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="bg-white p-4 rounded-xl shadow-sm min-w-0 overflow-hidden">
           <p className="text-xs text-gray-400">ASSIGNED TO</p>
           <p className="font-semibold">
             {client.employee_id ? `${client.employee_id} - ${client.employee_name}` : "No Assigned Employee"}
@@ -887,10 +999,12 @@ function ClientProfile() {
                 key={i}
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-gray-100 last:border-none hover:bg-gray-50"
               >
-
-                <div className="min-w-0">
-                  <p className="text-md font-semibold text-gray-800">
-                    {name}
+                <div className="min-w-0 w-full">
+                  <p
+                    className="text-md font-semibold text-gray-800 break-all whitespace-normal"
+                    title={name}
+                  >
+                    {name.length > 100 ? `${name.substring(0, 100)}...` : name}
                   </p>
 
                   <a
