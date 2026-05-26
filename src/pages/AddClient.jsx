@@ -7,6 +7,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         name: "",
         mobile: "",
         email: "",
+        password: "",
         tech: [],
         status: "Active",
         employeeId: "",
@@ -39,7 +40,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                 name: editingClient.client_name || "",
                 mobile: editingClient.mobile || "",
                 email: editingClient.email || "",
-
+                password: editingClient.password || "",
                 tech: editingClient.technology
                     ? editingClient.technology.split(",").filter(Boolean)
                     : [],
@@ -55,12 +56,19 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                 location: editingClient.location || "",
                 startDate: editingClient.start_date || "",
                 endDate:
-                    editingClient.end_date === ""
-                        ? ""
-                        : editingClient.end_date || "",
+                    editingClient.end_date &&
+                        editingClient.end_date !== "Currently In Process"
+                        ? editingClient.end_date
+                        : "",
+
                 notes: editingClient.notes || ""
             });
-            setIsCurrentlyClient(editingClient.end_date);
+
+            // true only when no actual end date exists
+            setIsCurrentlyClient(
+                !editingClient.end_date ||
+                editingClient.end_date === "Currently In Process"
+            );
         }
     }, [editingClient]);
 
@@ -170,105 +178,122 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             location: formData.location,
             startDate: formData.startDate,
             endDate: formData.endDate,
+            password: formData.password.trim(),
         };
 
-        if (!trimmedData.startDate) {
+
+        if (!trimmedData.name) {
+            return setPopup({ show: true, message: "Name is required", type: "error" });
+        }
+
+        if (!trimmedData.mobile) {
+            return setPopup({ show: true, message: "Mobile is required", type: "error" });
+        }
+
+        if (trimmedData.mobile) {
+            const mobile = trimmedData.mobile.replace(/\s+/g, "");
+
+            if (!/^\+?\d{10,15}$/.test(mobile)) {
+                return setPopup({
+                    show: true,
+                    message: "Enter valid mobile number",
+                    type: "error"
+                });
+            }
+        }
+
+        if (!trimmedData.email) {
+            return setPopup({ show: true, message: "Email is required", type: "error" });
+        }
+
+        if (trimmedData.email && !/\S+@\S+\.\S+/.test(trimmedData.email)) {
+            return setPopup({
+                show: true,
+                message: "Invalid email format",
+                type: "error"
+            });
+        }
+
+        // PASSWORD VALIDATION (Add + Update)
+
+        if (!trimmedData.password) {
+            return setPopup({
+                show: true,
+                message: editingClient
+                    ? "Assigned password is required"
+                    : "Password is required",
+                type: "error"
+            });
+        }
+
+        if (trimmedData.password.length < 8) {
+            return setPopup({
+                show: true,
+                message: "Password must contain at least 8 characters",
+                type: "error"
+            });
+        }
+
+        if (trimmedData.tech.length === 0) {
+            return setPopup({ show: true, message: "Select at least one technology", type: "error" });
+        }
+
+        if (!trimmedData.employeeId) {
+            return setPopup({ show: true, message: "Employee ID is required", type: "error" });
+        }
+
+        if (!trimmedData.role) {
+            return setPopup({ show: true, message: "Role is required", type: "error" });
+        }
+
+        if (!trimmedData.aadhaar) {
+            return setPopup({ show: true, message: "Aadhaar is required", type: "error" });
+        }
+
+        if (trimmedData.aadhaar && !/^\d{12}$/.test(trimmedData.aadhaar)) {
+            return setPopup({
+                show: true,
+                message: "Aadhaar must be 12 digits",
+                type: "error"
+            });
+        }
+
+        if (!trimmedData.location) {
+            return setPopup({ show: true, message: "Location is required", type: "error" });
+        }
+
+
+
+        if (!formData.startDate) {
             return setPopup({
                 show: true,
                 message: "Start date is required",
                 type: "error"
             });
         }
-        if (!isEdit) {
-            if (!trimmedData.name) {
-                return setPopup({ show: true, message: "Name is required", type: "error" });
-            }
 
-            if (!trimmedData.mobile) {
-                return setPopup({ show: true, message: "Mobile is required", type: "error" });
-            }
-
-            if (trimmedData.mobile) {
-                const mobile = trimmedData.mobile.replace(/\s+/g, "");
-
-                if (!/^\+?\d{10,15}$/.test(mobile)) {
-                    return setPopup({
-                        show: true,
-                        message: "Enter valid mobile number",
-                        type: "error"
-                    });
-                }
-            }
-
-            if (!trimmedData.email) {
-                return setPopup({ show: true, message: "Email is required", type: "error" });
-            }
-
-            if (trimmedData.email && !/\S+@\S+\.\S+/.test(trimmedData.email)) {
-                return setPopup({
-                    show: true,
-                    message: "Invalid email format",
-                    type: "error"
-                });
-            }
-
-            if (trimmedData.tech.length === 0) {
-                return setPopup({ show: true, message: "Select at least one technology", type: "error" });
-            }
-
-            if (!trimmedData.employeeId) {
-                return setPopup({ show: true, message: "Employee ID is required", type: "error" });
-            }
-
-            if (!trimmedData.role) {
-                return setPopup({ show: true, message: "Role is required", type: "error" });
-            }
-
-            if (!trimmedData.aadhaar) {
-                return setPopup({ show: true, message: "Aadhaar is required", type: "error" });
-            }
-
-            if (trimmedData.aadhaar && !/^\d{12}$/.test(trimmedData.aadhaar)) {
-                return setPopup({
-                    show: true,
-                    message: "Aadhaar must be 12 digits",
-                    type: "error"
-                });
-            }
-
-            if (!trimmedData.location) {
-                return setPopup({ show: true, message: "Location is required", type: "error" });
-            }
-
-            if (!formData.startDate) {
-                return setPopup({
-                    show: true,
-                    message: "Start date is required",
-                    type: "error"
-                });
-            }
-
-            if (
-                formData.endDate &&
-                new Date(formData.endDate) < new Date(formData.startDate)
-            ) {
-                return setPopup({
-                    show: true,
-                    message: "End date cannot be before start date",
-                    type: "error"
-                });
-            }
+        if (
+            formData.endDate &&
+            new Date(formData.endDate) < new Date(formData.startDate)
+        ) {
+            return setPopup({
+                show: true,
+                message: "End date cannot be before start date",
+                type: "error"
+            });
         }
 
+        // Create client object
         const client = {
             ...trimmedData,
-
             endDate: isCurrentlyClient
                 ? null
                 : formData.endDate || null
         };
+
+        // Call parent update/add function
         onAdd(client);
-    };
+    }
 
     return (
         <div className="fixed inset-0 bg-black/40 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
@@ -346,6 +371,31 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                         </div>
                     </div>
 
+                    {/* PASSWORD */}
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">
+                            {editingClient
+                                ? "Assigned Password"
+                                : "Assign Password"}{" "}
+                            <span className="text-red-500">*</span>
+                        </label>
+
+                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
+
+                            <FiClipboard className="text-gray-400 mr-2 shrink-0" />
+
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter password"
+                                className="w-full py-3 outline-none text-sm bg-transparent"
+                            />
+
+                        </div>
+                    </div>
+
                     {/* Tech + Status */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -384,7 +434,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                             placeholder="Search technologies..."
                                             value={techSearch}
                                             onChange={(e) => setTechSearch(e.target.value)}
-                                            className="w-full p-2 border border-gray-200 outline-none text-sm"
+                                            className="w-full p-2 outline-none text-sm"
                                         />
 
                                         {techSearch && (
@@ -578,8 +628,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                     </div>
 
                     {/* START DATE + END DATE */}
-
-
                     {/* START DATE */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">
@@ -634,7 +682,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             <input
                                 type="date"
                                 name="endDate"
-                                value={formData.endDate}
+                                value={formData.endDate || ""}
                                 onChange={handleChange}
                                 disabled={isCurrentlyClient}
                                 className="w-full py-3 outline-none text-sm bg-transparent disabled:cursor-not-allowed disabled:opacity-60"

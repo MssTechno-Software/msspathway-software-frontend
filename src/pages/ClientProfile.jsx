@@ -197,6 +197,14 @@ function ClientProfile() {
         });
       }
 
+      if (!updatedData.password) {
+        return setPopup({
+          show: true,
+          message: "Password is required",
+          type: "error"
+        });
+      }
+
       if (!updatedData.tech?.length) {
         return setPopup({
           show: true,
@@ -275,6 +283,7 @@ function ClientProfile() {
       formData.append("client_name", updatedData.name);
       formData.append("mobile", updatedData.mobile);
       formData.append("email", updatedData.email);
+      formData.append("password", updatedData.password || "");
       formData.append("technology", updatedData.tech.join(","));
       formData.append("status", statusMap[updatedData.status]);
       formData.append("employee_id", String(updatedData.employeeId));
