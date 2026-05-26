@@ -6,8 +6,8 @@ function CompanyCard({ data, onEdit, onDelete }) {
     const stageLabels = {
         Call: "CALL",
         Mail: "MAIL",
-        L1: "L1 STAGE",
-        L2: "L2 STAGE",
+        L1: "L1",
+        L2: "L2",
         Offer: "OFFER"
     };
 
@@ -104,8 +104,19 @@ function CompanyCard({ data, onEdit, onDelete }) {
             {/* STAGE DETAILS */}
             <div className="grid grid-cols-5 gap-3 text-xs text-gray-500 mt-2">
                 {stages.map((stage) => {
+                    // const item = stageData.find((s) => s.stage === stage);
                     const item = stageData.find((s) => s.stage === stage);
 
+                    const latestStage = stageData[stageData.length - 1];
+                    const latestIndex = stages.indexOf(latestStage?.stage);
+                    const currentIndex = stages.indexOf(stage);
+
+                    // Missing previous stages become skipped
+                    const displayItem =
+                        item ||
+                        (currentIndex < latestIndex
+                            ? { status: "Skipped", date: "-" }
+                            : null);
                     return (
                         <div key={stage}>
                             <p className="uppercase text-xs tracking-wide">
@@ -113,16 +124,16 @@ function CompanyCard({ data, onEdit, onDelete }) {
                             </p>
 
                             <p className="text-[10px] text-gray-400 mt-1">
-                                {item?.date || "-"}
+                                {displayItem?.date || "-"}
                             </p>
 
-                            {item?.status && (stage === "L1" || stage === "L2" || stage === "Offer") && (
+                            {displayItem?.status && (stage === "Call" || stage === "Mail" || stage === "L1" || stage === "L2" || stage === "Offer") && (
                                 <span
                                     className={`text-[10px] px-2 py-1 rounded-full mt-2 inline-block font-medium ${getStatusColor(
-                                        item.status
+                                        displayItem.status
                                     )}`}
                                 >
-                                    {item.status}
+                                    {displayItem.status}
                                 </span>
                             )}
                         </div>

@@ -38,23 +38,49 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
         }
     }, [editData]);
 
+    // const getAllowedStages = () => {
+    //     if (!editData) return ["Call"];
+
+    //     const index = STAGES.indexOf(editData.stage);
+
+    //     // If pending → stay here
+    //     if (editData.status === "Pending") {
+    //         return [editData.stage];
+    //     }
+
+    //     //  If rejected → stop
+    //     if (editData.status === "Rejected") {
+    //         return [editData.stage];
+    //     }
+
+    //     // If cleared → allow next stage
+    //     return STAGES.slice(0, index + 2); // allow current + next stage
+    // };
+
     const getAllowedStages = () => {
         if (!editData) return ["Call"];
 
         const index = STAGES.indexOf(editData.stage);
 
-        // If pending → stay here
-        if (editData.status === "Pending") {
-            return [editData.stage];
-        }
-
-        //  If rejected → stop
+        // Rejected → stop progression
         if (editData.status === "Rejected") {
             return [editData.stage];
         }
 
-        // If cleared → allow next stage
-        return STAGES.slice(0, index + 2); // allow current + next stage
+        // Pending → stay on same stage
+        if (editData.status === "Pending") {
+            return [editData.stage];
+        }
+
+        // Cleared OR Skipped → allow next stage
+        if (
+            editData.status === "Cleared" ||
+            editData.status === "Skipped"
+        ) {
+            return STAGES.slice(0, index + 2);
+        }
+
+        return [editData.stage];
     };
 
     const validateForm = () => {
@@ -126,11 +152,34 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
         return trimmedForm;
     };
 
+    // const handleSubmit = () => {
+    //     const validatedForm = validateForm();
+    //     if (!validatedForm) {
+    //         return;
+    //     }
+    //     onSave(validatedForm);
+    //     onClose();
+    // };
     const handleSubmit = () => {
         const validatedForm = validateForm();
+
         if (!validatedForm) {
             return;
         }
+
+        // Stop progression after rejection
+        if (
+            editData &&
+            editData.status === "Rejected" &&
+            form.stage !== editData.stage
+        ) {
+            return setPopup({
+                show: true,
+                message: "Cannot move to next stage after rejection",
+                type: "error"
+            });
+        }
+
         onSave(validatedForm);
         onClose();
     };
