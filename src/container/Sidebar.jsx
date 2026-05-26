@@ -22,12 +22,15 @@ function Sidebar({ children }) {
         ?.trim();
     console.log("ROLE:", role);
     const employee_id = localStorage.getItem("employee_id");
-
-    const [openSidebar, setOpenSidebar] = useState(true);
-
     const handleBack = () => {
-        navigate(-1);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("employee_id");
+        localStorage.removeItem("role");
+
+        navigate("/login", { replace: true });
     };
+    const [openSidebar, setOpenSidebar] = useState(true);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -42,15 +45,6 @@ function Sidebar({ children }) {
         <div className="flex min-h-screen">
 
             {/* SIDEBAR */}
-            {/* <div
-                className={`
-                    relative
-                    bg-[#301E0F]
-                    text-white
-                    transition-all duration-300
-                    ${openSidebar ? "w-64" : "w-20"}
-                `}
-            > */}
             <div
                 className={`
                     fixed top-0 left-0 h-screen z-40
@@ -227,33 +221,10 @@ function Sidebar({ children }) {
                             </NavLink>
                         )}
                     </nav>
-
-                    {/* LOGOUT BUTTON */}
-                    <button
-                        onClick={handleLogout}
-                        className="
-                            mt-6
-                            flex items-center justify-center gap-3
-                            w-full
-                            px-4 py-3
-                            rounded-xl
-                            bg-green-800 hover:bg-green-700
-                            transition-all duration-200
-                        "
-                    >
-                        <FiLogOut size={20} />
-
-                        {openSidebar && (
-                            <span>Logout</span>
-                        )}
-                    </button>
                 </div>
             </div>
 
             {/* PAGE CONTENT */}
-            {/* <div className="flex-1 overflow-auto">
-                {children}
-            </div> */}
             <div
                 className={`
                     flex-1 h-screen overflow-y-auto

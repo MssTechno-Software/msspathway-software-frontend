@@ -47,23 +47,17 @@ function ClientLayout() {
   }, [location.state, client_id]);
 
   const handleBack = () => {
-    navigate(-1);
+    navigate(
+      role === "employee"
+        ? "/employee-dashboard/clients"
+        : "/dashboard/clients"
+    );
   };
 
   return (
     // <div className="flex min-h-screen">
     <div className="flex h-screen overflow-hidden">
       {/* SIDEBAR */}
-      {/* <div
-        className={`
-          relative
-          bg-[#301E0F]
-          text-white
-          flex flex-col justify-between
-          transition-all duration-300
-          ${openSidebar ? "w-64" : "w-20"}
-        `}
-      > */}
       <div
         className={`
           fixed
@@ -239,43 +233,9 @@ function ClientLayout() {
             </div>
           </div>
         </div>
-        {/* BOTTOM BUTTON */}
-        <div className="p-4 border-t border-white/10">
-          <button
-            onClick={() =>
-              navigate(
-                role === "employee"
-                  ? "/employee-dashboard/clients"
-                  : "/dashboard/clients"
-              )
-            }
-            className="
-              w-full
-              flex items-center justify-center
-              gap-3
-              px-4 py-3
-              rounded-xl
-              bg-green-800
-              hover:bg-green-700
-              transition-all
-              cursor-pointer
-              text-white
-              font-medium
-            "
-          >
-            <FiArrowLeft size={20} />
-
-            {openSidebar && (
-              <span>Back to Clients</span>
-            )}
-          </button>
-        </div>
       </div>
 
       {/* PAGE CONTENT */}
-      {/* <div className="flex-1 p-6 overflow-auto">
-        <Outlet />
-      </div> */}
       <div
         className={`
           flex-1
@@ -289,7 +249,7 @@ function ClientLayout() {
             : "ml-20 w-[calc(100%-5rem)]"}
         `}
       >
-          <Outlet />
+        <Outlet />
       </div>
     </div>
   );
