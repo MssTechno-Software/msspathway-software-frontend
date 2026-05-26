@@ -383,38 +383,40 @@ export default function Reports() {
     };
     // DATE FILTER ONLY (FOR COUNTS)
     const dateFiltered = grouped.filter((company) => {
-        const latestDate =
-            company.stages[company.stages.length - 1]?.date;
 
-        if (!latestDate) {
-            return true;
+        // Use created_date instead of latest stage date
+        const reportDate = parseLocalDate(
+            company.created_date
+        );
+
+        if (!reportDate) {
+            return false;
         }
-        const appDate = parseLocalDate(latestDate);
-        let matchesDate = true;
-        if (!appDate) {
-            matchesDate = false;
-        }
+
         const from = appliedFromDate
             ? parseLocalDate(appliedFromDate)
             : null;
+
         const to = appliedToDate
             ? parseLocalDate(appliedToDate, true)
             : null;
-        if (from && to && appDate) {
-            matchesDate =
-                appDate.getTime() >= from.getTime() &&
-                appDate.getTime() <= to.getTime();
-        }
-        else if (from && appDate) {
-            matchesDate =
-                appDate.getTime() >= from.getTime();
-        }
-        else if (to && appDate) {
-            matchesDate =
-                appDate.getTime() <= to.getTime();
+
+        if (from && to) {
+            return (
+                reportDate.getTime() >= from.getTime() &&
+                reportDate.getTime() <= to.getTime()
+            );
         }
 
-        return matchesDate;
+        if (from) {
+            return reportDate.getTime() >= from.getTime();
+        }
+
+        if (to) {
+            return reportDate.getTime() <= to.getTime();
+        }
+
+        return true;
     });
 
     // SEARCH + DATE FILTER (FOR COMPANY CARDS)
