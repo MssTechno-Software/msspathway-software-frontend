@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiUser, FiPhone, FiFlag, FiClipboard, FiClock, FiChevronDown, FiCode, FiMail, FiMapPin, FiUpload, FiFileText, FiCreditCard, FiBriefcase } from "react-icons/fi";
+import { FiUser, FiPhone, FiFlag, FiClipboard, FiClock, FiChevronDown, FiCode, FiMail, FiMapPin, FiUpload, FiFileText, FiCreditCard, FiBriefcase, FiX } from "react-icons/fi";
 
 function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
@@ -23,29 +23,8 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
     const [employeeIds, setEmployeeIds] = useState([]);
     const [isCurrentlyClient, setIsCurrentlyClient] = useState(false);
-    const techOptions = [
-        "React",
-        "Angular",
-        "Vue",
-        "Node.js",
-        "Java",
-        "Spring Boot",
-        "Python",
-        "Django",
-        "Flask",
-        ".NET",
-        "javaScript",
-        "TypeScript",
-        "Artificial Intelligence",
-        "Machine Learning",
-        "Data Science",
-        "DevOps",
-        "Cloud Computing",
-        "AWS",
-        "Azure",
-        "Google Cloud",
-        "Cybersecurity",
-    ];
+    const [techOptions, setTechOptions] = useState([]);
+    const [techSearch, setTechSearch] = useState("");
 
     const reverseStatusMap = {
         A: "Active",
@@ -103,6 +82,38 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         };
         fetchEmployeeIds();
     }, []);
+
+    /*get technology options for dropdown*/
+    useEffect(() => {
+        const fetchTechnologies = async () => {
+            try {
+                const res = await fetch(
+                    `https://timesheet-api-790373899641.asia-south1.run.app/technologies?search=${techSearch}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }
+                );
+
+                const data = await res.json();
+
+                console.log("Technologies:", data);
+
+                setTechOptions(data || []);
+
+            } catch (error) {
+                console.error("Error fetching technologies:", error);
+            }
+        };
+
+        const timer = setTimeout(() => {
+            fetchTechnologies();
+        }, 300);
+
+        return () => clearTimeout(timer);
+
+    }, [techSearch]);
 
     //Handle form input changes
     const handleChange = (e) => {
@@ -365,21 +376,48 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             </div>
 
                             {showTechDropdown && (
-                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow max-h-40 overflow-y-auto">
-                                    {techOptions.map((tech) => (
-                                        <label
-                                            key={tech}
-                                            className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.tech.includes(tech)}
-                                                onChange={() => toggleTech(tech)}
-                                                className="mr-2 accent-green-700 shrink-0"
+                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow">
+                                    {/* Search input + clear button */}
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search technologies..."
+                                            value={techSearch}
+                                            onChange={(e) => setTechSearch(e.target.value)}
+                                            className="w-full p-2 border border-gray-200 outline-none text-sm"
+                                        />
+
+                                        {techSearch && (
+                                            <FiX
+                                                onClick={() => setTechSearch("")}
+                                                className="
+                                                absolute right-3 top-1/2
+                                                -translate-y-1/2
+                                                text-gray-400
+                                                hover:text-red-500
+                                                cursor-pointer
+                                            "
                                             />
-                                            <span className="wrap-break-word">{tech}</span>
-                                        </label>
-                                    ))}
+                                        )}
+                                    </div>
+
+                                    <div className="max-h-40 overflow-y-auto">
+                                        {techOptions.map((tech) => (
+                                            <label
+                                                key={tech}
+                                                className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.tech.includes(tech)}
+                                                    onChange={() => toggleTech(tech)}
+                                                    className="mr-2 accent-green-700"
+                                                />
+
+                                                <span>{tech}</span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
