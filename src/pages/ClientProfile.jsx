@@ -656,10 +656,15 @@ function ClientProfile() {
     setProfilePreview(URL.createObjectURL(file));
   };
 
-  const profileImage =
-    profileFile
-      ? profilePreview
-      : profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  const profileImage = profileFile
+    ? profilePreview
+    : profileUrl;
+
+  const initials = `${client?.client_name
+    ?.split(" ")[0]
+    ?.charAt(0) || ""}${client?.client_name
+      ?.split(" ")[1]
+      ?.charAt(0) || ""}`.toUpperCase();
 
   /*add or update profile photo*/
   const handleUploadProfile = async () => {
@@ -777,19 +782,35 @@ function ClientProfile() {
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
 
+          {/* PROFILE IMAGE */}
           <div className="relative">
-            <img
-              src={profileImage}
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
-            />
 
-            {/* CONDITIONAL ICON */}
+            {profileImage ? (
+              <img
+                src={profileImage}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
+              />
+            ) : (
+              <div
+                className="
+                  w-24 h-24 sm:w-28 sm:h-28
+                  rounded-full bg-gray-100 text-black-600
+                  flex items-center justify-center
+                  text-4xl font-bold
+                  shadow
+                "
+              >
+                {initials}
+              </div>
+            )}
+
             <button
               onClick={() => setShowPhotoModal(true)}
               className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
             >
               {profileUrl ? <FiEdit /> : <FiUpload />}
             </button>
+
           </div>
 
           <div>

@@ -358,7 +358,11 @@ function EmployeeProfile() {
 
   const profileImage = profileFile
     ? profilePreview
-    : profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    : profileUrl;
+
+  const initials = `${employee?.first_name?.charAt(0) || ""}
+    ${employee?.last_name?.charAt(0) || ""}`
+        .toUpperCase();
 
   /* UPLOAD PROFILE PHOTO */
   const handleUploadProfile = async () => {
@@ -464,12 +468,27 @@ function EmployeeProfile() {
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 w-full min-w-0">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
 
+            {/* PROFILE IMAGE */}
             <div className="relative">
-              <img
-                src={profileImage}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
-              />
-              {/* CONDITIONAL ICON */}
+
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow"
+                />
+              ) : (
+                <div
+                  className="
+                    w-24 h-24 sm:w-28 sm:h-28
+                    rounded-full bg-gray-100 text-black-600
+                    flex items-center justify-center
+                    text-4xl font-bold
+                    shadow
+                  "
+                >
+                  {initials}
+                </div>
+              )}
               <button
                 onClick={() => setShowPhotoModal(true)}
                 className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow cursor-pointer"
