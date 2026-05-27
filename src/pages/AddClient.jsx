@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiUser, FiPhone, FiFlag, FiClipboard, FiClock, FiChevronDown, FiCode, FiMail, FiMapPin, FiUpload, FiFileText, FiCreditCard, FiBriefcase, FiX } from "react-icons/fi";
+import { FiUser, FiPhone, FiFlag, FiClipboard, FiLock, FiClock, FiChevronDown, FiCode, FiMail, FiMapPin, FiUpload, FiFileText, FiCreditCard, FiBriefcase, FiX, FiEye, FiEyeOff } from "react-icons/fi";
 
 function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
@@ -26,6 +26,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     const [isCurrentlyClient, setIsCurrentlyClient] = useState(false);
     const [techOptions, setTechOptions] = useState([]);
     const [techSearch, setTechSearch] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const reverseStatusMap = {
         A: "Active",
@@ -382,16 +383,23 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
 
-                            <FiClipboard className="text-gray-400 mr-2 shrink-0" />
+                            <FiLock className="text-gray-400 mr-2 shrink-0" />
 
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 placeholder="Enter password"
                                 className="w-full py-3 outline-none text-sm bg-transparent"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-gray-500 ml-2"
+                            >
+                                {showPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
 
                         </div>
                     </div>

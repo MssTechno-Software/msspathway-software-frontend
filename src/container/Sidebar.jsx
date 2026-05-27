@@ -22,14 +22,6 @@ function Sidebar({ children }) {
         ?.trim();
     console.log("ROLE:", role);
     const employee_id = localStorage.getItem("employee_id");
-    const handleBack = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("employee_id");
-        localStorage.removeItem("role");
-
-        navigate("/login", { replace: true });
-    };
     const [openSidebar, setOpenSidebar] = useState(true);
 
     const handleLogout = () => {
@@ -40,6 +32,10 @@ function Sidebar({ children }) {
 
         navigate("/login");
     };
+
+    // const handleBack = () => {
+    //     navigate(-1);
+    // };
 
     return (
         <div className="flex min-h-screen">
@@ -83,7 +79,7 @@ function Sidebar({ children }) {
                     {/* HEADER */}
                     <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
                         {/* BACK BUTTON */}
-                        <button
+                        {/* <button
                             onClick={handleBack}
                             className="
                                 flex items-center justify-center
@@ -93,7 +89,7 @@ function Sidebar({ children }) {
                             "
                         >
                             <FiArrowLeft size={20} />
-                        </button>
+                        </button> */}
 
                         {openSidebar && (
                             <div>
@@ -222,6 +218,25 @@ function Sidebar({ children }) {
                         )}
                     </nav>
                 </div>
+                {/* LOGOUT BUTTON */}
+                <button
+                    onClick={handleLogout}
+                    className="
+                            mt-6
+                            flex items-center justify-center gap-3
+                            w-full
+                            px-4 py-3
+                            rounded-xl
+                            bg-green-800 hover:bg-green-700
+                            transition-all duration-200
+                        "
+                >
+                    <FiLogOut size={20} />
+
+                    {openSidebar && (
+                        <span>Logout</span>
+                    )}
+                </button>
             </div>
 
             {/* PAGE CONTENT */}
