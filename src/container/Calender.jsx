@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FiLoader } from "react-icons/fi"
+import { FiLoader } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -97,7 +97,6 @@ function Calender({ selectedDate, onDateSelect }) {
           formattedMap[key] = entry.hours || 0;
         }
       });
-
       setHoursMap(formattedMap);
     }
 

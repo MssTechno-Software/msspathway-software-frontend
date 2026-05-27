@@ -23,16 +23,16 @@ function App() {
       <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
 
       {/* NEW STRUCTURE */}
-      <Route path="/clients/:client_id" element={<ClientLayout />}>
+      <Route path="/clients/:client_id" element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>
 
       {/*  DEFAULT PAGE (THIS OPENS FIRST) */}
-      <Route index element={<ClientProfile />} />
+      <Route index element={<ProtectedRoute><ClientProfile /></ProtectedRoute>} />
 
       {/* SUB PAGES */}
-      <Route path="applications" element={<Applications />} />
-      <Route path="credentials" element={<Credential />} />
-      <Route path="reports" element={<Reports />} />
-      <Route path="overview" element={<Overview />} />
+      <Route path="applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
+      <Route path="credentials" element={<ProtectedRoute><Credential /></ProtectedRoute>} />
+      <Route path="reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+      <Route path="overview" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
 
     </Route>
   </Routes>
