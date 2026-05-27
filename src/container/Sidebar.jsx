@@ -255,7 +255,7 @@ function Sidebar({ children }) {
                             px-4 py-3
                             rounded-xl
                             bg-green-800 hover:bg-green-700
-                            transition-all duration-200
+                            transition-all duration-200 cursor-pointer
                         "
                     >
                         <FiLogOut size={20} />

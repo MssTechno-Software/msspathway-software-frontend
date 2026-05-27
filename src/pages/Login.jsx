@@ -14,12 +14,8 @@ function Login() {
   const [passwordError, setPasswordError] = useState("");
   const [invalidPopup, setInvalidPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [sessionExpiredPopup, setSessionExpiredPopup] = useState(false);
-  const [sessionMessage, setSessionMessage] = useState("");
   const navigate = useNavigate();
-  useEffect(() => {
-    checkTokenExpiry();
-  }, []);
+
 
   const validateEmail = (value) => {
     const emailRegex = /^[a-zA-Z0-9_]+@msstechno\.com$/;
@@ -48,28 +44,6 @@ function Login() {
     if (!valid) return false;
 
     return true;
-  };
-
-  const checkTokenExpiry = () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-
-      const expiry = payload.exp * 1000;
-      const currentTime = Date.now();
-
-      if (currentTime > expiry) {
-        localStorage.clear();
-
-        setSessionMessage("Session expired. Please login again.");
-        setSessionExpiredPopup(true);
-      }
-    } catch (error) {
-      console.log("Invalid Token");
-    }
   };
 
   // api
@@ -315,7 +289,7 @@ function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-gray-500 ml-2"
+                className="text-gray-500 ml-2 cursor-pointer focus:outline-none"
               >
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
@@ -397,32 +371,6 @@ function Login() {
                 className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm cursor-pointer"
               >
                 OK
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Session Expired Popup */}
-        {sessionExpiredPopup && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50">
-            <div className="bg-white w-full max-w-xs sm:max-w-[320px] p-5 sm:p-6 rounded-lg shadow-lg text-center">
-
-              <h3 className="text-lg font-semibold mb-2 text-red-600">
-                Session Expired
-              </h3>
-
-              <p className="text-gray-600 text-sm">
-                {sessionMessage}
-              </p>
-
-              <button
-                onClick={() => {
-                  setSessionExpiredPopup(false);
-                  navigate("/");
-                }}
-                className="mt-5 px-6 py-2 bg-green-800 text-white rounded-md hover:bg-green-700 text-sm cursor-pointer"
-              >
-                Login Again
               </button>
             </div>
           </div>
