@@ -106,6 +106,7 @@ function Clients() {
             formData.append("client_name", client.name);
             formData.append("mobile", client.mobile);
             formData.append("email", client.email);
+            formData.append("password", client.password); // For new clients, a default password can be set. For updates, it can be ignored or handled separately.
             formData.append("technology", client.tech.join(","));
             formData.append("status", statusMap[client.status]);
             formData.append("employee_id", String(client.employeeId));
