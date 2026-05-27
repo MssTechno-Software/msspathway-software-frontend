@@ -13,6 +13,7 @@ import {
 import { FaUserTie } from "react-icons/fa";
 
 import { useState } from "react";
+import axios from "axios";
 
 function Sidebar({ children }) {
     const navigate = useNavigate();
@@ -24,18 +25,45 @@ function Sidebar({ children }) {
     const employee_id = localStorage.getItem("employee_id");
     const [openSidebar, setOpenSidebar] = useState(true);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("employee_id");
-        localStorage.removeItem("role");
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem("token");
 
-        navigate("/login");
+            console.log("Logout Token:", token);
+
+            const response = await axios.post(
+                "https://timesheet-api-790373899641.asia-south1.run.app/auth/logout",
+                null,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            console.log("Logout Response:", response.data);
+
+        } catch (error) {
+
+            console.error(
+                "Logout Error:",
+                error.response?.data || error.message
+            );
+
+        } finally {
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("employee_id");
+            localStorage.removeItem("role");
+
+            navigate("/login");
+        }
     };
-
-    // const handleBack = () => {
-    //     navigate(-1);
-    // };
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     return (
         <div className="flex min-h-screen">
@@ -79,7 +107,7 @@ function Sidebar({ children }) {
                     {/* HEADER */}
                     <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
                         {/* BACK BUTTON */}
-                        {/* <button
+                        <button
                             onClick={handleBack}
                             className="
                                 flex items-center justify-center
@@ -89,7 +117,7 @@ function Sidebar({ children }) {
                             "
                         >
                             <FiArrowLeft size={20} />
-                        </button> */}
+                        </button>
 
                         {openSidebar && (
                             <div>
@@ -217,11 +245,10 @@ function Sidebar({ children }) {
                             </NavLink>
                         )}
                     </nav>
-                </div>
-                {/* LOGOUT BUTTON */}
-                <button
-                    onClick={handleLogout}
-                    className="
+                    {/* LOGOUT BUTTON */}
+                    <button
+                        onClick={handleLogout}
+                        className="
                             mt-6
                             flex items-center justify-center gap-3
                             w-full
@@ -230,13 +257,14 @@ function Sidebar({ children }) {
                             bg-green-800 hover:bg-green-700
                             transition-all duration-200
                         "
-                >
-                    <FiLogOut size={20} />
+                    >
+                        <FiLogOut size={20} />
 
-                    {openSidebar && (
-                        <span>Logout</span>
-                    )}
-                </button>
+                        {openSidebar && (
+                            <span>Logout</span>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* PAGE CONTENT */}

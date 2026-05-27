@@ -167,9 +167,17 @@ function Clients() {
 
         } catch (error) {
             console.error("FULL ERROR:", error.response?.data || error.message);
+
+            const backendMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                error.response?.data?.detail ||
+                error.message ||
+                "An error occurred while saving the client";
+
             setPopup({
                 show: true,
-                message: "An error occurred while saving the client",
+                message: backendMessage,
                 type: "error"
             });
         } finally {

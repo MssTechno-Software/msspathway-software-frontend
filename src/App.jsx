@@ -10,16 +10,17 @@ import Applications from "./pages/Applications";
 import Credential from "./pages/Credential";
 import Reports from "./pages/Reports";
 import Overview from "./pages/Overview";
+import ProtectedRoute from "./container/ProtectedRoutes";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to='/Login' replace />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/dashboard/*" element={<Dashboard />} />
-      <Route path="/employee-dashboard/*" element={<EmployeeDashboard />} />
-      <Route path="/super-admin-dashboard/*" element={<SuperAdminDashboard />} />
-      <Route path="/clients" element={<Clients />} />
+      <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/employee-dashboard/*" element={<ProtectedRoute><EmployeeDashboard /></ProtectedRoute>} />
+      <Route path="/super-admin-dashboard/*" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
+      <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
 
       {/* NEW STRUCTURE */}
       <Route path="/clients/:client_id" element={<ClientLayout />}>
