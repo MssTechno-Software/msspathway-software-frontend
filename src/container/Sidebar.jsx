@@ -196,7 +196,7 @@ function Sidebar({ children }) {
                         </NavLink>
 
                         {/* TIMESHEET */}
-                        <NavLink
+                        {/* <NavLink
                             to={
                                 role === "employee"
                                     ? "/employee-dashboard/timesheet"
@@ -219,7 +219,18 @@ function Sidebar({ children }) {
                             {openSidebar && (
                                 <span>Timesheet</span>
                             )}
-                        </NavLink>
+                        </NavLink> */}
+                        <div
+                            className="
+                                flex items-center gap-3
+                                px-4 py-3 rounded-xl
+                                opacity-50
+                                cursor-not-allowed
+                            "
+                        >
+                            <FiClock size={20} />
+                            {openSidebar && <span>Timesheet</span>}
+                        </div>
 
                         {/* EMPLOYEE */}
                         {role !== "employee" && (
