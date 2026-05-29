@@ -5,6 +5,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
     const [formData, setFormData] = useState({
         name: "",
+        countryCode: "+91",
         mobile: "",
         email: "",
         password: "",
@@ -27,6 +28,12 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
     const [techOptions, setTechOptions] = useState([]);
     const [techSearch, setTechSearch] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+
+    const countryOptions = [
+        { code: "+91", label: "India", flag: "🇮🇳" },
+        { code: "+1", label: "Canada", flag: "🇨🇦" }
+    ];
 
     const reverseStatusMap = {
         A: "Active",
@@ -39,7 +46,13 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         if (editingClient) {
             setFormData({
                 name: editingClient.client_name || "",
-                mobile: editingClient.mobile || "",
+                countryCode:
+                    editingClient.mobile?.startsWith("+1")
+                        ? "+1"
+                        : "+91",
+                mobile: editingClient.mobile
+                    ?.replace(/^\+91/, "")
+                    ?.replace(/^\+1/, "") || "",
                 email: editingClient.email || "",
                 password: editingClient.password || "",
                 tech: editingClient.technology
@@ -181,7 +194,6 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
             endDate: formData.endDate,
             password: formData.password.trim(),
         };
-
 
         if (!trimmedData.name) {
             return setPopup({ show: true, message: "Name is required", type: "error" });
@@ -340,16 +352,73 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                             Mobile Number <span className="text-red-500">*</span>
                         </label>
 
-                        <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                            <FiPhone className="text-gray-400 mr-2 shrink-0" />
+                        <div className="flex border border-gray-200 bg-gray-50 rounded-xl mt-2 relative">
 
-                            <input
-                                name="mobile"
-                                value={formData.mobile}
-                                placeholder="+1 (555) 000-0000"
-                                onChange={handleChange}
-                                className="w-full py-3 outline-none text-sm bg-transparent"
-                            />
+                            {/* Country Dropdown */}
+                            <div className="relative">
+
+                                <div
+                                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                                    className="flex items-center justify-between px-3 py-3 border-r border-gray-200 cursor-pointer w-[130px]"
+                                >
+                                    <div className="flex items-center text-sm font-medium">
+                                        <span>
+                                            {formData.countryCode === "+91" ? "IN" : "CA"}
+                                        </span>
+
+                                        <span className="ml-2">
+                                            {formData.countryCode}
+                                        </span>
+                                    </div>
+
+                                    <FiChevronDown
+                                        className={`transition-transform ${showCountryDropdown ? "rotate-180" : ""
+                                            }`}
+                                    />
+                                </div>
+
+                                {showCountryDropdown && (
+                                    <div
+                                        className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-[130px] z-50"
+                                    >
+                                        {countryOptions.map((country) => (
+                                            <div
+                                                key={country.code}
+                                                onClick={() => {
+                                                    setFormData({
+                                                        ...formData,
+                                                        countryCode: country.code
+                                                    });
+                                                    setShowCountryDropdown(false);
+                                                }}
+                                                className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                                            >
+                                                <span className="font-small">
+                                                    {country.code === "+91" ? "IN" : "CA"}
+                                                </span>
+
+                                                <span className="text-gray-500">
+                                                    {country.code}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Mobile Input */}
+                            <div className="flex items-center flex-1 px-3">
+                                <FiPhone className="text-gray-400 mr-2" />
+
+                                <input
+                                    name="mobile"
+                                    value={formData.mobile}
+                                    placeholder="Enter mobile number"
+                                    onChange={handleChange}
+                                    className="w-full py-3 outline-none text-sm bg-transparent"
+                                />
+                            </div>
+
                         </div>
                     </div>
 

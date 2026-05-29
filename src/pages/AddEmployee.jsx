@@ -152,14 +152,14 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     }
 
     // Reporting Manager
-    if (!form.reporting_to?.trim()) {
-      return onSave({ error: true, message: "Reporting manager is required" });
-    }
+    // if (!form.reporting_to?.trim()) {
+    //   return onSave({ error: true, message: "Reporting manager is required" });
+    // }
 
-    // HR
-    if (!form.hr?.trim()) {
-      return onSave({ error: true, message: "HR ID is required" });
-    }
+    // // HR
+    // if (!form.hr?.trim()) {
+    //   return onSave({ error: true, message: "HR ID is required" });
+    // }
 
     // Password — only required when adding, optional on edit
     if (!isEdit && !form.password?.trim()) {
@@ -323,6 +323,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                   setIsCurrentlyWorking(!isCurrentlyWorking);
                   setForm({ ...form, endDate: "" });
                 }}
+                className="accent-green-700 cursor-pointer"
               />
               <label className="text-sm text-gray-600">
                 Currently Working
@@ -344,7 +345,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* Reporting To */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                Reporting To (Employee ID) <span className="text-red-500">*</span>
+                Reporting To (Employee ID) 
               </label>
 
               <div
@@ -384,7 +385,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* HR Employee ID */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                HR Employee ID <span className="text-red-500">*</span>
+                HR Employee ID
               </label>
 
               <div
@@ -426,7 +427,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           <div>
             <label className="text-sm font-medium text-gray-700">
               {editingEmployee ? "Update Password (optional)" : "Password"}
-              {!isEdit && <span className="text-red-500"> *</span>}
+              {!editingEmployee && <span className="text-red-500">*</span>}
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">

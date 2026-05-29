@@ -1257,7 +1257,7 @@ function ClientProfile() {
           }}
           onClose={() => setShowEdit(false)}
           onAdd={handleUpdate}
-          setPopup={() => { }}
+          setPopup={setPopup}
         />
       )}
 

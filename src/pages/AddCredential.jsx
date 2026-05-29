@@ -106,15 +106,6 @@ function AddCredential({ onClose, onSave, editingData, setPopup }) {
             });
         }
 
-        // PASSWORD VALIDATION
-        if (trimmedForm.password.length < 6) {
-            return setPopup({
-                show: true,
-                message: "Password must be at least 6 characters",
-                type: "error"
-            });
-        }
-
         return trimmedForm;
     };
 
