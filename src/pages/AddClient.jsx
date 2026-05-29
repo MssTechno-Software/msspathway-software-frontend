@@ -143,7 +143,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
         // For mobile, only allow numbers and certain symbols
         if (name === "mobile") {
-            value = value.replace(/[^0-9+\-\s()]/g, "");
+            value = value.replace(/\D/g, "").slice(0, 10);
         }
 
         // For aadhaar, only allow numbers and dashes
@@ -204,9 +204,9 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         }
 
         if (trimmedData.mobile) {
-            const mobile = trimmedData.mobile.replace(/\s+/g, "");
+            const mobile = trimmedData.mobile.replace(/\D/g, "");
 
-            if (!/^\+?\d{10,15}$/.test(mobile)) {
+            if (mobile.length !== 10 && mobile.length !== 11 && mobile.length !== 12) {
                 return setPopup({
                     show: true,
                     message: "Enter valid mobile number",
@@ -299,11 +299,11 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
         // Create client object
         const client = {
             ...trimmedData,
+            mobile: `${formData.countryCode}${trimmedData.mobile}`,
             endDate: isCurrentlyClient
                 ? null
                 : formData.endDate || null
         };
-
         // Call parent update/add function
         onAdd(client);
     }
@@ -359,7 +359,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                                 <div
                                     onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                                    className="flex items-center justify-between px-3 py-3 border-r border-gray-200 cursor-pointer w-[130px]"
+                                    className="flex items-center justify-between px-3 py-3 border-r border-gray-200 cursor-pointer w-32.5"
                                 >
                                     <div className="flex items-center text-sm font-medium">
                                         <span>
@@ -379,7 +379,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
 
                                 {showCountryDropdown && (
                                     <div
-                                        className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-[130px] z-50"
+                                        className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-32.5 z-50"
                                     >
                                         {countryOptions.map((country) => (
                                             <div
@@ -393,7 +393,7 @@ function AddClient({ onClose, onAdd, editingClient, setPopup }) {
                                                 }}
                                                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
                                             >
-                                                <span className="font-small">
+                                                <span className="font-medium">
                                                     {country.code === "+91" ? "IN" : "CA"}
                                                 </span>
 

@@ -19,6 +19,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     last_name: "",
     aadhaar_no: "",
     email: "",
+    countryCode: "+91",
     mobile: "",
     designation: "",
     startDate: "",
@@ -35,6 +36,12 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   const [showReportingDropdown, setShowReportingDropdown] = useState(false);
   const [showHrDropdown, setShowHrDropdown] = useState(false);
   const [employeeIds, setEmployeeIds] = useState([]);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+
+  const countryOptions = [
+    { code: "+91", label: "IN" },
+    { code: "+1", label: "CA" }
+  ];
 
   /* Fetch employee IDs for dropdowns */
   useEffect(() => {
@@ -61,7 +68,15 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
         first_name: editingEmployee.first_name || "",
         last_name: editingEmployee.last_name || "",
         email: editingEmployee.email || "",
-        mobile: editingEmployee.mobile || "",
+        countryCode:
+          editingEmployee.mobile?.startsWith("+1")
+            ? "+1"
+            : "+91",
+
+        mobile:
+          editingEmployee.mobile
+            ?.replace(/^\+91/, "")
+            ?.replace(/^\+1/, "") || "",
         designation: editingEmployee.designation || "",
         password: "",
         reporting_to: editingEmployee.reporting_to || "",
@@ -85,7 +100,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     let { name, value } = e.target;
 
     if (name === "mobile") {
-      value = value.replace(/[^0-9+\-\s()]/g, "");
+      value = value.replace(/\D/g, "").slice(0, 10);
     }
 
     value = value.replace(/\s+/g, " ");
@@ -127,13 +142,20 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
 
     // Mobile
     if (!form.mobile?.trim()) {
-      return onSave({ error: true, message: "Mobile is required" });
-    }
-    const mobile = form.mobile.replace(/\s+/g, "");
-    if (!/^\+?\d{10,15}$/.test(mobile)) {
-      return onSave({ error: true, message: "Enter valid mobile number" });
+      return onSave({
+        error: true,
+        message: "Mobile is required"
+      });
     }
 
+    const mobile = form.mobile.replace(/\D/g, "");
+
+    if (mobile.length !== 10) {
+      return onSave({
+        error: true,
+        message: "Mobile number must be 10 digits"
+      });
+    }
     // Designation
     if (!form.designation?.trim()) {
       return onSave({ error: true, message: "Designation is required" });
@@ -175,8 +197,12 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
     if (!form.location?.trim()) {
       return onSave({ error: true, message: "Location is required" });
     }
+    const employeeData = {
+      ...form,
+      mobile: `${form.countryCode}${form.mobile}`
+    };
     console.log("FORM BEFORE SEND:", form);
-    onSave(form);
+    onSave(employeeData);
   };
 
   return (
@@ -266,15 +292,72 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
                 Mobile Number <span className="text-red-500">*</span>
               </label>
 
-              <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
-                <FiPhone className="text-gray-400 mr-2" />
-                <input
-                  name="mobile"
-                  value={form.mobile}
-                  onChange={handleChange}
-                  placeholder="+91 9876543210"
-                  className="w-full py-3 outline-none text-sm"
-                />
+              <div className="flex border border-gray-200 bg-gray-50 rounded-xl mt-2 relative overflow-visible">
+
+                {/* Country Code */}
+                <div className="relative">
+
+                  <div
+                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                    className="flex items-center justify-between px-3 py-3 border-r border-gray-200 cursor-pointer w-30"
+                  >
+                    <div className="flex items-center text-sm font-medium">
+                      <span>
+                        {form.countryCode === "+91" ? "IN" : "CA"}
+                      </span>
+
+                      <span className="ml-2">
+                        {form.countryCode}
+                      </span>
+                    </div>
+
+                    <FiChevronDown
+                      className={`transition-transform ${showCountryDropdown ? "rotate-180" : ""
+                        }`}
+                    />
+                  </div>
+
+                  {showCountryDropdown && (
+                    <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-30 z-50">
+
+                      {countryOptions.map((country) => (
+                        <div
+                          key={country.code}
+                          onClick={() => {
+                            setForm({
+                              ...form,
+                              countryCode: country.code
+                            });
+                            setShowCountryDropdown(false);
+                          }}
+                          className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                        >
+                          <span className="font-medium">
+                            {country.label}
+                          </span>
+
+                          <span className="text-gray-500">
+                            {country.code}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Input */}
+                <div className="flex items-center flex-1 px-3">
+                  <FiPhone className="text-gray-400 mr-2" />
+
+                  <input
+                    name="mobile"
+                    value={form.mobile}
+                    onChange={handleChange}
+                    placeholder="Enter mobile number"
+                    className="w-full py-3 outline-none text-sm bg-transparent"
+                  />
+                </div>
+
               </div>
             </div>
 
@@ -345,7 +428,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
             {/* Reporting To */}
             <div className="relative">
               <label className="text-sm font-medium text-gray-700">
-                Reporting To (Employee ID) 
+                Reporting To (Employee ID)
               </label>
 
               <div
