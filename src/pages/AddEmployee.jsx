@@ -425,7 +425,8 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
           {/*Password*/}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Password <span className="text-red-500">*</span>
+              {editingEmployee ? "Update Password (optional)" : "Password"}
+              {!isEdit && <span className="text-red-500"> *</span>}
             </label>
 
             <div className="flex items-center border border-gray-200 bg-gray-50 rounded-xl mt-2 px-3">
