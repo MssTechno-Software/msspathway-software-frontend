@@ -193,7 +193,7 @@ function MyProfilePage() {
         type: "error"
       });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -221,9 +221,7 @@ function MyProfilePage() {
     ? profilePreview
     : profileUrl;
 
-  const initials = `${employee?.first_name?.charAt(0) || ""}
-    ${employee?.last_name?.charAt(0) || ""}`
-    .toUpperCase();
+  const initials = `${employee?.first_name?.charAt(0) || ""}${employee?.last_name?.charAt(0) || ""}`.toUpperCase();
 
   /* UPLOAD PROFILE PHOTO */
   const handleUploadProfile = async () => {
@@ -399,7 +397,12 @@ function MyProfilePage() {
 
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <p className="text-xs text-gray-400">ROLE</p>
-            <p className="font-semibold">{employee?.role || "No Role"}</p>
+            <p className="font-semibold">
+              {employee?.role
+                ? employee.role.charAt(0).toUpperCase() +
+                employee.role.slice(1).toLowerCase()
+                : "No Role"}
+            </p>
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm">

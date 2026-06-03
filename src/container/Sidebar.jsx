@@ -23,7 +23,7 @@ function Sidebar({ children }) {
         ?.trim();
     console.log("ROLE:", role);
     const employee_id = localStorage.getItem("employee_id");
-    const [openSidebar, setOpenSidebar] = useState(true);
+    const [openSidebar, setOpenSidebar] = useState(false);
 
     const handleLogout = async () => {
         try {
@@ -105,9 +105,9 @@ function Sidebar({ children }) {
                 <div className="p-4 h-full flex flex-col">
 
                     {/* HEADER */}
-                    <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6">
-                        {/* BACK BUTTON */}
-                        <button
+                    {/* <div className="flex items-center gap-3 mb-10 border-b border-white/10 pb-6"> */}
+                    {/* BACK BUTTON */}
+                    {/* <button
                             onClick={handleBack}
                             className="
                                 flex items-center justify-center
@@ -117,7 +117,15 @@ function Sidebar({ children }) {
                             "
                         >
                             <FiArrowLeft size={20} />
-                        </button>
+                        </button> */}
+                    <div
+                        className={`flex items-center ${openSidebar ? "gap-3" : "justify-center"} mb-10 border-b border-white/10 pb-6`}
+                    >
+                        <img
+                            src="/title_mss_logo.png"
+                            alt="logo"
+                            className="w-10 h-10 object-contain"
+                        />
 
                         {openSidebar && (
                             <div>
@@ -264,6 +272,9 @@ function Sidebar({ children }) {
                             <span>Logout</span>
                         )}
                     </button>
+                    <p className="text-xs text-gray-200 text-center mt-4 mb-4">
+                        &copy; version 1.1
+                    </p>
                 </div>
             </div>
 

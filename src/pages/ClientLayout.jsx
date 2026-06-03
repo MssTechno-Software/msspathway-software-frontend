@@ -22,7 +22,7 @@ function ClientLayout() {
   const { client_id } = useParams();
 
   const [clientName, setClientName] = useState("");
-  const [openSidebar, setOpenSidebar] = useState(true);
+  const [openSidebar, setOpenSidebar] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
