@@ -82,15 +82,12 @@ function AddApplication({ onClose, onAdd, editingApp, setPopup }) {
         // Validate URL
         if (trimmedForm.link) {
             let value = trimmedForm.link.trim();
+            // if (!/^https?:\/\//i.test(value)) {
+            //     value = "https://" + value;
+            // }
 
-            // Add https:// if missing
-            if (!/^https?:\/\//i.test(value)) {
-                value = "https://" + value;
-            }
-
-            // Regex for flexible URL validation
-            const urlPattern =
-                /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=.]*)?$/i;
+            console.log("Validating URL:", value);
+            const urlPattern = /^https:\/\//;
 
             if (!urlPattern.test(value)) {
                 return setPopup({

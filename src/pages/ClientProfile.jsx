@@ -169,10 +169,10 @@ function ClientProfile() {
         });
       }
 
-      if (!/^\d{10}$/.test(updatedData.mobile)) {
+      if (!/^(\+91\d{10}|\+1\d{10})$/.test(updatedData.mobile)) {
         return setPopup({
           show: true,
-          message: "Enter valid 10 digit mobile number",
+          message: "Enter a valid Indian (+91) or Canadian (+1) mobile number",
           type: "error"
         });
       }
