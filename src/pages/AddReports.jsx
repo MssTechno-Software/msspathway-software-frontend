@@ -38,25 +38,6 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
         }
     }, [editData]);
 
-    // const getAllowedStages = () => {
-    //     if (!editData) return ["Call"];
-
-    //     const index = STAGES.indexOf(editData.stage);
-
-    //     // If pending → stay here
-    //     if (editData.status === "Pending") {
-    //         return [editData.stage];
-    //     }
-
-    //     //  If rejected → stop
-    //     if (editData.status === "Rejected") {
-    //         return [editData.stage];
-    //     }
-
-    //     // If cleared → allow next stage
-    //     return STAGES.slice(0, index + 2); // allow current + next stage
-    // };
-
     const getAllowedStages = () => {
         if (!editData) return ["Call"];
 

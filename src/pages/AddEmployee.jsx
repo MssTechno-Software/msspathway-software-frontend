@@ -47,7 +47,7 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
   useEffect(() => {
     const fetchEmployeeIds = async () => {
       try {
-        const res = await fetch("https://timesheet-api-790373899641.asia-south1.run.app/employee-ids", {
+        const res = await fetch("https://uat-msspathway-software-backend-81057313575.asia-south1.run.app/employee-ids", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
@@ -172,16 +172,6 @@ function AddEmployee({ onClose, onSave, editingEmployee }) {
         return onSave({ error: true, message: "End date cannot be before start date" });
       }
     }
-
-    // Reporting Manager
-    // if (!form.reporting_to?.trim()) {
-    //   return onSave({ error: true, message: "Reporting manager is required" });
-    // }
-
-    // // HR
-    // if (!form.hr?.trim()) {
-    //   return onSave({ error: true, message: "HR ID is required" });
-    // }
 
     // Password — only required when adding, optional on edit
     if (!isEdit && !form.password?.trim()) {
