@@ -23,7 +23,7 @@ function Sidebar({ children }) {
         ?.trim();
     console.log("ROLE:", role);
     const employee_id = localStorage.getItem("employee_id");
-    const [openSidebar, setOpenSidebar] = useState(true);
+    const [openSidebar, setOpenSidebar] = useState(false);
 
     const handleLogout = async () => {
         try {
