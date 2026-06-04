@@ -275,6 +275,9 @@ function Sidebar({ children }) {
                             <span>Logout</span>
                         )}
                     </button>
+                    <p className="text-center text-sm text-gray-300 mt-4 mb-4">
+                        &copy; {new Date().getFullYear()} version 1.0.0
+                    </p>
                 </div>
             </div>
 
