@@ -402,7 +402,6 @@ function EmployeeProfile() {
       setShowPhotoModal(false);
       setProfilePreview("");
       setProfileFile(null);
-      await fetchProfilePhoto();
     } catch (err) {
       console.error("Profile upload error:", err.response || err);
       setPopup({
