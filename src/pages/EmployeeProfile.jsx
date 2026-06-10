@@ -402,6 +402,7 @@ function EmployeeProfile() {
       setShowPhotoModal(false);
       setProfilePreview("");
       setProfileFile(null);
+      await fetchProfilePhoto();
     } catch (err) {
       console.error("Profile upload error:", err.response || err);
       setPopup({
@@ -433,7 +434,6 @@ function EmployeeProfile() {
       });
       setProfileUrl(null);
       setShowPhotoModal(false);
-      fetchProfilePhotoView();
     } catch (err) {
       console.error("Profile delete error:", err.response || err);
       setPopup({
