@@ -432,7 +432,6 @@ function EmployeeProfile() {
       });
       setProfileUrl(null);
       setShowPhotoModal(false);
-      fetchProfilePhotoView();
     } catch (err) {
       console.error("Profile delete error:", err.response || err);
       setPopup({

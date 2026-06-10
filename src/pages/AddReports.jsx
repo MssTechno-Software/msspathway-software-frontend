@@ -109,16 +109,16 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
             }
         }
         // CONTACT VALIDATION
-        if (trimmedForm.recruiterContact) {
-            const contact = trimmedForm.recruiterContact.replace(/\s+/g, "");
-            if (!/^\d{10}$/.test(contact)) {
-                return setPopup({
-                    show: true,
-                    message: "Recruiter contact must be 10 digits",
-                    type: "error"
-                });
-            }
-        }
+        // if (trimmedForm.recruiterContact) {
+        //     const contact = trimmedForm.recruiterContact.replace(/\s+/g, "");
+        //     if (!/^\d{10}$/.test(contact)) {
+        //         return setPopup({
+        //             show: true,
+        //             message: "Recruiter contact must be 10 digits",
+        //             type: "error"
+        //         });
+        //     }
+        // }
         // EMAIL VALIDATION
         if (
             trimmedForm.recruiterEmail &&
@@ -133,14 +133,6 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
         return trimmedForm;
     };
 
-    // const handleSubmit = () => {
-    //     const validatedForm = validateForm();
-    //     if (!validatedForm) {
-    //         return;
-    //     }
-    //     onSave(validatedForm);
-    //     onClose();
-    // };
     const handleSubmit = () => {
         const validatedForm = validateForm();
 
