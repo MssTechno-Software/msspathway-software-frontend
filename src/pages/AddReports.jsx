@@ -3,7 +3,7 @@ import { FiChevronDown } from "react-icons/fi";
 
 export default function AddReport({ onClose, onSave, editData, setPopup }) {
 
-    const STAGES = ["Call", "Mail", "L1", "L2", "Offer"];
+    const STAGES = ["Call", "Mail", "Assignment", "L1", "L2", "Offer"];
 
     const isEdit = !!editData;
 
@@ -108,17 +108,7 @@ export default function AddReport({ onClose, onSave, editData, setPopup }) {
                 });
             }
         }
-        // CONTACT VALIDATION
-        // if (trimmedForm.recruiterContact) {
-        //     const contact = trimmedForm.recruiterContact.replace(/\s+/g, "");
-        //     if (!/^\d{10}$/.test(contact)) {
-        //         return setPopup({
-        //             show: true,
-        //             message: "Recruiter contact must be 10 digits",
-        //             type: "error"
-        //         });
-        //     }
-        // }
+
         // EMAIL VALIDATION
         if (
             trimmedForm.recruiterEmail &&

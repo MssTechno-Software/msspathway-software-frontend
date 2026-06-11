@@ -5,13 +5,14 @@ import { FiSearch, FiLoader, FiX } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-const STAGES = ["Call", "Mail", "L1", "L2", "Offer"];
+const STAGES = ["Call", "Mail", "Assignment", "L1", "L2", "Offer"];
 
 const normalizeStage = (stage) => {
     const value = stage?.toLowerCase().trim();
 
     if (value.includes("call")) return "Call";
     if (value.includes("mail")) return "Mail";
+    if (value.includes("assignment")) return "Assignment";
     if (value.includes("l1")) return "L1";
     if (value.includes("l2")) return "L2";
     if (value.includes("offer")) return "Offer";
@@ -56,6 +57,7 @@ export default function Reports() {
     const [counts, setCounts] = useState({
         "Call Received": 0,
         "Mail Received": 0,
+        "Assignment": 0,
         "L1 Interview": 0,
         "L2 Interview": 0,
         "Offer Letter": 0,

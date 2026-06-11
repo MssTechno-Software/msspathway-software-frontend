@@ -302,7 +302,10 @@ function Login() {
 
             <p
               className="text-left text-sm text-green-600 cursor-pointer hover:underline mb-6"
-              onClick={() => setShowPopup(true)}
+              onClick={() => {
+                console.log("Forgot password clicked");
+                setShowPopup(true)
+              }}
             >
               Forgot password?
             </p>
@@ -325,7 +328,7 @@ function Login() {
         </div>
         {/* Forgot Password Popup */}
         {showPopup && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-4">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center px-4 z-50">
             <div className="bg-white w-full max-w-xs sm:max-w-[320px] p-5 sm:p-6 rounded-lg shadow-lg text-center">
               <h3 className="text-lg font-semibold mb-2 text-red-600">
                 Access Denied
