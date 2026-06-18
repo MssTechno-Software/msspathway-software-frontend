@@ -62,7 +62,7 @@ function CompanyCard({ data, onEdit, onDelete }) {
                         />
                     </div>
 
-                    {assignmentStage && (
+                    {assignmentStage && assignmentStage.status !== "Skipped" && (
                         <div className="relative group flex items-center gap-1">
                             <FiFileText
                                 size={14}
