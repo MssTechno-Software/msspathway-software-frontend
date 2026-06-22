@@ -270,7 +270,6 @@ function Applications() {
             });
 
             setShowModal(true);
-            fetchApplications();
 
         } catch (err) {
             console.error("Edit API error:", err.response?.data || err.message);
